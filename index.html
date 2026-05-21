@@ -192,13 +192,13 @@
             min-height: 40px; 
         }
 
-        /* TAMPILAN ELEMEN TOMBOL NORMAL */
+        /* 1. TAMPILAN ELEMEN TOMBOL NORMAL */
         .item {
             background: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white; /* Teks bawaan berwarna putih sebelum diklik */
+            color: white; 
             padding: 8px 12px;
             border-radius: 8px;
             font-weight: 500;
@@ -212,35 +212,37 @@
             pointer-events: auto; 
         }
 
-        /* Kondisi FontAwesome Sebelum Diklik */
+        /* Ikon FontAwesome Sebelum Diklik */
         .item i { font-size: 14px; color: #facc15; } 
         
-        /* KONDISI SOSULI: Ikon SVG/PNG Kustom Hitam Pekat (#000000) Dipaksa Menjadi Kuning (#facc15) Saat Status Normal */
+        /* Ikon SVG/PNG Kustom Hitam Pekat Diubah Menjadi Kuning (#facc15) Saat Status Normal */
         .item img { 
             width: 16px; 
             height: 16px; 
             object-fit: contain; 
             vertical-align: middle;
+            /* Rumus filter mengubah hitam #000000 menjadi kuning #facc15 */
             filter: invert(81%) sepia(50%) saturate(762%) hue-rotate(354deg) brightness(101%) contrast(97%);
         }
         
         .item:active { transform: translateY(4px); }
         
-        /* TAMPILAN ELEMEN TOMBOL SAAT TERPILIH (SELECTED) */
+        /* 2. TAMPILAN ELEMEN TOMBOL SAAT TERPILIH (SELECTED) */
         .item.selected { 
-            background: rgba(250, 204, 21, 0.9); /* Latar belakang tombol berubah jadi kuning */
-            color: #713f12; /* Teks berubah menjadi cokelat gelap tema kuis */
+            background: rgba(250, 204, 21, 0.9); 
+            color: #713f12; 
             border-color: #facc15;
             transform: scale(1.05); 
             box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
         }
 
-        /* Kondisi FontAwesome Saat Terpilih Berubah Jadi Cokelat Gelap */
+        /* Ikon FontAwesome Saat Terpilih */
         .item.selected i { color: #713f12; }
         
-        /* KONDISI SOLUSI: Ikon SVG/PNG Kustom Diubah Menjadi Cokelat Gelap (#713f12) Menyesuaikan Teks Saat Dipilih */
+        /* PERBAIKAN LOGIKA: Ikon SVG Hitam Pekat Diubah Menjadi Cokelat Gelap (#713f12) Sesuai Warna FontAwesome */
         .item.selected img { 
-            filter: invert(21%) sepia(85%) saturate(1039%) hue-rotate(14deg) brightness(91%) contrast(89%);
+            /* Rumus baru: naikkan pencahayaan dasar dari hitam pekat, lalu geser matriks ke cokelat gelap */
+            filter: invert(21%) sepia(85%) saturate(1039%) hue-rotate(14deg) brightness(55%) contrast(89%);
         }
 
         .zone-slot .item { pointer-events: none; box-shadow: none; width: 100%; justify-content: center;}
@@ -419,7 +421,6 @@
         let totalSoalAktif = 0;
         const JUMLAH_SOAL_DITAMPILKAN = 15;
 
-        // SISTEM CEK SESI REFRESH BROWSER
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const emailUser = user.email.toLowerCase();
@@ -446,7 +447,6 @@
             }
         });
 
-        // MEMUAT LIVE SOAL DAN MEMBATASI SEJUMLAH 15 SOAL ACAK
         async function unduhDanSusunKuisFirestore() {
             try {
                 const docRef = doc(db, "bank_soal", "kuis_affinity");
@@ -474,7 +474,6 @@
                     bankItem.innerHTML = "";
                     areaSoal.innerHTML = "";
 
-                    // Render Tombol Alat
                     let paketToolsTombol = [...paketSoalSiswa].sort(() => Math.random() - 0.5);
                     paketToolsTombol.forEach(soal => {
                         const itemDiv = document.createElement('div');
@@ -489,7 +488,6 @@
                         bankItem.appendChild(itemDiv);
                     });
 
-                    // Render Area Deskripsi
                     paketSoalSiswa.forEach(soal => {
                         const zoneDiv = document.createElement('div');
                         zoneDiv.className = 'zone-wrapper glass-effect';
