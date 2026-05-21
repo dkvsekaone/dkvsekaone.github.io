@@ -192,7 +192,7 @@
             min-height: 40px; 
         }
 
-        /* TAMPILAN ELEMEN TOMBOL NORMAL (SEBELUM DI-KLIK) */
+        /* 1. TAMPILAN ELEMEN TOMBOL NORMAL (SEBELUM DI-KLIK) */
         .item {
             background: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(5px);
@@ -215,7 +215,7 @@
         /* Warna Ikon FontAwesome Sebelum Di-klik */
         .item i { font-size: 14px; color: #e5a518; } 
         
-        /* WARNA KUNING TEMA TEPAT (#e5a518): Memaksa SVG Hitam Affinity Menjadi Kuning Emas */
+        /* WARNA KUNING TEPAT (#e5a518): Memaksa SVG Hitam Affinity Menjadi Kuning Emas */
         .item img { 
             width: 16px; 
             height: 16px; 
@@ -226,7 +226,7 @@
         
         .item:active { transform: translateY(4px); }
         
-        /* TAMPILAN ELEMEN TOMBOL SETELAH SELEKSI (DI-KLIK) */
+        /* 2. TAMPILAN ELEMEN TOMBOL SETELAH SELEKSI (DI-KLIK) */
         .item.selected { 
             background: rgba(250, 204, 21, 0.9); 
             color: #2f1406; /* Warna Teks Menjadi Cokelat Gelap #2f1406 */
@@ -419,6 +419,7 @@
         let totalSoalAktif = 0;
         const JUMLAH_SOAL_DITAMPILKAN = 15;
 
+        // SISTEM CEK SESI REFRESH BROWSER
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const emailUser = user.email.toLowerCase();
@@ -445,6 +446,7 @@
             }
         });
 
+        // MEMUAT LIVE SOAL DAN MEMBATASI SEJUMLAH 15 SOAL ACAK
         async function unduhDanSusunKuisFirestore() {
             try {
                 const docRef = doc(db, "bank_soal", "kuis_affinity");
@@ -472,24 +474,22 @@
                     bankItem.innerHTML = "";
                     areaSoal.innerHTML = "";
 
+                    // AMAN & FIX: Logika render tombol alat sudah bersih dari typo tumpang tindih
                     let paketToolsTombol = [...paketSoalSiswa].sort(() => Math.random() - 0.5);
                     paketToolsTombol.forEach(soal => {
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'item';
                         itemDiv.id = soal.id;
                         
-                        if (soal.icon.includes('.') || soared.icon.includes('/') || soal.icon.includes('.')) {
-                            if (soal.icon.includes('.') || soal.icon.includes('/')) {
-                                itemDiv.innerHTML = `<img src="${soal.icon}" alt="${soal.nama}"> ${soal.nama}`;
-                            } else {
-                                itemDiv.innerHTML = `<i class="${soal.icon}"></i> ${soal.nama}`;
-                            }
+                        if (soal.icon.includes('.') || soal.icon.includes('/')) {
+                            itemDiv.innerHTML = `<img src="${soal.icon}" alt="${soal.nama}"> ${soal.nama}`;
                         } else {
                             itemDiv.innerHTML = `<i class="${soal.icon}"></i> ${soal.nama}`;
                         }
                         bankItem.appendChild(itemDiv);
                     });
 
+                    // Render Area Deskripsi
                     paketSoalSiswa.forEach(soal => {
                         const zoneDiv = document.createElement('div');
                         zoneDiv.className = 'zone-wrapper glass-effect';
