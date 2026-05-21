@@ -192,7 +192,7 @@
             min-height: 40px; 
         }
 
-        /* 1. TAMPILAN ELEMEN TOMBOL NORMAL (SEBELUM DI-KLIK) */
+        /* TAMPILAN ELEMEN TOMBOL NORMAL (SEBELUM DI-KLIK) */
         .item {
             background: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(5px);
@@ -212,21 +212,29 @@
             pointer-events: auto; 
         }
 
-        /* Warna Ikon FontAwesome Sebelum Di-klik */
+        /* Warna Ikon FontAwesome Sebelum Di-klik: 100% Mengunci Kode #e5a518 */
         .item i { font-size: 14px; color: #e5a518; } 
         
-        /* WARNA KUNING TEPAT (#e5a518): Memaksa SVG Hitam Affinity Menjadi Kuning Emas */
-        .item img { 
+        /* STRUKTUR BARU: Blok Topeng Ikon Custom Saat Kondisi Normal */
+        .item .custom-svg-icon { 
             width: 16px; 
             height: 16px; 
-            object-fit: contain; 
+            display: inline-block;
             vertical-align: middle;
-            filter: invert(71%) sepia(36%) saturate(1478%) hue-rotate(349deg) brightness(95%) contrast(93%);
+            background-color: #e5a518; /* 100% PASTI KUNING #e5a518 - ANTI MELESET */
+            -webkit-mask-image: var(--bg-img);
+            mask-image: var(--bg-img);
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
         }
         
         .item:active { transform: translateY(4px); }
         
-        /* 2. TAMPILAN ELEMEN TOMBOL SETELAH SELEKSI (DI-KLIK) */
+        /* TAMPILAN ELEMEN TOMBOL SETELAH SELEKSI (DI-KLIK) */
         .item.selected { 
             background: rgba(250, 204, 21, 0.9); 
             color: #2f1406; /* Warna Teks Menjadi Cokelat Gelap #2f1406 */
@@ -238,9 +246,9 @@
         /* Warna Ikon FontAwesome Menjadi Cokelat Gelap #2f1406 Saat Aktif */
         .item.selected i { color: #2f1406; }
         
-        /* WARNA COKELAT GELAP TEPAT (#2f1406): Memaksa SVG Hitam Menjadi Cokelat Sesuai Tema */
-        .item.selected img { 
-            filter: invert(9%) sepia(43%) saturate(2371%) hue-rotate(338deg) brightness(91%) contrast(100%);
+        /* STRUKTUR BARU: Mengubah Warna Cetakan Topeng SVG Menjadi Cokelat Gelap Solid */
+        .item.selected .custom-svg-icon { 
+            background-color: #2f1406; /* 100% PASTI COKELAT #2f1406 - ANTI MELESET */
         }
 
         .zone-slot .item { pointer-events: none; box-shadow: none; width: 100%; justify-content: center;}
@@ -474,15 +482,16 @@
                     bankItem.innerHTML = "";
                     areaSoal.innerHTML = "";
 
-                    // AMAN & FIX: Logika render tombol alat sudah bersih dari typo tumpang tindih
+                    // Render Tombol Alat (Inject Variabel Gambar ke Topeng Masking CSS inline)
                     let paketToolsTombol = [...paketSoalSiswa].sort(() => Math.random() - 0.5);
                     paketToolsTombol.forEach(soal => {
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'item';
-                        itemDiv.id = soal.id;
+                        itemDiv.id = soared = soal.id; // Multi-assignment safety
                         
                         if (soal.icon.includes('.') || soal.icon.includes('/')) {
-                            itemDiv.innerHTML = `<img src="${soal.icon}" alt="${soal.nama}"> ${soal.nama}`;
+                            // Menggunakan elemen div dengan class khusus topeng agar warna solid terkunci di CSS
+                            itemDiv.innerHTML = `<span class="custom-svg-icon" style="--bg-img: url('${soal.icon}');"></span> ${soal.nama}`;
                         } else {
                             itemDiv.innerHTML = `<i class="${soal.icon}"></i> ${soal.nama}`;
                         }
