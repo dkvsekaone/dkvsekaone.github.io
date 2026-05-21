@@ -338,9 +338,7 @@
     <div id="footer-credit">Quiz by Ach. Syarifuddin A.</div>
 
     <script type="module">
-        import { db, auth } from './firebase-config.js';
-        import { signInWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { db, auth, collection, addDoc, signInWithEmailAndPassword, updatePassword } from './firebase-config.js';
 
         const layarMulai = document.getElementById('layar-mulai');
         const layarGame = document.getElementById('layar-game');
@@ -397,7 +395,7 @@
                 });
         });
 
-        // 2. PROSES GANTI PASSWORD DEFAULT SISWA
+        // 2. PROSES GANTI PASSWORD DEFAULT SISWA (Sistem Validasi Diperbaiki)
         btnProsesGanti.addEventListener('click', () => {
             const passBaru = inputPassBaru.value.trim();
             if(passBaru.length < 6) {
@@ -413,10 +411,10 @@
                         inputPassBaru.value = "";
                     })
                     .catch((error) => {
-                        alert("Gagal mengubah password! Anda harus melakukan login ulang terlebih dahulu sebelum mengganti password.");
+                        alert("Gagal mengubah password! Untuk keamanan, sistem mendeteksi sesi login Anda telah kedaluwarsa. Silakan muat ulang halaman (refresh) kuis dan login kembali sebelum mengganti password.");
                     });
             } else {
-                alert("Isi terlebih dahulu kolom login di atas lalu tekan 'Mulai Kuis' agar sistem mengenali akun Anda sebelum mengganti password!");
+                alert("Sistem Keamanan: Silakan masukkan Email & Password Default Anda di atas, lalu klik 'Mulai Kuis' terlebih dahulu untuk masuk ke dalam aplikasi sebelum mengganti password baru!");
             }
         });
 
@@ -507,7 +505,7 @@
             `;
             pesanSukses.style.display = 'block';
             
-            // Panggil Fungsi Pengiriman Nilai ke Firestore secara otomatis
+            // Fungsi Pengiriman Nilai ke Firestore otomatis
             async function kirimNilaiKeFirebase(nama, skor) {
                 try {
                     await addDoc(collection(db, "hasil_ujian"), {
