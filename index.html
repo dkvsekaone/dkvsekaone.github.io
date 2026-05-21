@@ -169,7 +169,7 @@
             box-sizing: border-box;
         }
         
-        .header-teks h2 { color: #facc15; margin: 0 0 5px 0; font-size: 22px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.5);} 
+        .header-teks h2 { color: #facc15; margin: 0 0 5px 0; font-size: 22px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.5); } 
         p.instruksi { color: #d1d5db; font-size: 13px; margin: 0; }
 
         .game-container {
@@ -192,7 +192,7 @@
             min-height: 40px; 
         }
 
-        /* 1. TAMPILAN ELEMEN TOMBOL NORMAL */
+        /* TAMPILAN ELEMEN TOMBOL NORMAL (SEBELUM DI-KLIK) */
         .item {
             background: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(5px);
@@ -212,37 +212,35 @@
             pointer-events: auto; 
         }
 
-        /* Ikon FontAwesome Sebelum Diklik */
-        .item i { font-size: 14px; color: #facc15; } 
+        /* Warna Ikon FontAwesome Sebelum Di-klik */
+        .item i { font-size: 14px; color: #e5a518; } 
         
-        /* Ikon SVG/PNG Kustom Hitam Pekat Diubah Menjadi Kuning (#facc15) Saat Status Normal */
+        /* WARNA KUNING TEMA TEPAT (#e5a518): Memaksa SVG Hitam Affinity Menjadi Kuning Emas */
         .item img { 
             width: 16px; 
             height: 16px; 
             object-fit: contain; 
             vertical-align: middle;
-            /* Rumus filter mengubah hitam #000000 menjadi kuning #facc15 */
-            filter: invert(81%) sepia(50%) saturate(762%) hue-rotate(354deg) brightness(101%) contrast(97%);
+            filter: invert(71%) sepia(36%) saturate(1478%) hue-rotate(349deg) brightness(95%) contrast(93%);
         }
         
         .item:active { transform: translateY(4px); }
         
-        /* 2. TAMPILAN ELEMEN TOMBOL SAAT TERPILIH (SELECTED) */
+        /* TAMPILAN ELEMEN TOMBOL SETELAH SELEKSI (DI-KLIK) */
         .item.selected { 
             background: rgba(250, 204, 21, 0.9); 
-            color: #713f12; 
+            color: #2f1406; /* Warna Teks Menjadi Cokelat Gelap #2f1406 */
             border-color: #facc15;
             transform: scale(1.05); 
             box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
         }
 
-        /* Ikon FontAwesome Saat Terpilih */
-        .item.selected i { color: #713f12; }
+        /* Warna Ikon FontAwesome Menjadi Cokelat Gelap #2f1406 Saat Aktif */
+        .item.selected i { color: #2f1406; }
         
-        /* PERBAIKAN LOGIKA: Ikon SVG Hitam Pekat Diubah Menjadi Cokelat Gelap (#713f12) Sesuai Warna FontAwesome */
+        /* WARNA COKELAT GELAP TEPAT (#2f1406): Memaksa SVG Hitam Menjadi Cokelat Sesuai Tema */
         .item.selected img { 
-            /* Rumus baru: naikkan pencahayaan dasar dari hitam pekat, lalu geser matriks ke cokelat gelap */
-            filter: invert(21%) sepia(85%) saturate(1039%) hue-rotate(14deg) brightness(55%) contrast(89%);
+            filter: invert(9%) sepia(43%) saturate(2371%) hue-rotate(338deg) brightness(91%) contrast(100%);
         }
 
         .zone-slot .item { pointer-events: none; box-shadow: none; width: 100%; justify-content: center;}
@@ -480,8 +478,12 @@
                         itemDiv.className = 'item';
                         itemDiv.id = soal.id;
                         
-                        if (soal.icon.includes('.') || soal.icon.includes('/')) {
-                            itemDiv.innerHTML = `<img src="${soal.icon}" alt="${soal.nama}"> ${soal.nama}`;
+                        if (soal.icon.includes('.') || soared.icon.includes('/') || soal.icon.includes('.')) {
+                            if (soal.icon.includes('.') || soal.icon.includes('/')) {
+                                itemDiv.innerHTML = `<img src="${soal.icon}" alt="${soal.nama}"> ${soal.nama}`;
+                            } else {
+                                itemDiv.innerHTML = `<i class="${soal.icon}"></i> ${soal.nama}`;
+                            }
                         } else {
                             itemDiv.innerHTML = `<i class="${soal.icon}"></i> ${soal.nama}`;
                         }
