@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ujian DKV: Dasar-Dasar Desain Grafis</title>
+    <title>Ujian DKV: Dasar Affinity</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -351,8 +351,8 @@
         </div>
 
         <div class="header-teks glass-effect">
-            <h2>Kuis Interaktif DKV (Dasar-Dasar Perangkat Lunak Desain Grafis)</h2>
-            <p class="instruksi">Sentuh Jawaban (tool) di bawah, lalu letakkan di definisi yang tepat. Sentuh lagi untuk membatalkan pilihan.</p>
+            <h2>Kuis Interaktif DKV (Aplikasi Affinity by Canva)</h2>
+            <p class="instruksi">Sentuh alat (tool) di bawah, lalu letakkan di definisi yang tepat. Sentuh lagi untuk membatalkan pilihan.</p>
         </div>
 
         <div class="game-container">
@@ -397,12 +397,12 @@
         let namaSiswa = "";
         let itemTerpilih = null;
         let totalSoalAktif = 0;
+        const JUMLAH_SOAL_DITAMPILKAN = 15; // Kunci Batasan Maksimal Paket Soal Siswa
 
         // SISTEM CEK SESI REFRESH BROWSER
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const emailUser = user.email.toLowerCase();
-                // Jika terdeteksi akun guru masuk ke sini, paksa logout demi keamanan data kuis siswa
                 if (emailUser.includes('guru') || emailUser.endsWith('@smk.sch.id')) {
                     signOut(auth);
                     layarLoading.classList.add('hidden');
@@ -426,21 +426,46 @@
             }
         });
 
-        // MEMUAT LIVE SOAL DARI PANEL GURU
+        // MEMUAT LIVE SOAL DAN MEMBATASI SEJUMLAH 15 SOAL ACAK
         async function unduhDanSusunKuisFirestore() {
             try {
                 const docRef = doc(db, "bank_soal", "kuis_affinity");
                 const docSnap = await getDoc(docRef);
                 
                 if (docSnap.exists()) {
-                    const kuisData = docSnap.data().data; 
-                    totalSoalAktif = kuisData.length;
+                    let kuisData = docSnap.data().data; 
+
+                    // LOGIKA INTI CBT: Ambil cache kombinasi paket acak siswa jika ada (Refresh-Proof)
+                    const orderSimpanan = localStorage.getItem('urutan_soal_dkv');
+                    let paketSoalSiswa = [];
+
+                    if (orderSimpanan) {
+                        // Jika siswa tidak sengaja me-refresh halaman, gunakan paket kombinasi soal yang sama
+                        const targetOrderIds = JSON.parse(orderSimpanan);
+                        paketSoalSiswa = kuisData.filter(soal => targetOrderIds.includes(soal.id));
+                        
+                        // Urutkan objek array sesuai dengan urutan id cache index agar tidak berubah-ubah posisi
+                        paketSoalSiswa.sort((a, b) => targetOrderIds.indexOf(a.id) - targetOrderIds.indexOf(b.id));
+                    } else {
+                        // Jika login baru, acak seluruh isi bank soal utama di Firestore
+                        kuisData.sort(() => Math.random() - 0.5);
+                        
+                        // Ambil maksimal 15 soal teratas hasil pengacakan acak massal tadi
+                        paketSoalSiswa = kuisData.slice(0, JUMLAH_SOAL_DITAMPILKAN);
+                        
+                        // Simpan id-id paket kombinasi khusus siswa ini ke localStorage cache
+                        const orderIds = paketSoalSiswa.map(soal => soal.id);
+                        localStorage.setItem('urutan_soal_dkv', JSON.stringify(orderIds));
+                    }
+
+                    totalSoalAktif = paketSoalSiswa.length;
 
                     bankItem.innerHTML = "";
                     areaSoal.innerHTML = "";
 
-                    // 1. Render Elemen Atas (Tools)
-                    kuisData.forEach(soal => {
+                    // 1. Render Elemen Atas (Tools) - Diacak lagi urutan letak tombolnya agar bervariasi
+                    let paketToolsTombol = [...paketSoalSiswa].sort(() => Math.random() - 0.5);
+                    paketToolsTombol.forEach(soal => {
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'item';
                         itemDiv.id = soal.id;
@@ -449,7 +474,7 @@
                     });
 
                     // 2. Render List Definisi (Zona Drop)
-                    kuisData.forEach(soal => {
+                    paketSoalSiswa.forEach(soal => {
                         const zoneDiv = document.createElement('div');
                         zoneDiv.className = 'zone-wrapper glass-effect';
                         zoneDiv.innerHTML = `
@@ -469,25 +494,8 @@
             }
         }
 
+        // Restore jawaban lama jika siswa melakukan refresh halaman
         function muatProgresSiswaSama() {
-            const orderSimpanan = localStorage.getItem('urutan_soal_dkv');
-            let zonesArr = Array.from(areaSoal.querySelectorAll('.zone-wrapper'));
-
-            if (orderSimpanan) {
-                const targetOrder = JSON.parse(orderSimpanan);
-                zonesArr.sort((a, b) => {
-                    const targetA = a.querySelector('.zone-slot').getAttribute('data-target');
-                    const targetB = b.querySelector('.zone-slot').getAttribute('data-target');
-                    return targetOrder.indexOf(targetA) - targetOrder.indexOf(targetB);
-                });
-                zonesArr.forEach(zone => areaSoal.appendChild(zone));
-            } else {
-                zonesArr.sort(() => Math.random() - 0.5);
-                zonesArr.forEach(zone => areaSoal.appendChild(zone));
-                const currentOrder = zonesArr.map(z => z.querySelector('.zone-slot').getAttribute('data-target'));
-                localStorage.setItem('urutan_soal_dkv', JSON.stringify(currentOrder));
-            }
-
             const jawabanSimpanan = localStorage.getItem('jawaban_kuis_dkv');
             if (jawabanSimpanan) {
                 const mapJawaban = JSON.parse(jawabanSimpanan);
@@ -574,13 +582,11 @@
             });
         }
 
-        // 1. PROSES LOGIN SISWA (Proteksi dari Email Guru Terintegrasi)
         btnMulai.addEventListener('click', () => {
             const email = inputEmail.value.trim();
             const password = inputPassword.value.trim();
             if(email === "" || password === "") return alert("Mohon masukkan email dan password!");
             
-            // BLOKIR AKSES: Jika terdeteksi email guru mencoba login di form siswa
             if(email.toLowerCase().includes('guru') || email.toLowerCase().endsWith('@smk.sch.id')) {
                 return alert("Akses Ditolak! Akun Guru dilarang masuk melalui halaman siswa. Silakan gunakan panel admin khusus guru.");
             }
