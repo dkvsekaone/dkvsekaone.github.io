@@ -1,6 +1,4 @@
-firebase-config.js
-
-// 1. Ini Konfigurasi Asli Proyek Anda dari Firebase
+// Konfigurasi Proyek Firebase Anda
 const firebaseConfig = {
   apiKey: "AIzaSyCy3Rvyh2MArH3fO6S9JZBs88Bj0nHFM5M",
   authDomain: "kuis-dkv-smk.firebaseapp.com",
@@ -11,12 +9,15 @@ const firebaseConfig = {
   measurementId: "G-9BMQN9K9BS"
 };
 
-// 2. Alamat Link CDN SDK Firebase agar Bisa Dibaca Langsung oleh Browser/GitHub Pages
+// Alamat Link CDN SDK Firebase yang Konsisten
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// 3. Inisialisasi Sistem dan Eksport agar Bisa Dipakai di index.html & admin.html
+// Inisialisasi Sistem
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// Ekspor semua komponen yang dibutuhkan oleh index.html
+export { db, auth, collection, addDoc, signInWithEmailAndPassword, updatePassword };
