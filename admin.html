@@ -79,7 +79,6 @@
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .info-link { font-size: 11px; color: #9ca3af; margin-top: -10px; margin-bottom: 10px; display: block; }
 
-        /* Fitur Panel Unggah Excel */
         .excel-panel {
             background: rgba(255,255,255,0.02);
             border: 2px dashed rgba(255,255,255,0.2);
@@ -191,7 +190,7 @@
         const inputFileExcel = document.getElementById('input-file-excel');
         const btnProsesExcel = document.getElementById('btn-proses-excel');
 
-        // Proteksi: Akun Guru harus menggunakan email sekolah/guru khusus
+        // SISTEM PROTEKSI DOSEN/GURU
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const emailUser = user.email.toLowerCase();
@@ -210,6 +209,16 @@
             }
         });
 
+        // INTEGRASI BARU: Fitur Tekan Enter untuk Memicu Login Otomatis Guru
+        const tanganiEnterLoginGuru = (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); 
+                btnLoginGuru.click(); 
+            }
+        };
+        emailGuru.addEventListener('keydown', tanganiEnterLoginGuru);
+        passGuru.addEventListener('keydown', tanganiEnterLoginGuru);
+
         tabSoal.addEventListener('click', () => {
             tabSoal.classList.add('active'); tabNilai.classList.remove('active');
             kontenSoal.classList.remove('hidden'); kontenNilai.classList.add('hidden');
@@ -225,7 +234,6 @@
             const password = passGuru.value.trim();
             if(!email || !password) return alert("Isi semua kolom!");
             
-            // Validasi format email sebelum mengirim ke Firebase
             if(!email.toLowerCase().includes('guru') && !email.toLowerCase().endsWith('@smk.sch.id')) {
                 return alert("Gagal! Gunakan akun email resmi Guru untuk masuk.");
             }
@@ -237,7 +245,7 @@
             if(confirm("Keluar dari panel guru?")) signOut(auth).then(() => window.location.reload());
         });
 
-        // FITUR BARU: Generate dan Unduh File Templat Excel Otomatis
+        // Format Unduh Excel
         btnUnduhTemplat.addEventListener('click', () => {
             const dataTemplat = [
                 { "Nama Tool": "Pen Tool", "Class Icon FontAwesome": "fas fa-pen-nib", "Teks Definisi": "Membuat jalur vektor presisi menggunakan titik-titik jangkar." },
@@ -247,12 +255,10 @@
             const worksheet = XLSX.utils.json_to_sheet(dataTemplat);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Soal Kuis");
-            
-            // Proses download file excel ke komputer guru
             XLSX.writeFile(workbook, "Format_Bank_Soal_DKV.xlsx");
         });
 
-        // FITUR BARU: Membaca & Memproses Unggahan File Excel (.xls / .xlsx)
+        // Proses Unggah Excel
         btnProsesExcel.addEventListener('click', () => {
             const file = inputFileExcel.files[0];
             if (!file) return alert("Pilih file Excel terlebih dahulu!");
@@ -263,14 +269,12 @@
                 const workbook = XLSX.read(data, { type: 'array' });
                 const namaSheet = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[namaSheet];
-                
-                // Ubah baris excel menjadi array objek JSON
                 const barisData = XLSX.utils.sheet_to_json(worksheet);
 
                 if(barisData.length === 0) return alert("File Excel kosong atau format salah!");
 
                 if(confirm(`Berhasil membaca ${barisData.length} soal dari Excel. Timpa daftar soal saat ini di layar?`)) {
-                    containerListSoal.innerHTML = ""; // Kosongkan list lama
+                    containerListSoal.innerHTML = ""; 
                     barisData.forEach((row, index) => {
                         const idUnik = "item" + (Date.now() + index);
                         const nama = row["Nama Tool"] || "";
@@ -366,7 +370,7 @@
                 const namaTool = row.querySelector('.input-nama-tool').value.trim();
                 const iconTool = row.querySelector('.input-icon-tool').value.trim();
                 const definisiTeks = row.querySelector('.input-definisi').value.trim();
-                if(namaTool && iconTool && definisiTeks) {
+                if(namaTool && iconTool && definitionsTeks || (namaTool && iconTool && definisiTeks)) {
                     arrayDataSoal.push({ id: idItem, nama: namaTool, icon: iconTool, definisi: definisiTeks });
                 }
             });
