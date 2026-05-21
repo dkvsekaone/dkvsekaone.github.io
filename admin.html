@@ -1,55 +1,342 @@
-admin.html
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Live Score Guru</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Guru - Manajemen Kuis & Nilai DKV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: sans-serif; background: #0f172a; color: white; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; }
-        th, td { padding: 12px; border: 1px solid #334155; text-align: left; }
-        th { background: #ea580c; }
-        tr:nth-child(even) { background: #1e293b; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #111827;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .hidden { display: none !important; }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 850px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+        #layar-login { max-width: 350px; margin-top: 15vh; text-align: center; }
+        h2, h3 { color: #facc15; margin-top: 0; }
+        input, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 6px;
+            font-family: 'Poppins';
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+        input:focus, textarea:focus { border-color: #facc15; outline: none; }
+        
+        /* Tab Navigation */
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .tab-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #9ca3af; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: 'Poppins'; font-weight: 500;
+        }
+        .tab-btn.active { background: #ea580c; color: white; border-color: #ea580c; }
+
+        .btn {
+            background: linear-gradient(135deg, #ea580c, #dc2626);
+            color: white; padding: 12px; border: none; border-radius: 6px;
+            font-weight: 600; cursor: pointer; width: 100%; font-family: 'Poppins';
+        }
+        .btn-add { background: #10b981; margin-bottom: 20px; width: auto; padding: 10px 20px; }
+        .btn-save { background: #0284c7; margin-top: 15px; }
+        .btn-logout { background: #4b5563; width: auto; padding: 6px 15px; font-size: 12px; }
+        .header-admin { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        .soal-row {
+            background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px; border-radius: 8px; margin-bottom: 15px; position: relative;
+        }
+        .btn-delete {
+            position: absolute; right: 15px; top: 15px; background: #ef4444; color: white; border: none;
+            border-radius: 4px; padding: 5px 10px; cursor: pointer; font-size: 12px;
+        }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .info-link { font-size: 11px; color: #9ca3af; margin-top: -10px; margin-bottom: 10px; display: block; }
+
+        /* Style Tabel Live Score */
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { background-color: rgba(255,255,255,0.05); color: #facc15; font-weight: 600; }
+        tr:hover { background-color: rgba(255,255,255,0.02); }
+        
+        /* Pewarnaan Nilai Siswa */
+        .skor-lulus { color: #10b981; font-weight: bold; }
+        .skor-gagal { color: #ef4444; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h2>🔴 Live Score Ujian DKV - Real-Time</h2>
-    <p>Nilai siswa akan muncul di bawah ini secara otomatis tanpa perlu refresh halaman.</p>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Username Siswa</th>
-                <th>Nilai Kuis</th>
-                <th>Waktu Selesai</th>
-            </tr>
-        </thead>
-        <tbody id="tabel-skor">
-            </tbody>
-    </table>
+
+    <div id="layar-login" class="glass-effect">
+        <h3>Login Panel Guru</h3>
+        <input type="email" id="email-guru" placeholder="Email Guru...">
+        <input type="password" id="pass-guru" placeholder="Password...">
+        <button id="btn-login-guru" class="btn">Masuk ke Panel</button>
+    </div>
+
+    <div id="layar-utama" class="glass-effect hidden">
+        <div class="header-admin">
+            <h2><i class="fas fa-chalkboard-teacher"></i> Panel Utama Control Guru</h2>
+            <button id="btn-logout-guru" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+
+        <div class="tab-menu">
+            <button class="tab-btn active" id="tab-soal"><i class="fas fa-tools"></i> Manajemen Soal</button>
+            <button class="tab-btn" id="tab-nilai"><i class="fas fa-graduation-cap"></i> Hasil / Live Score Siswa</button>
+        </div>
+        
+        <div id="konten-soal">
+            <p style="font-size: 13px; color: #d1d5db;">Silakan tambah, kurangi, atau edit struktur soal kuis di bawah ini. Semua perubahan akan langsung memperbarui tampilan di halaman siswa.</p>
+            <button id="btn-tambah-baris" class="btn btn-add"><i class="fas fa-plus"></i> Tambah Soal Baru</button>
+            
+            <div id="container-list-soal">
+                </div>
+            <button id="btn-simpan-semua" class="btn btn-save"><i class="fas fa-save"></i> Simpan & Publikasikan Soal</button>
+        </div>
+
+        <div id="konten-nilai" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <p style="font-size: 13px; color: #d1d5db; margin: 0;">Daftar rekapitulasi nilai ujian masuk secara real-time dari pengerjaan siswa.</p>
+                <span style="font-size: 11px; background: rgba(16,185,129,0.2); color: #10b981; padding: 4px 8px; border-radius: 20px; font-weight: 500;"><i class="fas fa-sync-alt fa-spin"></i> Terhubung Live</span>
+            </div>
+            
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama / Email Siswa</th>
+                            <th>Nilai Ujian</th>
+                            <th>Waktu Selesai</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-live-score">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
-        import { db } from './firebase-config.js';
-        import { collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { db, auth } from './firebase-config.js';
+        import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, setDoc, getDoc, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const q = query(collection(db, "hasil_ujian"), orderBy("waktuUjian", "desc"));
-        const tabelSkor = document.getElementById('tabel-skor');
+        const layarLogin = document.getElementById('layar-login');
+        const layarUtama = document.getElementById('layar-utama');
+        const emailGuru = document.getElementById('email-guru');
+        const passGuru = document.getElementById('pass-guru');
+        const btnLoginGuru = document.getElementById('btn-login-guru');
+        const btnLogoutGuru = document.getElementById('btn-logout-guru');
+        
+        const tabSoal = document.getElementById('tab-soal');
+        const tabNilai = document.getElementById('tab-nilai');
+        const kontenSoal = document.getElementById('konten-soal');
+        const kontenNilai = document.getElementById('konten-nilai');
 
-        onSnapshot(q, (snapshot) => {
-            tabelSkor.innerHTML = ""; // Bersihkan tabel lama
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const waktu = data.waktuUjian ? new Date(data.waktuUjian.seconds * 1000).toLocaleTimeString('id-ID') : '-';
+        const containerListSoal = document.getElementById('container-list-soal');
+        const btnTambahBaris = document.getElementById('btn-tambah-baris');
+        const btnSimpanSemua = document.getElementById('btn-simpan-semua');
+        const tabelLiveScore = document.getElementById('tabel-live-score');
+
+        // Cek Status Login Sesi Guru
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                layarLogin.classList.add('hidden');
+                layarUtama.classList.remove('hidden');
+                muatDataSoalDariFirebase();
+                aktifkanLiveScoreListener(); // Jalankan listener nilai siswa
+            } else {
+                layarUtama.classList.add('hidden');
+                layarLogin.classList.remove('hidden');
+            }
+        });
+
+        // Manajemen Pindah Tab Tampilan
+        tabSoal.addEventListener('click', () => {
+            tabSoal.classList.add('active');
+            tabNilai.classList.remove('active');
+            kontenSoal.classList.remove('hidden');
+            kontenNilai.classList.add('hidden');
+        });
+
+        tabNilai.addEventListener('click', () => {
+            tabNilai.classList.add('active');
+            tabSoal.classList.remove('active');
+            kontenNilai.classList.remove('hidden');
+            kontenSoal.classList.add('hidden');
+        });
+
+        // Aksi Login & Logout
+        btnLoginGuru.addEventListener('click', () => {
+            const email = emailGuru.value.trim();
+            const password = passGuru.value.trim();
+            if(!email || !password) return alert("Isi semua kolom!");
+            signInWithEmailAndPassword(auth, email, password).catch(() => alert("Login Gagal! Akun salah atau tidak terdaftar."));
+        });
+
+        btnLogoutGuru.addEventListener('click', () => {
+            if(confirm("Keluar dari panel guru?")) signOut(auth).then(() => window.location.reload());
+        });
+
+        // FUNGSI UTAMA BARU: Sinkronisasi Live Score Real-time dengan Deteksi Warna Nilai
+        function aktifkanLiveScoreListener() {
+            // Urutkan nilai berdasarkan waktu pengerjaan terbaru di atas
+            const q = query(collection(db, "hasil_ujian"), orderBy("waktuUjian", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                tabelLiveScore.innerHTML = "";
                 
-                tabelSkor.innerHTML += `
-                    <tr>
-                        <td><b>${data.namaSiswa}</b></td>
-                        <td style="color:#22c55e; font-weight:bold; font-size:18px;">${data.nilai}</td>
-                        <td>${waktu} WIB</td>
-                    </tr>
-                `;
+                if (snapshot.empty) {
+                    tabelLiveScore.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#9ca3af;">Belum ada siswa yang mengumpulkan jawaban.</td></tr>`;
+                    return;
+                }
+
+                let nomor = 1;
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const nilai = data.nilai;
+                    
+                    // Logika Pewarnaan Nilai (< 75 Merah, >= 75 Hijau)
+                    const classWarnaNilai = (nilai < 75) ? "skor-gagal" : "skor-lulus";
+
+                    // Format penampilan waktu
+                    let waktuString = "-";
+                    if (data.waktuUjian) {
+                        const t = data.waktuUjian.toDate();
+                        waktuString = t.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+                    }
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${nomor++}</td>
+                        <td style="font-weight: 500;">${data.namaSiswa || 'ANONIM'}</td>
+                        <td class="${classWarnaNilai}">${nilai}</td>
+                        <td style="color: #9ca3af; font-size: 13px;">${waktuString} WIB</td>
+                    `;
+                    tabelLiveScore.appendChild(row);
+                });
+            }, (error) => {
+                console.error("Gagal mendengarkan data nilai live: ", error);
             });
+        }
+
+        // Render Baris Soal di UI
+        function buatBarisSoalUI(idItem, namaTool, ikonFa, teksDefinisi) {
+            const div = document.createElement('div');
+            div.className = 'soal-row';
+            div.setAttribute('data-id-item', idItem);
+            div.innerHTML = `
+                <button class="btn-delete" type="button" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i> Hapus</button>
+                <h4 style="margin: 0 0 10px 0; color: #facc15;">Soal (ID Target: ${idItem})</h4>
+                
+                <div class="grid-3">
+                    <div>
+                        <label style="font-size:12px; color:#9ca3af;">Nama Tool</label>
+                        <input type="text" class="input-nama-tool" value="${namaTool}" placeholder="Contoh: Pen Tool">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#9ca3af;">Class Icon FontAwesome</label>
+                        <input type="text" class="input-icon-tool" value="${ikonFa}" placeholder="Contoh: fas fa-pen-nib">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#9ca3af;">ID Unik Tool</label>
+                        <input type="text" class="input-id-tool" value="${idItem}" disabled style="background:rgba(255,255,255,0.05); color:#9ca3af;">
+                    </div>
+                </div>
+                <a href="https://fontawesome.com/search?o=r&m=free" target="_blank" class="info-link">*Cari kode icon gratis di website FontAwesome</a>
+
+                <label style="font-size:12px; color:#9ca3af;">Teks Definisi / Arti Kunci Jawaban</label>
+                <textarea class="input-definisi" rows="2" placeholder="Tulis deskripsi atau fungsi tool di sini...">${teksDefinisi}</textarea>
+            `;
+            containerListSoal.appendChild(div);
+        }
+
+        btnTambahBaris.addEventListener('click', () => {
+            const idUnikBaru = "item" + Date.now();
+            buatBarisSoalUI(idUnikBaru, "", "fas fa-shapes", "");
+        });
+
+        async function muatDataSoalDariFirebase() {
+            containerListSoal.innerHTML = "<p id='loading-text'>Mengunduh bank soal...</p>";
+            try {
+                const docRef = doc(db, "bank_soal", "kuis_affinity");
+                const docSnap = await getDoc(docRef);
+                
+                const loadingText = document.getElementById('loading-text');
+                if(loadingText) loadingText.remove();
+
+                if (docSnap.exists()) {
+                    const listSoal = docSnap.data().data;
+                    listSoal.forEach(soal => {
+                        buatBarisSoalUI(soal.id, soal.nama, soal.icon, soal.definisi);
+                    });
+                } else {
+                    containerListSoal.innerHTML = "<p style='color:#9ca3af;'>Belum ada data soal di server. Klik tombol di atas untuk membuat soal pertama!</p>";
+                }
+            } catch (error) {
+                containerListSoal.innerHTML = "<p style='color:#ef4444;'>Gagal mengunduh struktur soal.</p>";
+            }
+        }
+
+        btnSimpanSemua.addEventListener('click', async () => {
+            const rows = containerListSoal.querySelectorAll('.soal-row');
+            if(rows.length === 0) return alert("Minimal harus ada 1 soal sebelum disimpan!");
+
+            const arrayDataSoal = [];
+            rows.forEach(row => {
+                const idItem = row.getAttribute('data-id-item');
+                const namaTool = row.querySelector('.input-nama-tool').value.trim();
+                const iconTool = row.querySelector('.input-icon-tool').value.trim();
+                const definisiTeks = row.querySelector('.input-definisi').value.trim();
+
+                if(namaTool && iconTool && definisiTeks) {
+                    arrayDataSoal.push({
+                        id: idItem,
+                        nama: namaTool,
+                        icon: iconTool,
+                        definisi: definisiTeks
+                    });
+                }
+            });
+
+            if(arrayDataSoal.length !== rows.length) {
+                alert("Gagal Menyimpan! Harap lengkapi semua kolom input pada soal yang Anda buat.");
+                return;
+            }
+
+            try {
+                await setDoc(doc(db, "bank_soal", "kuis_affinity"), {
+                    data: arrayDataSoal,
+                    diperbaruiPada: new Date()
+                });
+                alert("Sukses! Bank soal kuis berhasil diperbarui dan dipublikasikan.");
+                window.location.reload();
+            } catch (e) {
+                alert("Gagal menyimpan ke server: " + e.message);
+            }
         });
     </script>
 </body>
