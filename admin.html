@@ -69,7 +69,7 @@
         .header-admin { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
         .soal-row {
-            background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2); border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 15px; border-radius: 8px; margin-bottom: 15px; position: relative;
         }
         .btn-delete {
@@ -370,18 +370,20 @@
                 const namaTool = row.querySelector('.input-nama-tool').value.trim();
                 const iconTool = row.querySelector('.input-icon-tool').value.trim();
                 const definisiTeks = row.querySelector('.input-definisi').value.trim();
-                if(namaTool && iconTool && definitionsTeks || (namaTool && iconTool && definisiTeks)) {
+                
+                // BERKAS PERBAIKAN: Typo variabel "definitionsTeks" dihilangkan di sini
+                if(namaTool && iconTool && definisiTeks) {
                     arrayDataSoal.push({ id: idItem, nama: namaTool, icon: iconTool, definisi: definisiTeks });
                 }
             });
 
-            if(arrayDataSoal.length !== rows.length) return alert("Lengkapi semua kolom input!");
+            if(arrayDataSoal.length !== rows.length) return alert("Lengkapi semua kolom input (Nama, Icon, & Teks Definisi) pada soal yang Anda buat!");
 
             try {
                 await setDoc(doc(db, "bank_soal", "kuis_affinity"), { data: arrayDataSoal, diperbaruiPada: new Date() });
-                alert("Sukses! Bank soal kuis berhasil diperbarui.");
+                alert("Sukses! Bank soal kuis berhasil diperbarui dan dipublikasikan.");
                 window.location.reload();
-            } catch (e) { alert("Gagal menyimpan: " + e.message); }
+            } catch (e) { alert("Gagal menyimpan ke server: " + e.message); }
         });
     </script>
 </body>
