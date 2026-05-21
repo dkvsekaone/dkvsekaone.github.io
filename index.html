@@ -45,6 +45,14 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4); 
         }
 
+        #layar-loading {
+            padding: 20px;
+            text-align: center;
+            margin-top: 30vh;
+            font-size: 16px;
+            color: #facc15;
+        }
+
         #layar-mulai {
             padding: 30px 20px;
             border-radius: 16px;
@@ -64,7 +72,6 @@
         #layar-mulai h2 { color: #facc15; margin: 0 0 10px 0; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         #layar-mulai p { color: #d1d5db; font-size: 14px; margin-bottom: 25px; }
 
-        /* Pembungkus Input Password & Icon Mata */
         .input-group-password {
             position: relative;
             width: 100%;
@@ -123,7 +130,6 @@
             flex-grow: 1; 
         }
 
-        /* Area Menu Siswa setelah login */
         .user-nav-bar {
             width: 100%;
             padding: 10px 15px;
@@ -300,7 +306,11 @@
 </head>
 <body>
 
-    <div id="layar-mulai" class="glass-effect">
+    <div id="layar-loading" class="glass-effect">
+        <i class="fas fa-spinner fa-spin"></i> Memvalidasi Sesi Ujian Siswa...
+    </div>
+
+    <div id="layar-mulai" class="glass-effect hidden">
         <img src="image.png" alt="Logo SMK N 1 Pamekasan" id="logo-sekolah">
         <h2>Kuis Interaktif DKV</h2>
         <p>Silakan login menggunakan akun default untuk memulai kuis.</p>
@@ -313,20 +323,6 @@
         </div>
         
         <button id="btn-mulai" class="btn-utama">Mulai Kuis</button>
-        
-        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.15); margin:20px 0;">
-        
-        <button id="btn-buka-ganti-pass" style="background:none; border:none; color:#facc15; cursor:pointer; font-size:13px; text-decoration:underline; font-family:'Poppins';">Siswa: Ingin Ganti Password Default?</button>
-        <div id="form-ganti-pass" class="hidden" style="margin-top:15px; text-align:left;">
-            <p style="font-size:12px; color:#d1d5db; margin-bottom:5px;">Isi form jika sudah login di atas terlebih dahulu:</p>
-            
-            <div class="input-group-password" style="margin-bottom: 10px;">
-                <input type="password" id="input-pass-baru" placeholder="Ketik Password Baru..." style="border:1px solid #facc15; text-align: left; padding-left: 12px;">
-                <i class="fas fa-eye toggle-password" id="mata-pass-baru"></i>
-            </div>
-            
-            <button id="btn-proses-ganti" style="width:100%; background:#ea580c; color:white; border:none; padding:10px; border-radius:6px; font-weight:600; cursor:pointer; font-family:'Poppins';">Simpan Password Baru</button>
-        </div>
     </div>
 
 
@@ -436,7 +432,9 @@
 
     <script type="module">
         import { db, auth, collection, addDoc, signInWithEmailAndPassword, updatePassword } from './firebase-config.js';
+        import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+        const layarLoading = document.getElementById('layar-loading');
         const layarMulai = document.getElementById('layar-mulai');
         const layarGame = document.getElementById('layar-game');
         const inputEmail = document.getElementById('input-email');
@@ -447,12 +445,6 @@
         const pesanSukses = document.getElementById('pesan-sukses');
         const bankItem = document.getElementById('bank-item');
 
-        const btnBukaGantiPass = document.getElementById('btn-buka-ganti-pass');
-        const formGantiPass = document.getElementById('form-ganti-pass');
-        const inputPassBaru = document.getElementById('input-pass-baru');
-        const btnProsesGanti = document.getElementById('btn-proses-ganti');
-
-        // Elemen baru untuk Navigasi Akun & Menu Game internal
         const namaSiswaNav = document.getElementById('nama-siswa-nav');
         const btnNavGantiPass = document.getElementById('btn-nav-ganti-pass');
         const btnLogout = document.getElementById('btn-logout');
@@ -464,7 +456,32 @@
         let namaSiswa = "";
         let itemTerpilih = null;
 
-        // LOGIKA BARU: Sembunyikan/Tampilkan Password (Mata Toggle)
+        // SISTEM CEK SESI: Saat di-refresh, halaman tidak akan kembali ke login jika akun masih aktif
+        onAuthStateChanged(auth, (user) => {
+            layarLoading.classList.add('hidden'); 
+            
+            if (user) {
+                namaSiswa = user.email.split('@')[0].toUpperCase();
+                namaSiswaNav.textContent = namaSiswa;
+
+                acakSoal();
+
+                layarMulai.classList.add('hidden');
+                layarGame.classList.remove('hidden');
+            } else {
+                layarGame.classList.add('hidden');
+                layarMulai.classList.remove('hidden');
+            }
+        });
+
+        // Logika acak urutan soal
+        function acakSoal() {
+            let zonesArr = Array.from(areaSoal.querySelectorAll('.zone-wrapper'));
+            zonesArr.sort(() => Math.random() - 0.5);
+            zonesArr.forEach(zone => areaSoal.appendChild(zone));
+        }
+
+        // Tampilkan/Sembunyikan Password (Mata)
         function aturToggleMata(idMata, idInput) {
             const ikonMata = document.getElementById(idMata);
             const kolomInput = document.getElementById(idInput);
@@ -480,14 +497,7 @@
             });
         }
         aturToggleMata('mata-pass-utama', 'input-password');
-        aturToggleMata('mata-pass-baru', 'input-pass-baru');
         aturToggleMata('mata-pass-game-baru', 'input-pass-game-baru');
-
-
-        // Buka tutup menu ganti password layar awal
-        btnBukaGantiPass.addEventListener('click', () => {
-            formGantiPass.classList.toggle('hidden');
-        });
 
         // 1. PROSES LOGIN SISWA VIA FIREBASE
         btnMulai.addEventListener('click', () => {
@@ -500,53 +510,12 @@
             }
 
             signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    namaSiswa = userCredential.user.email.split('@')[0].toUpperCase();
-                    
-                    // Tampilkan nama siswa di bilah navigasi game
-                    namaSiswaNav.textContent = namaSiswa;
-
-                    // Logika acak soal bawaan asli file Anda
-                    let zonesArr = Array.from(areaSoal.querySelectorAll('.zone-wrapper'));
-                    zonesArr.sort(() => Math.random() - 0.5);
-                    zonesArr.forEach(zone => areaSoal.appendChild(zone));
-
-                    layarMulai.classList.add('hidden');
-                    layarGame.classList.remove('hidden');
-                    
-                    setTimeout(() => {
-                        window.scrollTo({ top: 0, behavior: 'auto' });
-                    }, 50);
-                })
                 .catch((error) => {
                     alert("Gagal Masuk! Email atau password salah, atau belum terdaftar.");
                 });
         });
 
-        // 2. PROSES GANTI PASSWORD DI LAYAR AWAL
-        btnProsesGanti.addEventListener('click', () => {
-            const passBaru = inputPassBaru.value.trim();
-            if(passBaru.length < 6) {
-                alert("Keamanan lemah! Password baru minimal harus 6 karakter.");
-                return;
-            }
-
-            if(auth.currentUser) {
-                updatePassword(auth.currentUser, passBaru)
-                    .then(() => {
-                        alert("Sukses! Password Anda berhasil diubah. Catat dan gunakan password ini untuk login berikutnya.");
-                        formGantiPass.classList.add('hidden');
-                        inputPassBaru.value = "";
-                    })
-                    .catch((error) => {
-                        alert("Gagal mengubah password! Untuk keamanan, silakan muat ulang halaman (refresh) kuis dan login kembali sebelum mengganti password.");
-                    });
-            } else {
-                alert("Sistem Keamanan: Silakan masukkan Email & Password Default Anda di atas, lalu klik 'Mulai Kuis' terlebih dahulu untuk masuk ke dalam aplikasi sebelum mengganti password baru!");
-            }
-        });
-
-        // 3. LOGIKA BARU: INTERAKSI MENU DI DALAM GAME (GANTI PASSWORD & LOGOUT)
+        // 2. INTERAKSI MENU DI DALAM GAME (GANTI PASSWORD & LOGOUT)
         btnNavGantiPass.addEventListener('click', () => {
             modalGantiPassGame.classList.toggle('hidden');
         });
@@ -576,15 +545,18 @@
             }
         });
 
+        // Proses Logout Sesi
         btnLogout.addEventListener('click', () => {
-            if(confirm("Apakah Anda yakin ingin logout dan mereset halaman kuis?")) {
-                // Sesi dibersihkan dengan memuat ulang halaman ke status default awal
-                window.location.reload();
+            if(confirm("Apakah Anda yakin ingin logout dari kuis ini?")) {
+                signOut(auth).then(() => {
+                    window.location.reload();
+                }).catch((error) => {
+                    alert("Gagal melakukan logout sistem.");
+                });
             }
         });
 
-
-        // Logika drag-and-drop bawaan asli file Anda
+        // Logika drag-and-drop kuis
         const items = document.querySelectorAll('.item');
         items.forEach(item => {
             item.addEventListener('click', () => {
@@ -640,12 +612,11 @@
             }
         }
 
-        // 4. PROSES EVALUASI & KIRIM NILAI REAL-TIME KE GURU
+        // 3. PROSES EVALUASI & KIRIM NILAI REAL-TIME KE GURU
         btnKumpulkan.addEventListener('click', () => {
             let skorBenar = 0;
             const totalSoal = slots.length;
 
-            // Sembunyikan panel ganti sandi agar layar bersih saat dievaluasi
             modalGantiPassGame.classList.add('hidden');
 
             slots.forEach(slot => {
