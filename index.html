@@ -192,12 +192,13 @@
             min-height: 40px; 
         }
 
+        /* TAMPILAN ELEMEN TOMBOL NORMAL */
         .item {
             background: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
+            color: white; /* Teks bawaan berwarna putih sebelum diklik */
             padding: 8px 12px;
             border-radius: 8px;
             font-weight: 500;
@@ -211,21 +212,33 @@
             pointer-events: auto; 
         }
 
+        /* Kondisi FontAwesome Sebelum Diklik */
         .item i { font-size: 14px; color: #facc15; } 
-        .item img { width: 16px; height: 16px; object-fit: contain; vertical-align: middle; }
+        
+        /* KONDISI SOSULI: Ikon SVG/PNG Kustom Hitam Pekat (#000000) Dipaksa Menjadi Kuning (#facc15) Saat Status Normal */
+        .item img { 
+            width: 16px; 
+            height: 16px; 
+            object-fit: contain; 
+            vertical-align: middle;
+            filter: invert(81%) sepia(50%) saturate(762%) hue-rotate(354deg) brightness(101%) contrast(97%);
+        }
+        
         .item:active { transform: translateY(4px); }
         
-        /* State Tombol Saat Dipilih/Klik */
+        /* TAMPILAN ELEMEN TOMBOL SAAT TERPILIH (SELECTED) */
         .item.selected { 
-            background: rgba(250, 204, 21, 0.9); 
-            color: #713f12; 
+            background: rgba(250, 204, 21, 0.9); /* Latar belakang tombol berubah jadi kuning */
+            color: #713f12; /* Teks berubah menjadi cokelat gelap tema kuis */
             border-color: #facc15;
             transform: scale(1.05); 
             box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
         }
+
+        /* Kondisi FontAwesome Saat Terpilih Berubah Jadi Cokelat Gelap */
         .item.selected i { color: #713f12; }
         
-        /* OPSI FILTER COKELAT GELAP: Mengubah warna gambar custom .svg/.png menjadi cokelat gelap senada dengan warna teks (#713f12) saat terpilih */
+        /* KONDISI SOLUSI: Ikon SVG/PNG Kustom Diubah Menjadi Cokelat Gelap (#713f12) Menyesuaikan Teks Saat Dipilih */
         .item.selected img { 
             filter: invert(21%) sepia(85%) saturate(1039%) hue-rotate(14deg) brightness(91%) contrast(89%);
         }
@@ -450,7 +463,6 @@
                         paketSoalSiswa = kuisData.filter(soal => targetOrderIds.includes(soal.id));
                         paketSoalSiswa.sort((a, b) => targetOrderIds.indexOf(a.id) - targetOrderIds.indexOf(b.id));
                     } else {
-                        // Pengacakan total bank soal CBT
                         kuisData.sort(() => Math.random() - 0.5);
                         paketSoalSiswa = kuisData.slice(0, JUMLAH_SOAL_DITAMPILKAN);
                         
@@ -462,7 +474,7 @@
                     bankItem.innerHTML = "";
                     areaSoal.innerHTML = "";
 
-                    // Render Tombol Alat dengan deteksi Gambar Custom atau FontAwesome
+                    // Render Tombol Alat
                     let paketToolsTombol = [...paketSoalSiswa].sort(() => Math.random() - 0.5);
                     paketToolsTombol.forEach(soal => {
                         const itemDiv = document.createElement('div');
