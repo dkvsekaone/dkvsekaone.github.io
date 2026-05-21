@@ -30,7 +30,8 @@
             height: 100vh;
             background-image: url('pattern.png'); 
             background-repeat: repeat; 
-            background-size: 250px; \n            z-index: -1; 
+            background-size: 250px; 
+            z-index: -1; 
             pointer-events: none; 
         }
 
@@ -214,6 +215,7 @@
         .item img { width: 16px; height: 16px; object-fit: contain; vertical-align: middle; }
         .item:active { transform: translateY(4px); }
         
+        /* State Tombol Saat Dipilih/Klik */
         .item.selected { 
             background: rgba(250, 204, 21, 0.9); 
             color: #713f12; 
@@ -222,6 +224,11 @@
             box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
         }
         .item.selected i { color: #713f12; }
+        
+        /* OPSI FILTER COKELAT GELAP: Mengubah warna gambar custom .svg/.png menjadi cokelat gelap senada dengan warna teks (#713f12) saat terpilih */
+        .item.selected img { 
+            filter: invert(21%) sepia(85%) saturate(1039%) hue-rotate(14deg) brightness(91%) contrast(89%);
+        }
 
         .zone-slot .item { pointer-events: none; box-shadow: none; width: 100%; justify-content: center;}
 
@@ -352,7 +359,7 @@
 
         <div class="header-teks glass-effect">
             <h2>Kuis Interaktif DKV (Aplikasi Affinity by Canva)</h2>
-            <p class="instruksi">Sentuh alat (tool) di bawah, lalu leakkan di definisi yang tepat. Sentuh lagi untuk membatalkan pilihan.</p>
+            <p class="instruksi">Sentuh alat (tool) di bawah, lalu letakkan di definisi yang tepat. Sentuh lagi untuk membatalkan pilihan.</p>
         </div>
 
         <div class="game-container">
@@ -399,6 +406,7 @@
         let totalSoalAktif = 0;
         const JUMLAH_SOAL_DITAMPILKAN = 15;
 
+        // SISTEM CEK SESI REFRESH BROWSER
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const emailUser = user.email.toLowerCase();
@@ -425,6 +433,7 @@
             }
         });
 
+        // MEMUAT LIVE SOAL DAN MEMBATASI SEJUMLAH 15 SOAL ACAK
         async function unduhDanSusunKuisFirestore() {
             try {
                 const docRef = doc(db, "bank_soal", "kuis_affinity");
@@ -441,6 +450,7 @@
                         paketSoalSiswa = kuisData.filter(soal => targetOrderIds.includes(soal.id));
                         paketSoalSiswa.sort((a, b) => targetOrderIds.indexOf(a.id) - targetOrderIds.indexOf(b.id));
                     } else {
+                        // Pengacakan total bank soal CBT
                         kuisData.sort(() => Math.random() - 0.5);
                         paketSoalSiswa = kuisData.slice(0, JUMLAH_SOAL_DITAMPILKAN);
                         
@@ -452,14 +462,13 @@
                     bankItem.innerHTML = "";
                     areaSoal.innerHTML = "";
 
-                    // Render Alat Utama (Tools) dengan Cek Deteksi File Gambar Custom / FontAwesome
+                    // Render Tombol Alat dengan deteksi Gambar Custom atau FontAwesome
                     let paketToolsTombol = [...paketSoalSiswa].sort(() => Math.random() - 0.5);
                     paketToolsTombol.forEach(soal => {
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'item';
                         itemDiv.id = soal.id;
                         
-                        // Deteksi struktur file (.svg, .png atau path folder '/')
                         if (soal.icon.includes('.') || soal.icon.includes('/')) {
                             itemDiv.innerHTML = `<img src="${soal.icon}" alt="${soal.nama}"> ${soal.nama}`;
                         } else {
@@ -468,7 +477,7 @@
                         bankItem.appendChild(itemDiv);
                     });
 
-                    // Render List Zona Definisi
+                    // Render Area Deskripsi
                     paketSoalSiswa.forEach(soal => {
                         const zoneDiv = document.createElement('div');
                         zoneDiv.className = 'zone-wrapper glass-effect';
@@ -582,10 +591,10 @@
             if(email === "" || password === "") return alert("Mohon masukkan email dan password!");
             
             if(email.toLowerCase().includes('guru') || email.toLowerCase().endsWith('@smk.sch.id')) {
-                return alert("Akses Ditolak!");
+                return alert("Akses Ditolak! Gunakan panel admin khusus guru.");
             }
 
-            signInWithEmailAndPassword(auth, email, password).catch(() => alert("Gagal Masuk!"));
+            signInWithEmailAndPassword(auth, email, password).catch(() => alert("Gagal Masuk! Data salah atau belum terdaftar."));
         });
 
         btnNavGantiPass.addEventListener('click', () => modalGantiPassGame.classList.toggle('hidden'));
@@ -593,18 +602,18 @@
 
         btnSimpanPassGame.addEventListener('click', () => {
             const passGameBaru = inputPassGameBaru.value.trim();
-            if(passGameBaru.length < 6) return alert("Password minimal 6 karakter!");
+            if(passGameBaru.length < 6) return alert("Password baru minimal harus 6 karakter!");
             if(auth.currentUser) {
                 updatePassword(auth.currentUser, passGameBaru).then(() => {
                     alert("Sukses memperbarui password.");
                     modalGantiPassGame.classList.add('hidden');
                     inputPassGameBaru.value = "";
-                }).catch(() => alert("Sesi habis. Silakan relogin."));
+                }).catch(() => alert("Sesi habis. Silakan login kembali."));
             }
         });
 
         btnLogout.addEventListener('click', () => {
-            if(confirm("Apakah Anda yakin ingin logout?")) {
+            if(confirm("Apakah Anda yakin ingin logout? (Progres jawaban saat ini akan direset)")) {
                 hapusMemoriLokalUjian();
                 signOut(auth).then(() => window.location.reload());
             }
@@ -641,7 +650,7 @@
                 <div class="nama-siswa-hasil">${namaSiswa}</div>
                 <p>Total Jawaban Benar: ${skorBenar} dari ${totalSoalAktif}</p>
                 <div class="skor-besar">Nilai: ${nilaiAkhir}</div>
-                <p><i class="fas fa-camera"></i> Silakan screenshot bukti nilai ini.</p>
+                <p><i class="fas fa-camera"></i> Silakan screenshot layar ini sebagai bukti nilai.</p>
             `;
             pesanSukses.style.display = 'block';
             
