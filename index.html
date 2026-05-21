@@ -401,10 +401,19 @@
         // SISTEM CEK SESI REFRESH BROWSER
         onAuthStateChanged(auth, async (user) => {
             if (user) {
+                const emailUser = user.email.toLowerCase();
+                // Jika terdeteksi akun guru masuk ke sini, paksa logout demi keamanan data kuis siswa
+                if (emailUser.includes('guru') || emailUser.endsWith('@smk.sch.id')) {
+                    signOut(auth);
+                    layarLoading.classList.add('hidden');
+                    layarGame.classList.add('hidden');
+                    layarMulai.classList.remove('hidden');
+                    return;
+                }
+
                 namaSiswa = user.email.split('@')[0].toUpperCase();
                 namaSiswaNav.textContent = namaSiswa;
 
-                // Ambil dan susun struktur soal kuis dinamis dari database guru
                 await unduhDanSusunKuisFirestore();
 
                 layarLoading.classList.add('hidden'); 
@@ -427,7 +436,6 @@
                     const kuisData = docSnap.data().data; 
                     totalSoalAktif = kuisData.length;
 
-                    // Bersihkan kontainer HTML bawaan lama
                     bankItem.innerHTML = "";
                     areaSoal.innerHTML = "";
 
@@ -451,21 +459,16 @@
                         areaSoal.appendChild(zoneDiv);
                     });
 
-                    // Aktifkan kembali interaksi klik drag drop
                     aktifkanFiturKlikInteraktif();
-
-                    // Sinkronisasi dengan localStorage cache jawaban siswa
                     muatProgresSiswaSama();
-
                 } else {
-                    areaSoal.innerHTML = "<p style='padding:20px; text-align:center; color:#facc15;'>Kuis kosong. Guru belum menerbitkan soal di admin.html.</p>";
+                    areaSoal.innerHTML = "<p style='padding:20px; text-align:center; color:#facc15;'>Kuis kosong. Silakan hubungi Guru Anda.</p>";
                 }
             } catch (e) {
-                console.error("Gagal sinkronisasi bank soal: ", e);
+                console.error(e);
             }
         }
 
-        // REFRESH-PROOF: Manajemen Memori Soal dan Jawaban Lokal
         function muatProgresSiswaSama() {
             const orderSimpanan = localStorage.getItem('urutan_soal_dkv');
             let zonesArr = Array.from(areaSoal.querySelectorAll('.zone-wrapper'));
@@ -479,14 +482,12 @@
                 });
                 zonesArr.forEach(zone => areaSoal.appendChild(zone));
             } else {
-                // Acak urutan tampilnya definisi zona agar adil
                 zonesArr.sort(() => Math.random() - 0.5);
                 zonesArr.forEach(zone => areaSoal.appendChild(zone));
                 const currentOrder = zonesArr.map(z => z.querySelector('.zone-slot').getAttribute('data-target'));
                 localStorage.setItem('urutan_soal_dkv', JSON.stringify(currentOrder));
             }
 
-            // Kembalikan jawaban lama jika ada cache refresh browser
             const jawabanSimpanan = localStorage.getItem('jawaban_kuis_dkv');
             if (jawabanSimpanan) {
                 const mapJawaban = JSON.parse(jawabanSimpanan);
@@ -511,9 +512,7 @@
             slots.forEach(slot => {
                 const targetSlot = slot.getAttribute('data-target');
                 const itemDiDalam = slot.querySelector('.item');
-                if (itemDiDalam) {
-                    mapJawaban[targetSlot] = itemDiDalam.id;
-                }
+                if (itemDiDalam) mapJawaban[targetSlot] = itemDiDalam.id;
             });
             localStorage.setItem('jawaban_kuis_dkv', JSON.stringify(mapJawaban));
         }
@@ -523,7 +522,6 @@
             localStorage.removeItem('jawaban_kuis_dkv');
         }
 
-        // FITUR BARU: Menangani Tekan Enter untuk Login Otomatis
         const tanganiEnterLogin = (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -533,7 +531,6 @@
         inputEmail.addEventListener('keydown', tanganiEnterLogin);
         inputPassword.addEventListener('keydown', tanganiEnterLogin);
 
-        // Sembunyikan/Tampilkan Password
         function aturToggleMata(idMata, idInput) {
             const ikonMata = document.getElementById(idMata);
             const kolomInput = document.getElementById(idInput);
@@ -550,24 +547,14 @@
         aturToggleMata('mata-pass-utama', 'input-password');
         aturToggleMata('mata-pass-game-baru', 'input-pass-game-baru');
 
-        // Delegasi Event Listener Klik Interaktif
         function aktifkanFiturKlikInteraktif() {
             const items = bankItem.querySelectorAll('.item');
             items.forEach(item => {
                 item.addEventListener('click', () => {
                     if(item.parentElement !== bankItem) return;
-
                     bankItem.querySelectorAll('.item').forEach(i => i.classList.remove('selected'));
-                    
-                    if(itemTerpilih === item) {
-                        itemTerpilih = null;
-                        document.body.classList.remove('is-selecting');
-                        return;
-                    }
-
-                    item.classList.add('selected');
-                    itemTerpilih = item;
-                    document.body.classList.add('is-selecting');
+                    if(itemTerpilih === item) { itemTerpilih = null; document.body.classList.remove('is-selecting'); return; }
+                    item.classList.add('selected'); itemTerpilih = item; document.body.classList.add('is-selecting');
                 });
             });
 
@@ -576,39 +563,31 @@
                 slot.addEventListener('click', () => {
                     if (slot.classList.contains('filled')) {
                         const itemDiDalam = slot.querySelector('.item');
-                        if(itemDiDalam) {
-                            bankItem.appendChild(itemDiDalam);
-                            slot.classList.remove('filled');
-                            simpanProgresJawaban();
-                            cekSemuaTerisi();
-                        }
+                        if(itemDiDalam) { bankItem.appendChild(itemDiDalam); slot.classList.remove('filled'); simpanProgresJawaban(); cekSemuaTerisi(); }
                         return;
                     }
-
                     if (!itemTerpilih) return; 
-                    
-                    slot.appendChild(itemTerpilih); 
-                    slot.classList.add('filled');
-                    
-                    itemTerpilih.classList.remove('selected');
-                    itemTerpilih = null;
-                    document.body.classList.remove('is-selecting');
-                    
-                    simpanProgresJawaban();
-                    cekSemuaTerisi();
+                    slot.appendChild(itemTerpilih); slot.classList.add('filled');
+                    itemTerpilih.classList.remove('selected'); itemTerpilih = null; document.body.classList.remove('is-selecting');
+                    simpanProgresJawaban(); cekSemuaTerisi();
                 });
             });
         }
 
-        // 1. PROSES LOGIN SISWA VIA FIREBASE
+        // 1. PROSES LOGIN SISWA (Proteksi dari Email Guru Terintegrasi)
         btnMulai.addEventListener('click', () => {
             const email = inputEmail.value.trim();
             const password = inputPassword.value.trim();
             if(email === "" || password === "") return alert("Mohon masukkan email dan password!");
+            
+            // BLOKIR AKSES: Jika terdeteksi email guru mencoba login di form siswa
+            if(email.toLowerCase().includes('guru') || email.toLowerCase().endsWith('@smk.sch.id')) {
+                return alert("Akses Ditolak! Akun Guru dilarang masuk melalui halaman siswa. Silakan gunakan panel admin khusus guru.");
+            }
+
             signInWithEmailAndPassword(auth, email, password).catch(() => alert("Gagal Masuk! Data salah atau belum terdaftar."));
         });
 
-        // 2. INTERAKSI MENU DI DALAM GAME
         btnNavGantiPass.addEventListener('click', () => modalGantiPassGame.classList.toggle('hidden'));
         btnBatalPassGame.addEventListener('click', () => { modalGantiPassGame.classList.add('hidden'); inputPassGameBaru.value = ""; });
 
@@ -641,24 +620,17 @@
             }
         }
 
-        // 3. PROSES EVALUASI & KIRIM NILAI KE GURU
         btnKumpulkan.addEventListener('click', () => {
             let skorBenar = 0;
             const slots = areaSoal.querySelectorAll('.zone-slot');
-
             modalGantiPassGame.classList.add('hidden');
 
             slots.forEach(slot => {
                 slot.style.pointerEvents = 'none';
                 const itemDiDalam = slot.querySelector('.item');
                 const idTargetBenar = slot.getAttribute('data-target');
-                
-                if(itemDiDalam && itemDiDalam.id === idTargetBenar) {
-                    slot.parentElement.classList.add('correct'); 
-                    skorBenar++;
-                } else {
-                    slot.parentElement.classList.add('wrong'); 
-                }
+                if(itemDiDalam && itemDiDalam.id === idTargetBenar) { slot.parentElement.classList.add('correct'); skorBenar++; } 
+                else { slot.parentElement.classList.add('wrong'); }
             });
 
             btnKumpulkan.classList.add('hidden');
@@ -673,21 +645,14 @@
             `;
             pesanSukses.style.display = 'block';
             
-            // Hapus cache simpanan jawaban karena ujian sudah selesai dikumpulkan
             hapusMemoriLokalUjian();
 
             async function kirimNilaiKeFirebase(nama, skor) {
                 try {
-                    await addDoc(collection(db, "hasil_ujian"), {
-                        namaSiswa: nama,
-                        nilai: skor,
-                        waktuUjian: new Date()
-                    });
-                    console.log("Skor otomatis terkirim!");
+                    await addDoc(collection(db, "hasil_ujian"), { namaSiswa: nama, nilai: skor, waktuUjian: new Date() });
                 } catch (e) { console.error(e); }
             }
             kirimNilaiKeFirebase(namaSiswa, nilaiAkhir);
-
             setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }, 300);
         });
     </script>
