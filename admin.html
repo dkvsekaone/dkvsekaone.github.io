@@ -6,7 +6,6 @@
     <title>Panel Guru - Manajemen Kuis & Nilai DKV</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
@@ -76,8 +75,7 @@
             position: absolute; right: 15px; top: 15px; background: #ef4444; color: white; border: none;
             border-radius: 4px; padding: 5px 10px; cursor: pointer; font-size: 12px;
         }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .info-link { font-size: 11px; color: #9ca3af; margin-top: -10px; margin-bottom: 10px; display: block; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1.2fr 0.8fr; gap: 10px; }
 
         .excel-panel {
             background: rgba(255,255,255,0.02);
@@ -99,6 +97,13 @@
         
         .skor-lulus { color: #10b981; font-weight: bold; }
         .skor-gagal { color: #ef4444; font-weight: bold; }
+
+        .btn-table-delete {
+            background: #ef4444; color: white; border: none; padding: 4px 10px; border-radius: 4px;
+            cursor: pointer; font-family: 'Poppins'; font-size: 11px; font-weight: 500;
+            display: inline-flex; align-items: center; gap: 4px; transition: background 0.2s;
+        }
+        .btn-table-delete:hover { background: #b91c1c; }
     </style>
 </head>
 <body>
@@ -122,7 +127,7 @@
         </div>
         
         <div id="konten-soal">
-            <p style="font-size: 13px; color: #d1d5db;">Silakan atur soal secara manual atau langsung unggah file Excel untuk memperbarui bank soal secara massal.</p>
+            <p style="font-size: 13px; color: #d1d5db;">Atur kuis manual atau gunakan Excel. Pada kolom Icon, isi dengan class FontAwesome (misal: `fas fa-user`) atau alamat gambar lokal custom (misal: `icons/pen.svg`).</p>
             
             <div class="excel-panel">
                 <button id="btn-unduh-templat" class="btn-download"><i class="fas fa-file-download"></i> Unduh Format Excel</button>
@@ -136,14 +141,13 @@
                 <button id="btn-tambah-baris" class="btn btn-add"><i class="fas fa-plus"></i> Tambah Manual</button>
             </div>
             
-            <div id="container-list-soal">
-                </div>
+            <div id="container-list-soal"></div>
             <button id="btn-simpan-semua" class="btn btn-save"><i class="fas fa-save"></i> Simpan & Publikasikan Soal</button>
         </div>
 
         <div id="konten-nilai" class="hidden">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <p style="font-size: 13px; color: #d1d5db; margin: 0;">Daftar rekapitulasi nilai ujian masuk secara real-time dari pengerjaan siswa.</p>
+                <p style="font-size: 13px; color: #d1d5db; margin: 0;">Rekapitulasi nilai ujian masuk secara real-time dari pengerjaan siswa.</p>
                 <span style="font-size: 11px; background: rgba(16,185,129,0.2); color: #10b981; padding: 4px 8px; border-radius: 20px; font-weight: 500;"><i class="fas fa-sync-alt fa-spin"></i> Terhubung Live</span>
             </div>
             
@@ -155,10 +159,10 @@
                             <th>Nama / Email Siswa</th>
                             <th>Nilai Ujian</th>
                             <th>Waktu Selesai</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="tabel-live-score">
-                        </tbody>
+                    <tbody id="tabel-live-score"></tbody>
                 </table>
             </div>
         </div>
@@ -167,7 +171,7 @@
     <script type="module">
         import { db, auth } from './firebase-config.js';
         import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { doc, setDoc, getDoc, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { doc, setDoc, getDoc, collection, query, orderBy, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const layarLogin = document.getElementById('layar-login');
         const layarUtama = document.getElementById('layar-utama');
@@ -190,7 +194,6 @@
         const inputFileExcel = document.getElementById('input-file-excel');
         const btnProsesExcel = document.getElementById('btn-proses-excel');
 
-        // SISTEM PROTEKSI DOSEN/GURU
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const emailUser = user.email.toLowerCase();
@@ -200,7 +203,7 @@
                     muatDataSoalDariFirebase();
                     aktifkanLiveScoreListener();
                 } else {
-                    alert("Akses Ditolak! Akun Anda terdeteksi sebagai akun siswa.");
+                    alert("Akses Ditolak!");
                     signOut(auth);
                 }
             } else {
@@ -209,7 +212,6 @@
             }
         });
 
-        // INTEGRASI BARU: Fitur Tekan Enter untuk Memicu Login Otomatis Guru
         const tanganiEnterLoginGuru = (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault(); 
@@ -233,35 +235,27 @@
             const email = emailGuru.value.trim();
             const password = passGuru.value.trim();
             if(!email || !password) return alert("Isi semua kolom!");
-            
-            if(!email.toLowerCase().includes('guru') && !email.toLowerCase().endsWith('@smk.sch.id')) {
-                return alert("Gagal! Gunakan akun email resmi Guru untuk masuk.");
-            }
-
-            signInWithEmailAndPassword(auth, email, password).catch(() => alert("Login Gagal! Password salah atau tidak terdaftar."));
+            signInWithEmailAndPassword(auth, email, password).catch(() => alert("Login Gagal!"));
         });
 
         btnLogoutGuru.addEventListener('click', () => {
             if(confirm("Keluar dari panel guru?")) signOut(auth).then(() => window.location.reload());
         });
 
-        // Format Unduh Excel
         btnUnduhTemplat.addEventListener('click', () => {
             const dataTemplat = [
-                { "Nama Tool": "Pen Tool", "Class Icon FontAwesome": "fas fa-pen-nib", "Teks Definisi": "Membuat jalur vektor presisi menggunakan titik-titik jangkar." },
-                { "Nama Tool": "Move Tool", "Class Icon FontAwesome": "fas fa-arrows-up-down-left-right", "Teks Definisi": "Memilih, menggeser posisi, memutar, atau mengubah ukuran objek." }
+                { "Nama Tool": "Pen Tool", "Class Icon / Path Gambar": "icons/pen-tool.svg", "Teks Definisi": "Membuat jalur vektor presisi menggunakan titik-titik jangkar." },
+                { "Nama Tool": "Move Tool", "Class Icon / Path Gambar": "fas fa-arrows-up-down-left-right", "Teks Definisi": "Memilih, menggeser posisi, memutar, atau mengubah ukuran objek." }
             ];
-            
             const worksheet = XLSX.utils.json_to_sheet(dataTemplat);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Soal Kuis");
             XLSX.writeFile(workbook, "Format_Bank_Soal_DKV.xlsx");
         });
 
-        // Proses Unggah Excel
         btnProsesExcel.addEventListener('click', () => {
             const file = inputFileExcel.files[0];
-            if (!file) return alert("Pilih file Excel terlebih dahulu!");
+            if (!file) return alert("Pilih file Excel!");
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -271,18 +265,17 @@
                 const worksheet = workbook.Sheets[namaSheet];
                 const barisData = XLSX.utils.sheet_to_json(worksheet);
 
-                if(barisData.length === 0) return alert("File Excel kosong atau format salah!");
+                if(barisData.length === 0) return alert("File kosong!");
 
-                if(confirm(`Berhasil membaca ${barisData.length} soal dari Excel. Timpa daftar soal saat ini di layar?`)) {
+                if(confirm(`Berhasil membaca ${barisData.length} soal. Timpa?`)) {
                     containerListSoal.innerHTML = ""; 
                     barisData.forEach((row, index) => {
                         const idUnik = "item" + (Date.now() + index);
                         const nama = row["Nama Tool"] || "";
-                        const icon = row["Class Icon FontAwesome"] || "fas fa-shapes";
+                        const icon = row["Class Icon / Path Gambar"] || "fas fa-shapes";
                         const definisi = row["Teks Definisi"] || "";
                         buatBarisSoalUI(idUnik, nama, icon, definisi);
                     });
-                    alert("Berhasil memuat data ke layar. Jangan lupa klik 'Simpan & Publikasikan Soal' di bawah!");
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -293,12 +286,13 @@
             onSnapshot(q, (snapshot) => {
                 tabelLiveScore.innerHTML = "";
                 if (snapshot.empty) {
-                    tabelLiveScore.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#9ca3af;">Belum ada siswa yang mengumpulkan.</td></tr>`;
+                    tabelLiveScore.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#9ca3af;">Belum ada data nilai.</td></tr>`;
                     return;
                 }
                 let nomor = 1;
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
+                snapshot.forEach((snapshotDoc) => {
+                    const data = snapshotDoc.data();
+                    const docId = snapshotDoc.id;
                     const nilai = data.nilai;
                     const classWarnaNilai = (nilai < 75) ? "skor-gagal" : "skor-lulus";
                     let waktuString = "-";
@@ -306,10 +300,33 @@
                         waktuString = data.waktuUjian.toDate().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
                     }
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td>${nomor++}</td><td style="font-weight:500;">${data.namaSiswa}</td><td class="${classWarnaNilai}">${nilai}</td><td>${waktuString} WIB</td>`;
+                    row.innerHTML = `
+                        <td>${nomor++}</td>
+                        <td style="font-weight:500;">${data.namaSiswa}</td>
+                        <td class="${classWarnaNilai}">${nilai}</td>
+                        <td>${waktuString} WIB</td>
+                        <td>
+                            <button class="btn-table-delete" data-doc-id="${docId}"><i class="fas fa-trash-alt"></i> Hapus</button>
+                        </td>
+                    `;
                     tabelLiveScore.appendChild(row);
                 });
+
+                tabelLiveScore.querySelectorAll('.btn-table-delete').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        eksekusiHapusNilaiSiswa(e.currentTarget.getAttribute('data-doc-id'));
+                    });
+                });
             });
+        }
+
+        async function eksekusiHapusNilaiSiswa(idDokumen) {
+            if (confirm("Hapus rekam nilai siswa ini secara permanen?")) {
+                try {
+                    await deleteDoc(doc(db, "hasil_ujian", idDokumen));
+                    alert("Sukses dihapus.");
+                } catch (error) { alert("Gagal: " + error.message); }
+            }
         }
 
         function buatBarisSoalUI(idItem, namaTool, ikonFa, teksDefinisi) {
@@ -325,8 +342,8 @@
                         <input type="text" class="input-nama-tool" value="${namaTool}">
                     </div>
                     <div>
-                        <label style="font-size:12px; color:#9ca3af;">Class Icon</label>
-                        <input type="text" class="input-icon-tool" value="${ikonFa}">
+                        <label style="font-size:12px; color:#9ca3af;">Icon Tool (FontAwesome / Path Gambar)</label>
+                        <input type="text" class="input-icon-tool" value="${ikonFa}" placeholder="Contoh: fas fa-shapes atau icons/pisau.svg">
                     </div>
                     <div>
                         <label style="font-size:12px; color:#9ca3af;">ID Unik</label>
@@ -349,20 +366,15 @@
                 const docRef = doc(db, "bank_soal", "kuis_affinity");
                 const docSnap = await getDoc(docRef);
                 if(document.getElementById('loading-text')) document.getElementById('loading-text').remove();
-
                 if (docSnap.exists()) {
                     docSnap.data().data.forEach(soal => buatBarisSoalUI(soal.id, soal.nama, soal.icon, soal.definisi));
-                } else {
-                    containerListSoal.innerHTML = "<p style='color:#9ca3af;'>Belum ada data soal di server.</p>";
                 }
-            } catch (error) {
-                containerListSoal.innerHTML = "<p style='color:#ef4444;'>Gagal mengunduh struktur soal.</p>";
-            }
+            } catch (error) { console.error(error); }
         }
 
         btnSimpanSemua.addEventListener('click', async () => {
             const rows = containerListSoal.querySelectorAll('.soal-row');
-            if(rows.length === 0) return alert("Minimal harus ada 1 soal!");
+            if(rows.length === 0) return alert("Minimal 1 soal!");
 
             const arrayDataSoal = [];
             rows.forEach(row => {
@@ -370,20 +382,16 @@
                 const namaTool = row.querySelector('.input-nama-tool').value.trim();
                 const iconTool = row.querySelector('.input-icon-tool').value.trim();
                 const definisiTeks = row.querySelector('.input-definisi').value.trim();
-                
-                // BERKAS PERBAIKAN: Typo variabel "definitionsTeks" dihilangkan di sini
                 if(namaTool && iconTool && definisiTeks) {
                     arrayDataSoal.push({ id: idItem, nama: namaTool, icon: iconTool, definisi: definisiTeks });
                 }
             });
 
-            if(arrayDataSoal.length !== rows.length) return alert("Lengkapi semua kolom input (Nama, Icon, & Teks Definisi) pada soal yang Anda buat!");
-
             try {
                 await setDoc(doc(db, "bank_soal", "kuis_affinity"), { data: arrayDataSoal, diperbaruiPada: new Date() });
-                alert("Sukses! Bank soal kuis berhasil diperbarui dan dipublikasikan.");
+                alert("Sukses memperbarui bank soal.");
                 window.location.reload();
-            } catch (e) { alert("Gagal menyimpan ke server: " + e.message); }
+            } catch (e) { alert("Gagal: " + e.message); }
         });
     </script>
 </body>
