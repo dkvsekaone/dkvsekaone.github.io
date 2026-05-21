@@ -456,7 +456,7 @@
         let namaSiswa = "";
         let itemTerpilih = null;
 
-        // SISTEM CEK SESI: Saat di-refresh, halaman tidak akan kembali ke login jika akun masih aktif
+        // SISTEM CEK SESI REFRESH
         onAuthStateChanged(auth, (user) => {
             layarLoading.classList.add('hidden'); 
             
@@ -464,7 +464,8 @@
                 namaSiswa = user.email.split('@')[0].toUpperCase();
                 namaSiswaNav.textContent = namaSiswa;
 
-                acakSoal();
+                // Urutkan/acak soal dlu atau muat susunan simpanan jika ada
+                muatUrutanAtauAcakSoal();
 
                 layarMulai.classList.add('hidden');
                 layarGame.classList.remove('hidden');
@@ -474,14 +475,80 @@
             }
         });
 
-        // Logika acak urutan soal
-        function acakSoal() {
+        // REFRESH-PROOF: Fungsi Manajemen Memori Soal dan Jawaban
+        function muatUrutanAtauAcakSoal() {
+            // Cek apakah ada susunan urutan elemen soal yang disimpan sebelumnya
+            const orderSimpanan = localStorage.getItem('urutan_soal_dkv');
             let zonesArr = Array.from(areaSoal.querySelectorAll('.zone-wrapper'));
-            zonesArr.sort(() => Math.random() - 0.5);
-            zonesArr.forEach(zone => areaSoal.appendChild(zone));
+
+            if (orderSimpanan) {
+                const targetOrder = JSON.parse(orderSimpanan);
+                // Susun ulang area soal berdasarkan data index target simpanan
+                zonesArr.sort((a, b) => {
+                    const targetA = a.querySelector('.zone-slot').getAttribute('data-target');
+                    const targetB = b.querySelector('.zone-slot').getAttribute('data-target');
+                    return targetOrder.indexOf(targetA) - targetOrder.indexOf(targetB);
+                });
+                zonesArr.forEach(zone => areaSoal.appendChild(zone));
+            } else {
+                // Jika tidak ada, acak baru dan simpan urutannya
+                zonesArr.sort(() => Math.random() - 0.5);
+                zonesArr.forEach(zone => areaSoal.appendChild(zone));
+                
+                const currentOrder = zonesArr.map(z => z.querySelector('.zone-slot').getAttribute('data-target'));
+                localStorage.setItem('urutan_soal_dkv', JSON.stringify(currentOrder));
+            }
+
+            // Restore/kembalikan jawaban item ke dalam slot jika siswa sudah menjawab sebelumnya
+            const jawabanSimpanan = localStorage.getItem('jawaban_kuis_dkv');
+            if (jawabanSimpanan) {
+                const mapJawaban = JSON.parse(jawabanSimpanan); // format: {dataTargetSlot: idItem}
+                const slots = areaSoal.querySelectorAll('.zone-slot');
+                
+                slots.forEach(slot => {
+                    const targetSlot = slot.getAttribute('data-target');
+                    if (mapJawaban[targetSlot]) {
+                        const itemElemen = document.getElementById(mapJawaban[targetSlot]);
+                        if (itemElemen) {
+                            slot.appendChild(itemElemen);
+                            slot.classList.add('filled');
+                        }
+                    }
+                });
+            }
+            cekSemuaTerisi();
         }
 
-        // Tampilkan/Sembunyikan Password (Mata)
+        function simpanProgresJawaban() {
+            const mapJawaban = {};
+            const slots = areaSoal.querySelectorAll('.zone-slot');
+            slots.forEach(slot => {
+                const targetSlot = slot.getAttribute('data-target');
+                const itemDiDalam = slot.querySelector('.item');
+                if (itemDiDalam) {
+                    mapJawaban[targetSlot] = itemDiDalam.id;
+                }
+            });
+            localStorage.setItem('jawaban_kuis_dkv', JSON.stringify(mapJawaban));
+        }
+
+        function hapusMemoriLokalUjian() {
+            localStorage.removeItem('urutan_soal_dkv');
+            localStorage.removeItem('jawaban_kuis_dkv');
+        }
+
+        // FITUR BARU: Event listener tombol Enter pada halaman login
+        const tanganiEnterLogin = (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Cegah default submit form browser
+                btnMulai.click(); // Jalankan simulasi klik tombol mulai kuis
+            }
+        };
+        inputEmail.addEventListener('keydown', tanganiEnterLogin);
+        inputPassword.addEventListener('keydown', tanganiEnterLogin);
+
+
+        // Tampilkan/Sembunyikan Password
         function aturToggleMata(idMata, idInput) {
             const ikonMata = document.getElementById(idMata);
             const kolomInput = document.getElementById(idInput);
@@ -515,7 +582,7 @@
                 });
         });
 
-        // 2. INTERAKSI MENU DI DALAM GAME (GANTI PASSWORD & LOGOUT)
+        // 2. INTERAKSI MENU DI DALAM GAME
         btnNavGantiPass.addEventListener('click', () => {
             modalGantiPassGame.classList.toggle('hidden');
         });
@@ -547,7 +614,8 @@
 
         // Proses Logout Sesi
         btnLogout.addEventListener('click', () => {
-            if(confirm("Apakah Anda yakin ingin logout dari kuis ini?")) {
+            if(confirm("Apakah Anda yakin ingin logout dari kuis ini? (Jawaban Anda saat ini akan direset)")) {
+                hapusMemoriLokalUjian(); // Bersihkan memori progres saat logout sengaja
                 signOut(auth).then(() => {
                     window.location.reload();
                 }).catch((error) => {
@@ -584,6 +652,7 @@
                     if(itemDiDalam) {
                         bankItem.appendChild(itemDiDalam);
                         slot.classList.remove('filled');
+                        simpanProgresJawaban(); // Update memori saat item dicopot
                         cekSemuaTerisi();
                     }
                     return;
@@ -598,6 +667,7 @@
                 itemTerpilih = null;
                 document.body.classList.remove('is-selecting');
                 
+                simpanProgresJawaban(); // Update memori saat item diletakkan
                 cekSemuaTerisi();
             });
         });
@@ -625,7 +695,7 @@
                 const itemDiDalam = slot.querySelector('.item');
                 const idTargetBenar = slot.getAttribute('data-target');
                 
-                if(itemDiDalam.id === idTargetBenar) {
+                if(itemDiDalam && itemDiDalam.id === idTargetBenar) {
                     slot.parentElement.classList.add('correct'); 
                     skorBenar++;
                 } else {
@@ -645,6 +715,9 @@
             `;
             pesanSukses.style.display = 'block';
             
+            // Hapus cache simpanan jawaban local karena kuis sudah selesai dikumpulkan
+            hapusMemoriLokalUjian();
+
             async function kirimNilaiKeFirebase(nama, skor) {
                 try {
                     await addDoc(collection(db, "hasil_ujian"), {
