@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DKV SekaOne</title>
+    <title>Ujian DKV: Dasar Affinity</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #111827; /* Warna dasar tetap di sini */
+            background-color: #111827; 
             margin: 0;
             padding: 20px 15px;
             display: flex;
@@ -18,35 +18,33 @@
             align-items: center;
             min-height: 100vh; 
             touch-action: manipulation; 
-            color: #ffffff; /* Default teks putih */
+            color: #ffffff; 
         }
 
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-image: url('pattern.png'); 
-    background-repeat: repeat; 
-    background-size: 250px; 
-    z-index: -1; /* Memastikan pattern berada di paling belakang */
-    pointer-events: none; /* Agar tidak mengganggu klik/sentuhan pada kuis */
-}
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('pattern.png'); 
+            background-repeat: repeat; 
+            background-size: 250px; 
+            z-index: -1; 
+            pointer-events: none; 
+        }
 
         .hidden { display: none !important; }
 
-        /* --- EFEK GLASSMORPHISM UTAMA --- */
         .glass-effect {
-            background: rgba(255, 255, 255, 0.05); /* Latar belakang sangat transparan */
-            backdrop-filter: blur(12px); /* Efek blur utama */
-            -webkit-backdrop-filter: blur(12px); /* Dukungan Safari */
-            border: 1px solid rgba(255, 255, 255, 0.15); /* Garis tepi tipis seperti kaca */
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4); /* Bayangan lembut */
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4); 
         }
 
-        /* --- Layar Mulai --- */
         #layar-mulai {
             padding: 30px 20px;
             border-radius: 16px;
@@ -66,24 +64,6 @@ body::before {
         #layar-mulai h2 { color: #facc15; margin: 0 0 10px 0; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         #layar-mulai p { color: #d1d5db; font-size: 14px; margin-bottom: 25px; }
 
-        #input-nama {
-            width: 100%;
-            padding: 12px 15px;
-            background: rgba(0, 0, 0, 0.3); /* Input box sedikit gelap */
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            border-radius: 8px;
-            font-size: 16px;
-            font-family: 'Poppins', sans-serif;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        #input-nama::placeholder { color: #9ca3af; }
-        #input-nama:focus { outline: none; border-color: #facc15; background: rgba(0, 0, 0, 0.5); }
-
         .btn-utama {
             width: 100%;
             background: linear-gradient(135deg, #ea580c, #dc2626); 
@@ -101,7 +81,6 @@ body::before {
 
         .btn-utama:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
 
-        /* --- Layar Game --- */
         #layar-game {
             display: flex;
             flex-direction: column;
@@ -130,7 +109,6 @@ body::before {
             width: 100%;
         }
 
-        /* Bank Pilihan */
         .items-container {
             display: flex;
             flex-wrap: wrap;
@@ -177,7 +155,6 @@ body::before {
 
         .zone-slot .item { pointer-events: none; box-shadow: none; width: 100%; justify-content: center;}
 
-        /* Soal / Zone */
         .zones-container {
             display: flex;
             flex-direction: column;
@@ -217,19 +194,17 @@ body::before {
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
+            0 { transform: scale(1); }
             50% { transform: scale(1.02); }
             100% { transform: scale(1); }
         }
 
-        /* --- Warna Hasil Evaluasi di Atas Glass --- */
         .zone-wrapper.correct { border-color: #10b981; background: rgba(16, 185, 129, 0.2); }
         .zone-wrapper.correct .zone-slot { border-color: #10b981; background: transparent; }
         
         .zone-wrapper.wrong { border-color: #ef4444; background: rgba(239, 68, 68, 0.2); }
         .zone-wrapper.wrong .zone-slot { border-color: #ef4444; background: transparent; }
 
-        /* --- Pesan Sukses --- */
         #pesan-sukses {
             margin-bottom: 20px;
             padding: 20px;
@@ -246,7 +221,6 @@ body::before {
         .skor-besar { font-size: 40px; font-weight: bold; color: #10b981; margin: 10px 0; text-shadow: 0 0 10px rgba(16,185,129,0.5); }
         #pesan-sukses p { margin: 0; font-size: 14px; opacity: 0.9; }
 
-        /* --- Footer --- */
         #footer-credit {
             margin-top: auto; 
             padding-top: 30px;
@@ -265,14 +239,26 @@ body::before {
     <div id="layar-mulai" class="glass-effect">
         <img src="image.png" alt="Logo SMK N 1 Pamekasan" id="logo-sekolah">
         <h2>Kuis Interaktif DKV</h2>
-        <p>Silakan isi nama Anda untuk memulai Kuis “Materi Dasar Aplikasi Affinity by Canva”.</p>
-        <input type="text" id="input-nama" placeholder="Ketik nama Anda di sini..." autocomplete="off">
+        <p>Silakan login menggunakan akun default untuk memulai kuis.</p>
+        
+        <input type="email" id="input-email" placeholder="Username / Email Siswa..." autocomplete="off" style="width: 100%; padding: 12px 15px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.3); color: white; border-radius: 8px; font-size: 16px; font-family: 'Poppins', sans-serif; box-sizing: border-box; margin-bottom: 10px; text-align: center;">
+        <input type="password" id="input-password" placeholder="Password Default..." autocomplete="off" style="width: 100%; padding: 12px 15px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.3); color: white; border-radius: 8px; font-size: 16px; font-family: 'Poppins', sans-serif; box-sizing: border-box; margin-bottom: 20px; text-align: center;">
+        
         <button id="btn-mulai" class="btn-utama">Mulai Kuis</button>
+        
+        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.15); margin:20px 0;">
+        
+        <button id="btn-buka-ganti-pass" style="background:none; border:none; color:#facc15; cursor:pointer; font-size:13px; text-decoration:underline; font-family:'Poppins';">Siswa: Ingin Ganti Password Default?</button>
+        <div id="form-ganti-pass" class="hidden" style="margin-top:15px; text-align:left;">
+            <p style="font-size:12px; color:#d1d5db; margin-bottom:5px;">Isi form jika sudah login di atas terlebih dahulu:</p>
+            <input type="password" id="input-pass-baru" placeholder="Ketik Password Baru..." style="width:100%; padding:10px; margin-bottom:10px; border-radius:6px; background:rgba(0,0,0,0.5); color:white; border:1px solid #facc15; box-sizing:border-box; font-family:'Poppins';">
+            <button id="btn-proses-ganti" style="width:100%; background:#ea580c; color:white; border:none; padding:10px; border-radius:6px; font-weight:600; cursor:pointer; font-family:'Poppins';">Simpan Password Baru</button>
+        </div>
     </div>
 
     <div id="layar-game" class="hidden">
         <div class="header-teks glass-effect">
-            <h2> Kuis Interaktif DKV (Affinity by Canva)</h2>
+            <h2> Kuis Interaktif DKV (Aplikasi Affinity by Canva)</h2>
             <p class="instruksi">Sentuh alat (tool) di bawah, lalu letakkan di definisi yang tepat. Sentuh lagi untuk membatalkan pilihan.</p>
         </div>
 
@@ -345,46 +331,96 @@ body::before {
 
             <button id="btn-kumpulkan" class="btn-utama hidden"><i class="fas fa-check-double"></i> Cek & Kumpulkan Jawaban</button>
             
-            <div id="pesan-sukses" class="glass-effect">
-                </div>
+            <div id="pesan-sukses" class="glass-effect"></div>
         </div>
     </div>
 
     <div id="footer-credit">Quiz by Ach. Syarifuddin A.</div>
 
-    <script>
+    <script type="module">
+        import { db, auth } from './firebase-config.js';
+        import { signInWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
         const layarMulai = document.getElementById('layar-mulai');
         const layarGame = document.getElementById('layar-game');
-        const inputNama = document.getElementById('input-nama');
+        const inputEmail = document.getElementById('input-email');
+        const inputPassword = document.getElementById('input-password');
         const btnMulai = document.getElementById('btn-mulai');
         const areaSoal = document.getElementById('area-soal');
         const btnKumpulkan = document.getElementById('btn-kumpulkan');
         const pesanSukses = document.getElementById('pesan-sukses');
         const bankItem = document.getElementById('bank-item');
+
+        const btnBukaGantiPass = document.getElementById('btn-buka-ganti-pass');
+        const formGantiPass = document.getElementById('form-ganti-pass');
+        const inputPassBaru = document.getElementById('input-pass-baru');
+        const btnProsesGanti = document.getElementById('btn-proses-ganti');
         
         let namaSiswa = "";
         let itemTerpilih = null;
 
-        btnMulai.addEventListener('click', () => {
-            const nama = inputNama.value.trim();
-            if(nama === "") {
-                alert("Mohon ketikkan nama Anda terlebih dahulu!");
-                return;
-            }
-            namaSiswa = nama;
-            
-            let zonesArr = Array.from(areaSoal.querySelectorAll('.zone-wrapper'));
-            zonesArr.sort(() => Math.random() - 0.5);
-            zonesArr.forEach(zone => areaSoal.appendChild(zone));
-
-            layarMulai.classList.add('hidden');
-            layarGame.classList.remove('hidden');
-            
-            setTimeout(() => {
-                window.scrollTo({ top: 0, behavior: 'auto' });
-            }, 50);
+        // Buka tutup menu ganti password
+        btnBukaGantiPass.addEventListener('click', () => {
+            formGantiPass.classList.toggle('hidden');
         });
 
+        // 1. PROSES LOGIN SISWA VIA FIREBASE
+        btnMulai.addEventListener('click', () => {
+            const email = inputEmail.value.trim();
+            const password = inputPassword.value.trim();
+            
+            if(email === "" || password === "") {
+                alert("Mohon masukkan email dan password kuis Anda!");
+                return;
+            }
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Ambil bagian depan email sebagai nama siswa
+                    namaSiswa = userCredential.user.email.split('@')[0].toUpperCase();
+                    
+                    // Logika acak soal bawaan asli file Anda
+                    let zonesArr = Array.from(areaSoal.querySelectorAll('.zone-wrapper'));
+                    zonesArr.sort(() => Math.random() - 0.5);
+                    zonesArr.forEach(zone => areaSoal.appendChild(zone));
+
+                    layarMulai.classList.add('hidden');
+                    layarGame.classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        window.scrollTo({ top: 0, behavior: 'auto' });
+                    }, 50);
+                })
+                .catch((error) => {
+                    alert("Gagal Masuk! Email atau password salah, atau belum terdaftar.");
+                });
+        });
+
+        // 2. PROSES GANTI PASSWORD DEFAULT SISWA
+        btnProsesGanti.addEventListener('click', () => {
+            const passBaru = inputPassBaru.value.trim();
+            if(passBaru.length < 6) {
+                alert("Keamanan lemah! Password baru minimal harus 6 karakter.");
+                return;
+            }
+
+            if(auth.currentUser) {
+                updatePassword(auth.currentUser, passBaru)
+                    .then(() => {
+                        alert("Sukses! Password Anda berhasil diubah. Catat dan gunakan password ini untuk login berikutnya.");
+                        formGantiPass.classList.add('hidden');
+                        inputPassBaru.value = "";
+                    })
+                    .catch((error) => {
+                        alert("Gagal mengubah password! Anda harus melakukan login ulang terlebih dahulu sebelum mengganti password.");
+                    });
+            } else {
+                alert("Isi terlebih dahulu kolom login di atas lalu tekan 'Mulai Kuis' agar sistem mengenali akun Anda sebelum mengganti password!");
+            }
+        });
+
+        // Logika drag-and-drop bawaan asli file Anda
         const items = document.querySelectorAll('.item');
         items.forEach(item => {
             item.addEventListener('click', () => {
@@ -407,7 +443,6 @@ body::before {
         const slots = document.querySelectorAll('.zone-slot');
         slots.forEach(slot => {
             slot.addEventListener('click', () => {
-                
                 if (slot.classList.contains('filled')) {
                     const itemDiDalam = slot.querySelector('.item');
                     if(itemDiDalam) {
@@ -441,6 +476,7 @@ body::before {
             }
         }
 
+        // 3. PROSES EVALUASI & KIRIM NILAI REAL-TIME KE GURU
         btnKumpulkan.addEventListener('click', () => {
             let skorBenar = 0;
             const totalSoal = slots.length;
@@ -460,7 +496,6 @@ body::before {
             });
 
             btnKumpulkan.classList.add('hidden');
-            
             const nilaiAkhir = Math.round((skorBenar / totalSoal) * 100);
 
             pesanSukses.innerHTML = `
@@ -472,6 +507,21 @@ body::before {
             `;
             pesanSukses.style.display = 'block';
             
+            // Panggil Fungsi Pengiriman Nilai ke Firestore secara otomatis
+            async function kirimNilaiKeFirebase(nama, skor) {
+                try {
+                    await addDoc(collection(db, "hasil_ujian"), {
+                        namaSiswa: nama,
+                        nilai: skor,
+                        waktuUjian: new Date()
+                    });
+                    console.log("Skor otomatis terkirim ke Live Score!");
+                } catch (e) {
+                    console.error("Gagal mengirim nilai: ", e);
+                }
+            }
+            kirimNilaiKeFirebase(namaSiswa, nilaiAkhir);
+
             setTimeout(() => {
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             }, 300);
