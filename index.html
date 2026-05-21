@@ -30,8 +30,7 @@
             height: 100vh;
             background-image: url('pattern.png'); 
             background-repeat: repeat; 
-            background-size: 250px; 
-            z-index: -1; 
+            background-size: 250px; \n            z-index: -1; 
             pointer-events: none; 
         }
 
@@ -212,6 +211,7 @@
         }
 
         .item i { font-size: 14px; color: #facc15; } 
+        .item img { width: 16px; height: 16px; object-fit: contain; vertical-align: middle; }
         .item:active { transform: translateY(4px); }
         
         .item.selected { 
@@ -311,7 +311,7 @@
     </div>
 
     <div id="layar-mulai" class="glass-effect hidden">
-        <img src="image.png" alt="Logo SMK N 1 Pamekasan" id="logo-sekolah">
+        <img src="image.png" alt="Logo Sekolah" id="logo-sekolah">
         <h2>Kuis Interaktif DKV</h2>
         <p>Silakan login menggunakan akun default untuk memulai kuis.</p>
         
@@ -352,7 +352,7 @@
 
         <div class="header-teks glass-effect">
             <h2>Kuis Interaktif DKV (Aplikasi Affinity by Canva)</h2>
-            <p class="instruksi">Sentuh alat (tool) di bawah, lalu letakkan di definisi yang tepat. Sentuh lagi untuk membatalkan pilihan.</p>
+            <p class="instruksi">Sentuh alat (tool) di bawah, lalu leakkan di definisi yang tepat. Sentuh lagi untuk membatalkan pilihan.</p>
         </div>
 
         <div class="game-container">
@@ -371,9 +371,9 @@
     <div id="footer-credit">Quiz by Ach. Syarifuddin A.</div>
 
     <script type="module">
-        import { db, auth, collection, addDoc, signInWithEmailAndPassword, updatePassword } from './firebase-config.js';
-        import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { db, auth } from './firebase-config.js';
+        import { signOut, onAuthStateChanged, signInWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const layarLoading = document.getElementById('layar-loading');
         const layarMulai = document.getElementById('layar-mulai');
@@ -397,9 +397,8 @@
         let namaSiswa = "";
         let itemTerpilih = null;
         let totalSoalAktif = 0;
-        const JUMLAH_SOAL_DITAMPILKAN = 15; // Kunci Batasan Maksimal Paket Soal Siswa
+        const JUMLAH_SOAL_DITAMPILKAN = 15;
 
-        // SISTEM CEK SESI REFRESH BROWSER
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const emailUser = user.email.toLowerCase();
@@ -426,7 +425,6 @@
             }
         });
 
-        // MEMUAT LIVE SOAL DAN MEMBATASI SEJUMLAH 15 SOAL ACAK
         async function unduhDanSusunKuisFirestore() {
             try {
                 const docRef = doc(db, "bank_soal", "kuis_affinity");
@@ -435,45 +433,42 @@
                 if (docSnap.exists()) {
                     let kuisData = docSnap.data().data; 
 
-                    // LOGIKA INTI CBT: Ambil cache kombinasi paket acak siswa jika ada (Refresh-Proof)
                     const orderSimpanan = localStorage.getItem('urutan_soal_dkv');
                     let paketSoalSiswa = [];
 
                     if (orderSimpanan) {
-                        // Jika siswa tidak sengaja me-refresh halaman, gunakan paket kombinasi soal yang sama
                         const targetOrderIds = JSON.parse(orderSimpanan);
                         paketSoalSiswa = kuisData.filter(soal => targetOrderIds.includes(soal.id));
-                        
-                        // Urutkan objek array sesuai dengan urutan id cache index agar tidak berubah-ubah posisi
                         paketSoalSiswa.sort((a, b) => targetOrderIds.indexOf(a.id) - targetOrderIds.indexOf(b.id));
                     } else {
-                        // Jika login baru, acak seluruh isi bank soal utama di Firestore
                         kuisData.sort(() => Math.random() - 0.5);
-                        
-                        // Ambil maksimal 15 soal teratas hasil pengacakan acak massal tadi
                         paketSoalSiswa = kuisData.slice(0, JUMLAH_SOAL_DITAMPILKAN);
                         
-                        // Simpan id-id paket kombinasi khusus siswa ini ke localStorage cache
                         const orderIds = paketSoalSiswa.map(soal => soal.id);
                         localStorage.setItem('urutan_soal_dkv', JSON.stringify(orderIds));
                     }
 
                     totalSoalAktif = paketSoalSiswa.length;
-
                     bankItem.innerHTML = "";
                     areaSoal.innerHTML = "";
 
-                    // 1. Render Elemen Atas (Tools) - Diacak lagi urutan letak tombolnya agar bervariasi
+                    // Render Alat Utama (Tools) dengan Cek Deteksi File Gambar Custom / FontAwesome
                     let paketToolsTombol = [...paketSoalSiswa].sort(() => Math.random() - 0.5);
                     paketToolsTombol.forEach(soal => {
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'item';
                         itemDiv.id = soal.id;
-                        itemDiv.innerHTML = `<i class="${soal.icon}"></i> ${soal.nama}`;
+                        
+                        // Deteksi struktur file (.svg, .png atau path folder '/')
+                        if (soal.icon.includes('.') || soal.icon.includes('/')) {
+                            itemDiv.innerHTML = `<img src="${soal.icon}" alt="${soal.nama}"> ${soal.nama}`;
+                        } else {
+                            itemDiv.innerHTML = `<i class="${soal.icon}"></i> ${soal.nama}`;
+                        }
                         bankItem.appendChild(itemDiv);
                     });
 
-                    // 2. Render List Definisi (Zona Drop)
+                    // Render List Zona Definisi
                     paketSoalSiswa.forEach(soal => {
                         const zoneDiv = document.createElement('div');
                         zoneDiv.className = 'zone-wrapper glass-effect';
@@ -487,14 +482,13 @@
                     aktifkanFiturKlikInteraktif();
                     muatProgresSiswaSama();
                 } else {
-                    areaSoal.innerHTML = "<p style='padding:20px; text-align:center; color:#facc15;'>Kuis kosong. Silakan hubungi Guru Anda.</p>";
+                    areaSoal.innerHTML = "<p style='padding:20px; text-align:center; color:#facc15;'>Bank soal kosong.</p>";
                 }
             } catch (e) {
                 console.error(e);
             }
         }
 
-        // Restore jawaban lama jika siswa melakukan refresh halaman
         function muatProgresSiswaSama() {
             const jawabanSimpanan = localStorage.getItem('jawaban_kuis_dkv');
             if (jawabanSimpanan) {
@@ -588,10 +582,10 @@
             if(email === "" || password === "") return alert("Mohon masukkan email dan password!");
             
             if(email.toLowerCase().includes('guru') || email.toLowerCase().endsWith('@smk.sch.id')) {
-                return alert("Akses Ditolak! Akun Guru dilarang masuk melalui halaman siswa. Silakan gunakan panel admin khusus guru.");
+                return alert("Akses Ditolak!");
             }
 
-            signInWithEmailAndPassword(auth, email, password).catch(() => alert("Gagal Masuk! Data salah atau belum terdaftar."));
+            signInWithEmailAndPassword(auth, email, password).catch(() => alert("Gagal Masuk!"));
         });
 
         btnNavGantiPass.addEventListener('click', () => modalGantiPassGame.classList.toggle('hidden'));
@@ -599,18 +593,18 @@
 
         btnSimpanPassGame.addEventListener('click', () => {
             const passGameBaru = inputPassGameBaru.value.trim();
-            if(passGameBaru.length < 6) return alert("Password baru minimal harus 6 karakter!");
+            if(passGameBaru.length < 6) return alert("Password minimal 6 karakter!");
             if(auth.currentUser) {
                 updatePassword(auth.currentUser, passGameBaru).then(() => {
                     alert("Sukses memperbarui password.");
                     modalGantiPassGame.classList.add('hidden');
                     inputPassGameBaru.value = "";
-                }).catch(() => alert("Sesi habis. Silakan relogin kembali."));
+                }).catch(() => alert("Sesi habis. Silakan relogin."));
             }
         });
 
         btnLogout.addEventListener('click', () => {
-            if(confirm("Apakah Anda yakin ingin logout? (Progres jawaban saat ini akan direset)")) {
+            if(confirm("Apakah Anda yakin ingin logout?")) {
                 hapusMemoriLokalUjian();
                 signOut(auth).then(() => window.location.reload());
             }
@@ -647,7 +641,7 @@
                 <div class="nama-siswa-hasil">${namaSiswa}</div>
                 <p>Total Jawaban Benar: ${skorBenar} dari ${totalSoalAktif}</p>
                 <div class="skor-besar">Nilai: ${nilaiAkhir}</div>
-                <p><i class="fas fa-camera"></i> Silakan screenshot layar ini sebagai bukti nilai.</p>
+                <p><i class="fas fa-camera"></i> Silakan screenshot bukti nilai ini.</p>
             `;
             pesanSukses.style.display = 'block';
             
