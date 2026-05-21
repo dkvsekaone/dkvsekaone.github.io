@@ -1,0 +1,56 @@
+admin.html
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Live Score Guru</title>
+    <style>
+        body { font-family: sans-serif; background: #0f172a; color: white; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; }
+        th, td { padding: 12px; border: 1px solid #334155; text-align: left; }
+        th { background: #ea580c; }
+        tr:nth-child(even) { background: #1e293b; }
+    </style>
+</head>
+<body>
+    <h2>🔴 Live Score Ujian DKV - Real-Time</h2>
+    <p>Nilai siswa akan muncul di bawah ini secara otomatis tanpa perlu refresh halaman.</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Username Siswa</th>
+                <th>Nilai Kuis</th>
+                <th>Waktu Selesai</th>
+            </tr>
+        </thead>
+        <tbody id="tabel-skor">
+            </tbody>
+    </table>
+
+    <script type="module">
+        import { db } from './firebase-config.js';
+        import { collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const q = query(collection(db, "hasil_ujian"), orderBy("waktuUjian", "desc"));
+        const tabelSkor = document.getElementById('tabel-skor');
+
+        onSnapshot(q, (snapshot) => {
+            tabelSkor.innerHTML = ""; // Bersihkan tabel lama
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const waktu = data.waktuUjian ? new Date(data.waktuUjian.seconds * 1000).toLocaleTimeString('id-ID') : '-';
+                
+                tabelSkor.innerHTML += `
+                    <tr>
+                        <td><b>${data.namaSiswa}</b></td>
+                        <td style="color:#22c55e; font-weight:bold; font-size:18px;">${data.nilai}</td>
+                        <td>${waktu} WIB</td>
+                    </tr>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>
