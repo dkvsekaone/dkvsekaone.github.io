@@ -357,70 +357,10 @@
 
         <div class="game-container">
             <div class="items-container glass-effect" id="bank-item">
-                <div class="item" id="item1"><i class="fas fa-pen-nib"></i> Pen Tool</div>
-                <div class="item" id="item2"><i class="fas fa-file-circle-plus"></i> New Document</div>
-                <div class="item" id="item3"><i class="fas fa-palette"></i> Color Panel</div>
-                <div class="item" id="item4"><i class="fas fa-arrows-up-down-left-right"></i> Move Tool</div>
-                <div class="item" id="item5"><i class="fas fa-layer-group"></i> Layers</div>
-                <div class="item" id="item6"><i class="fas fa-draw-polygon"></i> Node Tool</div>
-                <div class="item" id="item7"><i class="fas fa-border-all"></i> Artboard</div>
-                <div class="item" id="item8"><i class="fas fa-shapes"></i> Shape Tools</div>
-                <div class="item" id="item9"><i class="fas fa-font"></i> Text Tool</div>
-                <div class="item" id="item10"><i class="fas fa-fill-drip"></i> Gradient Tool</div>
-                <div class="item" id="item11"><i class="fas fa-grip-lines"></i> Stroke Panel</div>
-                <div class="item" id="item12"><i class="fas fa-file-export"></i> Export</div>
-            </div>
+                </div>
 
             <div class="zones-container" id="area-soal">
-                <div class="zone-wrapper glass-effect">
-                    <div class="zone-teks">Memilih, menggeser posisi, memutar, atau mengubah ukuran suatu elemen desain di dalam area kerja.</div>
-                    <div class="zone-slot" data-target="item4"></div>
                 </div>
-                <div class="zone-wrapper glass-effect">
-                    <div class="zone-teks">Proses menyimpan hasil akhir desain ke dalam format file gambar seperti PNG, JPEG, SVG, atau PDF.</div>
-                    <div class="zone-slot" data-target="item12"></div>
-                </div>
-                <div class="zone-wrapper glass-effect">
-                    <div class="zone-teks">Alat untuk membuat bentuk dasar instan dengan cepat seperti persegi panjang, elips (lingkaran), atau bintang.</div>
-                    <div class="zone-slot" data-target="item8"></div>
-                </div>
-                <div class="zone-wrapper glass-effect">
-                    <div class="zone-teks">Langkah awal untuk menentukan ukuran kanvas, resolusi desain, orientasi, dan mode warna (RGB/CMYK).</div>
-                    <div class="zone-slot" data-target="item2"></div>
-                </div>
-                <div class="zone-wrapper glass-effect">
-                    <div class="zone-teks">Panel khusus yang digunakan untuk mengatur ketebalan garis, gaya garis putus-putus, dan ujung garis tepi objek.</div>
-                    <div class="zone-slot" data-target="item11"></div>
-                </div>
-                <div class="zone-wrapper glass-effect">
-                    <div class="zone-teks">Berfungsi untuk menambahkan elemen tipografi, mengetik huruf, judul, atau membuat paragraf ke dalam desain.</div>
-                    <div class="zone-slot" data-target="item9"></div>
-                </div>
-                <div class="zone-wrapper glass-effect">
-                    <div class="zone-teks">Membuat jalur (path) vektor presisi tinggi menggunakan titik-titik jangkar (anchor points) dan tuas kurva bezier.</div>
-                    <div class="zone-slot" data-target="item1"></div>
-                </div>
-                <div class="zone-wrapper glass-effect">
-                    <div class="zone-teks">Area kerja yang memungkinkan Anda memiliki banyak kanvas atau halaman virtual dalam satu dokumen yang sama.</div>
-                    <div class="zone-slot" data-target="item7"></div>
-                </div>
-                <div class="zone-wrapper glass-effect">
-                    <div class="zone-teks">Mengubah, memilih, atau menerapkan kode warna (Hex) pada isi objek (fill) maupun garis tepi (stroke).</div>
-                    <div class="zone-slot" data-target="item3"></div>
-                </div>
-                <div class="zone-wrapper glass-effect">
-                    <div class="zone-teks">Alat spesifik untuk menggeser, menghapus, atau mengedit titik-titik jangkar pada objek vektor yang sudah dibuat.</div>
-                    <div class="zone-slot" data-target="item6"></div>
-                </div>
-                <div class="zone-wrapper glass-effect">
-                    <div class="zone-teks">Memberikan efek transisi perpindahan dari satu warna ke warna lain secara halus pada suatu objek.</div>
-                    <div class="zone-slot" data-target="item10"></div>
-                </div>
-                <div class="zone-wrapper glass-effect">
-                    <div class="zone-teks">Panel penting untuk mengatur susunan tumpukan objek desain agar rapi, dikelompokkan (group), dan tidak saling tertindih.</div>
-                    <div class="zone-slot" data-target="item5"></div>
-                </div>
-            </div>
 
             <button id="btn-kumpulkan" class="btn-utama hidden"><i class="fas fa-check-double"></i> Cek & Kumpulkan Jawaban</button>
             
@@ -433,6 +373,7 @@
     <script type="module">
         import { db, auth, collection, addDoc, signInWithEmailAndPassword, updatePassword } from './firebase-config.js';
         import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const layarLoading = document.getElementById('layar-loading');
         const layarMulai = document.getElementById('layar-mulai');
@@ -455,35 +396,82 @@
         
         let namaSiswa = "";
         let itemTerpilih = null;
+        let totalSoalAktif = 0;
 
-        // SISTEM CEK SESI REFRESH
-        onAuthStateChanged(auth, (user) => {
-            layarLoading.classList.add('hidden'); 
-            
+        // SISTEM CEK SESI REFRESH BROWSER
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 namaSiswa = user.email.split('@')[0].toUpperCase();
                 namaSiswaNav.textContent = namaSiswa;
 
-                // Urutkan/acak soal dlu atau muat susunan simpanan jika ada
-                muatUrutanAtauAcakSoal();
+                // Ambil dan susun struktur soal kuis dinamis dari database guru
+                await unduhDanSusunKuisFirestore();
 
+                layarLoading.classList.add('hidden'); 
                 layarMulai.classList.add('hidden');
                 layarGame.classList.remove('hidden');
             } else {
+                layarLoading.classList.add('hidden'); 
                 layarGame.classList.add('hidden');
                 layarMulai.classList.remove('hidden');
             }
         });
 
-        // REFRESH-PROOF: Fungsi Manajemen Memori Soal dan Jawaban
-        function muatUrutanAtauAcakSoal() {
-            // Cek apakah ada susunan urutan elemen soal yang disimpan sebelumnya
+        // MEMUAT LIVE SOAL DARI PANEL GURU
+        async function unduhDanSusunKuisFirestore() {
+            try {
+                const docRef = doc(db, "bank_soal", "kuis_affinity");
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    const kuisData = docSnap.data().data; 
+                    totalSoalAktif = kuisData.length;
+
+                    // Bersihkan kontainer HTML bawaan lama
+                    bankItem.innerHTML = "";
+                    areaSoal.innerHTML = "";
+
+                    // 1. Render Elemen Atas (Tools)
+                    kuisData.forEach(soal => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'item';
+                        itemDiv.id = soal.id;
+                        itemDiv.innerHTML = `<i class="${soal.icon}"></i> ${soal.nama}`;
+                        bankItem.appendChild(itemDiv);
+                    });
+
+                    // 2. Render List Definisi (Zona Drop)
+                    kuisData.forEach(soal => {
+                        const zoneDiv = document.createElement('div');
+                        zoneDiv.className = 'zone-wrapper glass-effect';
+                        zoneDiv.innerHTML = `
+                            <div class="zone-teks">${soal.definisi}</div>
+                            <div class="zone-slot" data-target="${soal.id}"></div>
+                        `;
+                        areaSoal.appendChild(zoneDiv);
+                    });
+
+                    // Aktifkan kembali interaksi klik drag drop
+                    aktifkanFiturKlikInteraktif();
+
+                    // Sinkronisasi dengan localStorage cache jawaban siswa
+                    muatProgresSiswaSama();
+
+                } else {
+                    areaSoal.innerHTML = "<p style='padding:20px; text-align:center; color:#facc15;'>Kuis kosong. Guru belum menerbitkan soal di admin.html.</p>";
+                }
+            } catch (e) {
+                console.error("Gagal sinkronisasi bank soal: ", e);
+            }
+        }
+
+        // REFRESH-PROOF: Manajemen Memori Soal dan Jawaban Lokal
+        function muatProgresSiswaSama() {
             const orderSimpanan = localStorage.getItem('urutan_soal_dkv');
             let zonesArr = Array.from(areaSoal.querySelectorAll('.zone-wrapper'));
 
             if (orderSimpanan) {
                 const targetOrder = JSON.parse(orderSimpanan);
-                // Susun ulang area soal berdasarkan data index target simpanan
                 zonesArr.sort((a, b) => {
                     const targetA = a.querySelector('.zone-slot').getAttribute('data-target');
                     const targetB = b.querySelector('.zone-slot').getAttribute('data-target');
@@ -491,20 +479,18 @@
                 });
                 zonesArr.forEach(zone => areaSoal.appendChild(zone));
             } else {
-                // Jika tidak ada, acak baru dan simpan urutannya
+                // Acak urutan tampilnya definisi zona agar adil
                 zonesArr.sort(() => Math.random() - 0.5);
                 zonesArr.forEach(zone => areaSoal.appendChild(zone));
-                
                 const currentOrder = zonesArr.map(z => z.querySelector('.zone-slot').getAttribute('data-target'));
                 localStorage.setItem('urutan_soal_dkv', JSON.stringify(currentOrder));
             }
 
-            // Restore/kembalikan jawaban item ke dalam slot jika siswa sudah menjawab sebelumnya
+            // Kembalikan jawaban lama jika ada cache refresh browser
             const jawabanSimpanan = localStorage.getItem('jawaban_kuis_dkv');
             if (jawabanSimpanan) {
-                const mapJawaban = JSON.parse(jawabanSimpanan); // format: {dataTargetSlot: idItem}
+                const mapJawaban = JSON.parse(jawabanSimpanan);
                 const slots = areaSoal.querySelectorAll('.zone-slot');
-                
                 slots.forEach(slot => {
                     const targetSlot = slot.getAttribute('data-target');
                     if (mapJawaban[targetSlot]) {
@@ -537,22 +523,20 @@
             localStorage.removeItem('jawaban_kuis_dkv');
         }
 
-        // FITUR BARU: Event listener tombol Enter pada halaman login
+        // FITUR BARU: Menangani Tekan Enter untuk Login Otomatis
         const tanganiEnterLogin = (event) => {
             if (event.key === 'Enter') {
-                event.preventDefault(); // Cegah default submit form browser
-                btnMulai.click(); // Jalankan simulasi klik tombol mulai kuis
+                event.preventDefault();
+                btnMulai.click(); 
             }
         };
         inputEmail.addEventListener('keydown', tanganiEnterLogin);
         inputPassword.addEventListener('keydown', tanganiEnterLogin);
 
-
-        // Tampilkan/Sembunyikan Password
+        // Sembunyikan/Tampilkan Password
         function aturToggleMata(idMata, idInput) {
             const ikonMata = document.getElementById(idMata);
             const kolomInput = document.getElementById(idInput);
-            
             ikonMata.addEventListener('click', () => {
                 if (kolomInput.type === "password") {
                     kolomInput.type = "text";
@@ -566,115 +550,90 @@
         aturToggleMata('mata-pass-utama', 'input-password');
         aturToggleMata('mata-pass-game-baru', 'input-pass-game-baru');
 
+        // Delegasi Event Listener Klik Interaktif
+        function aktifkanFiturKlikInteraktif() {
+            const items = bankItem.querySelectorAll('.item');
+            items.forEach(item => {
+                item.addEventListener('click', () => {
+                    if(item.parentElement !== bankItem) return;
+
+                    bankItem.querySelectorAll('.item').forEach(i => i.classList.remove('selected'));
+                    
+                    if(itemTerpilih === item) {
+                        itemTerpilih = null;
+                        document.body.classList.remove('is-selecting');
+                        return;
+                    }
+
+                    item.classList.add('selected');
+                    itemTerpilih = item;
+                    document.body.classList.add('is-selecting');
+                });
+            });
+
+            const slots = areaSoal.querySelectorAll('.zone-slot');
+            slots.forEach(slot => {
+                slot.addEventListener('click', () => {
+                    if (slot.classList.contains('filled')) {
+                        const itemDiDalam = slot.querySelector('.item');
+                        if(itemDiDalam) {
+                            bankItem.appendChild(itemDiDalam);
+                            slot.classList.remove('filled');
+                            simpanProgresJawaban();
+                            cekSemuaTerisi();
+                        }
+                        return;
+                    }
+
+                    if (!itemTerpilih) return; 
+                    
+                    slot.appendChild(itemTerpilih); 
+                    slot.classList.add('filled');
+                    
+                    itemTerpilih.classList.remove('selected');
+                    itemTerpilih = null;
+                    document.body.classList.remove('is-selecting');
+                    
+                    simpanProgresJawaban();
+                    cekSemuaTerisi();
+                });
+            });
+        }
+
         // 1. PROSES LOGIN SISWA VIA FIREBASE
         btnMulai.addEventListener('click', () => {
             const email = inputEmail.value.trim();
             const password = inputPassword.value.trim();
-            
-            if(email === "" || password === "") {
-                alert("Mohon masukkan email dan password kuis Anda!");
-                return;
-            }
-
-            signInWithEmailAndPassword(auth, email, password)
-                .catch((error) => {
-                    alert("Gagal Masuk! Email atau password salah, atau belum terdaftar.");
-                });
+            if(email === "" || password === "") return alert("Mohon masukkan email dan password!");
+            signInWithEmailAndPassword(auth, email, password).catch(() => alert("Gagal Masuk! Data salah atau belum terdaftar."));
         });
 
         // 2. INTERAKSI MENU DI DALAM GAME
-        btnNavGantiPass.addEventListener('click', () => {
-            modalGantiPassGame.classList.toggle('hidden');
-        });
-
-        btnBatalPassGame.addEventListener('click', () => {
-            modalGantiPassGame.classList.add('hidden');
-            inputPassGameBaru.value = "";
-        });
+        btnNavGantiPass.addEventListener('click', () => modalGantiPassGame.classList.toggle('hidden'));
+        btnBatalPassGame.addEventListener('click', () => { modalGantiPassGame.classList.add('hidden'); inputPassGameBaru.value = ""; });
 
         btnSimpanPassGame.addEventListener('click', () => {
             const passGameBaru = inputPassGameBaru.value.trim();
-            if(passGameBaru.length < 6) {
-                alert("Keamanan lemah! Password baru minimal harus 6 karakter.");
-                return;
-            }
-
+            if(passGameBaru.length < 6) return alert("Password baru minimal harus 6 karakter!");
             if(auth.currentUser) {
-                updatePassword(auth.currentUser, passGameBaru)
-                    .then(() => {
-                        alert("Sukses! Password akun Anda berhasil diperbarui di server Firebase.");
-                        modalGantiPassGame.classList.add('hidden');
-                        inputPassGameBaru.value = "";
-                    })
-                    .catch((error) => {
-                        alert("Gagal! Sesi keamanan habis. Harap lakukan logout dan masuk kembali untuk mengubah password.");
-                    });
+                updatePassword(auth.currentUser, passGameBaru).then(() => {
+                    alert("Sukses memperbarui password.");
+                    modalGantiPassGame.classList.add('hidden');
+                    inputPassGameBaru.value = "";
+                }).catch(() => alert("Sesi habis. Silakan relogin kembali."));
             }
         });
 
-        // Proses Logout Sesi
         btnLogout.addEventListener('click', () => {
-            if(confirm("Apakah Anda yakin ingin logout dari kuis ini? (Jawaban Anda saat ini akan direset)")) {
-                hapusMemoriLokalUjian(); // Bersihkan memori progres saat logout sengaja
-                signOut(auth).then(() => {
-                    window.location.reload();
-                }).catch((error) => {
-                    alert("Gagal melakukan logout sistem.");
-                });
+            if(confirm("Apakah Anda yakin ingin logout? (Progres jawaban saat ini akan direset)")) {
+                hapusMemoriLokalUjian();
+                signOut(auth).then(() => window.location.reload());
             }
-        });
-
-        // Logika drag-and-drop kuis
-        const items = document.querySelectorAll('.item');
-        items.forEach(item => {
-            item.addEventListener('click', () => {
-                if(item.parentElement !== bankItem) return;
-
-                items.forEach(i => i.classList.remove('selected'));
-                
-                if(itemTerpilih === item) {
-                    itemTerpilih = null;
-                    document.body.classList.remove('is-selecting');
-                    return;
-                }
-
-                item.classList.add('selected');
-                itemTerpilih = item;
-                document.body.classList.add('is-selecting');
-            });
-        });
-
-        const slots = document.querySelectorAll('.zone-slot');
-        slots.forEach(slot => {
-            slot.addEventListener('click', () => {
-                if (slot.classList.contains('filled')) {
-                    const itemDiDalam = slot.querySelector('.item');
-                    if(itemDiDalam) {
-                        bankItem.appendChild(itemDiDalam);
-                        slot.classList.remove('filled');
-                        simpanProgresJawaban(); // Update memori saat item dicopot
-                        cekSemuaTerisi();
-                    }
-                    return;
-                }
-
-                if (!itemTerpilih) return; 
-                
-                slot.appendChild(itemTerpilih); 
-                slot.classList.add('filled');
-                
-                itemTerpilih.classList.remove('selected');
-                itemTerpilih = null;
-                document.body.classList.remove('is-selecting');
-                
-                simpanProgresJawaban(); // Update memori saat item diletakkan
-                cekSemuaTerisi();
-            });
         });
 
         function cekSemuaTerisi() {
             const sisaDiBank = bankItem.querySelectorAll('.item').length;
-            if (sisaDiBank === 0) {
+            if (sisaDiBank === 0 && totalSoalAktif > 0) {
                 btnKumpulkan.classList.remove('hidden');
                 btnKumpulkan.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } else {
@@ -682,16 +641,15 @@
             }
         }
 
-        // 3. PROSES EVALUASI & KIRIM NILAI REAL-TIME KE GURU
+        // 3. PROSES EVALUASI & KIRIM NILAI KE GURU
         btnKumpulkan.addEventListener('click', () => {
             let skorBenar = 0;
-            const totalSoal = slots.length;
+            const slots = areaSoal.querySelectorAll('.zone-slot');
 
             modalGantiPassGame.classList.add('hidden');
 
             slots.forEach(slot => {
                 slot.style.pointerEvents = 'none';
-
                 const itemDiDalam = slot.querySelector('.item');
                 const idTargetBenar = slot.getAttribute('data-target');
                 
@@ -704,18 +662,18 @@
             });
 
             btnKumpulkan.classList.add('hidden');
-            const nilaiAkhir = Math.round((skorBenar / totalSoal) * 100);
+            const nilaiAkhir = Math.round((skorBenar / totalSoalAktif) * 100);
 
             pesanSukses.innerHTML = `
                 <h3>Ujian Selesai!</h3>
                 <div class="nama-siswa-hasil">${namaSiswa}</div>
-                <p>Total Jawaban Benar: ${skorBenar} dari ${totalSoal}</p>
+                <p>Total Jawaban Benar: ${skorBenar} dari ${totalSoalAktif}</p>
                 <div class="skor-besar">Nilai: ${nilaiAkhir}</div>
                 <p><i class="fas fa-camera"></i> Silakan screenshot layar ini sebagai bukti nilai.</p>
             `;
             pesanSukses.style.display = 'block';
             
-            // Hapus cache simpanan jawaban local karena kuis sudah selesai dikumpulkan
+            // Hapus cache simpanan jawaban karena ujian sudah selesai dikumpulkan
             hapusMemoriLokalUjian();
 
             async function kirimNilaiKeFirebase(nama, skor) {
@@ -725,16 +683,12 @@
                         nilai: skor,
                         waktuUjian: new Date()
                     });
-                    console.log("Skor otomatis terkirim ke Live Score!");
-                } catch (e) {
-                    console.error("Gagal mengirim nilai: ", e);
-                }
+                    console.log("Skor otomatis terkirim!");
+                } catch (e) { console.error(e); }
             }
             kirimNilaiKeFirebase(namaSiswa, nilaiAkhir);
 
-            setTimeout(() => {
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }, 300);
+            setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }, 300);
         });
     </script>
 </body>
