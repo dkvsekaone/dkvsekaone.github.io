@@ -1,15 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keuangan Keluarga Mikro - Mode Survival</title>
+    <title>Keuangan Keluarga Mikro - Mode Soft Pink</title>
     <!-- Tailwind CSS untuk Tampilan Bagus & Ringan -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Dexie.js untuk Database Offline di HP (IndexedDB) -->
     <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.4/dist/dexie.mjs" type="module"></script>
     <style>
-        /* Gaya khusus untuk mode Cetak PDF */
         @media print {
             body { background: white; color: black; font-size: 12px; }
             .no-print { display: none !important; }
@@ -17,32 +16,27 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased pb-12">
+<body class="bg-pink-50/30 text-gray-800 font-sans antialiased pb-12">
 
-
-    <!-- HEADER / NAVIGASI (Akan hilang saat di-print) -->
-    <header class="bg-blue-700 text-white p-4 shadow-md no-print sticky top-0 z-50">
+    <!-- HEADER / NAVIGASI -->
+    <header class="bg-pink-400 text-white p-4 shadow-sm no-print sticky top-0 z-40">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <h1 class="text-lg font-bold flex items-center gap-2">
-                📊 Keuanganku <span class="text-xs bg-blue-500 px-2 py-0.5 rounded">Rp0 Cost</span>
+                🌸 Keuanganku <span class="text-[10px] bg-pink-500/50 px-2 py-0.5 rounded-full font-normal">Offline</span>
             </h1>
-            <!-- Navigasi Filter Bulan -->
-            <select id="filterBulan" class="bg-blue-600 text-white font-medium text-sm rounded px-2 py-1 border-none focus:ring-2 focus:ring-white">
+            <select id="filterBulan" class="bg-pink-500/80 text-white font-medium text-sm rounded-lg px-2 py-1 border-none focus:ring-2 focus:ring-white focus:outline-none">
                 <!-- Diisi otomatis oleh JavaScript -->
             </select>
         </div>
     </header>
 
-
-    <!-- KONTEN UTAMA (Dibatasi seukuran layar HP agar nyaman) -->
     <main class="max-w-md mx-auto p-4 space-y-6">
 
-
-        <!-- 1. JATAH HARIAN & RINGKASAN -->
-        <section class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl p-5 shadow-lg print-card">
+        <!-- 1. JATAH HARIAN & RINGKASAN GAJI -->
+        <section class="bg-gradient-to-br from-pink-400 to-pink-500 text-white rounded-2xl p-5 shadow-sm print-card">
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold">Jatah Belanja Hari Ini</p>
+                    <p class="text-xs text-pink-100 uppercase tracking-wider font-semibold">Jatah Belanja Hari Ini</p>
                     <h2 id="txtJatahHariIni" class="text-3xl font-black mt-1">Rp 0</h2>
                 </div>
                 <button onclick="window.print()" class="no-print bg-white/20 hover:bg-white/30 text-white text-xs px-2.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
@@ -51,22 +45,28 @@
             </div>
             <div class="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-white/20 text-sm">
                 <div>
-                    <p class="text-blue-200 text-xs">Total Anggaran</p>
+                    <div class="flex items-center gap-1.5">
+                        <p class="text-pink-100 text-xs">Total Gaji / Anggaran</p>
+                        <button onclick="bukaModalGaji()" class="no-print text-xs hover:text-pink-200">✏️</button>
+                    </div>
                     <p id="txtTotalAnggaran" class="font-bold text-base">Rp 0</p>
                 </div>
                 <div>
-                    <p class="text-blue-200 text-xs">Sisa Uang Bulan Ini</p>
+                    <p class="text-pink-100 text-xs">Sisa Uang Belum Terpakai</p>
                     <p id="txtSisaBulanIni" class="font-bold text-base">Rp 0</p>
                 </div>
             </div>
+            <!-- Notifikasi Alokasi Pos -->
+            <div id="txtSisaAlokasiGaji" class="mt-3 pt-2 border-t border-white/10 text-xs text-pink-50 italic">
+                <!-- Diisi otomatis -->
+            </div>
         </section>
-
 
         <!-- 2. DAFTAR POS ANGGARAN & TARGET TABUNGAN -->
         <section class="space-y-3">
             <div class="flex justify-between items-center">
                 <h3 class="font-bold text-gray-700 text-base">Kantong Anggaran & Target</h3>
-                <button onclick="bukaModalPos()" class="no-print text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold px-3 py-1.5 rounded-lg transition">
+                <button onclick="bukaModalPos()" class="no-print text-xs bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold px-3 py-1.5 rounded-lg transition">
                     ➕ Tambah Pos
                 </button>
             </div>
@@ -76,30 +76,29 @@
             </div>
         </section>
 
-
-        <!-- 3. TOMBOL CEPAT TAMBAH TRANSAKSI (no-print) -->
-        <section class="no-print bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <!-- 3. FORM INPUT TRANSAKSI (PENGELUARAN/TABUNGAN) -->
+        <section class="no-print bg-white rounded-xl p-4 shadow-sm border border-pink-100/60">
             <h3 class="font-bold text-gray-700 text-sm mb-3">Catat Transaksi Baru</h3>
             <form id="formTransaksi" class="space-y-3">
                 <input type="hidden" id="editId">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1">Nominal (Rp)</label>
-                        <input type="number" id="inputNominal" required placeholder="Contoh: 15000" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-blue-500">
+                        <input type="number" id="inputNominal" required placeholder="Contoh: 15000" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1">Pilih Pos</label>
-                        <select id="selectPos" required class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-blue-500">
+                        <select id="selectPos" required class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
                             <!-- Diisi oleh JS -->
                         </select>
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1">Catatan Singkat</label>
-                    <input type="text" id="inputCatatan" required placeholder="Beli telur, bayar listrik, tabungan sepeda..." class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-blue-500">
+                    <input type="text" id="inputCatatan" required placeholder="Beli telur, bayar air, tabungan anak..." class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
                 </div>
                 <div class="flex gap-2 pt-1">
-                    <button type="submit" id="btnSimpan" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm p-2.5 rounded-lg transition shadow-sm">
+                    <button type="submit" id="btnSimpan" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-bold text-sm p-2.5 rounded-lg transition shadow-sm">
                         💾 Simpan Catatan
                     </button>
                     <button type="button" id="btnBatalEdit" onclick="resetFormTransaksi()" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-600 font-bold text-sm px-4 p-2.5 rounded-lg transition">
@@ -109,9 +108,8 @@
             </form>
         </section>
 
-
         <!-- 4. RIWAYAT TRANSAKSI BULANAN -->
-        <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 print-card">
+        <section class="bg-white rounded-xl shadow-sm border border-pink-100/60 p-4 print-card">
             <h3 class="font-bold text-gray-700 text-base mb-3">Riwayat Pengeluaran & Masukan</h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
@@ -130,141 +128,154 @@
         </section>
     </main>
 
-
-    <!-- MODAL POPUP: TAMBAH POS BARU (no-print) -->
-    <div id="modalPos" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 no-print">
+    <!-- MODAL POPUP: EDIT GAJI TOTAL -->
+    <div id="modalGaji" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-xl">
-            <h3 class="font-bold text-lg text-gray-800">Tambah Pos Keuangan Baru</h3>
-            <form id="formPos" class="space-y-3">
+            <h3 class="font-bold text-lg text-gray-800">Ubah Nominal Gaji Bulanan</h3>
+            <form id="formGaji" class="space-y-3">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">Nama Pos / Kantong</label>
-                    <input type="text" id="posNama" required placeholder="Contoh: Susu Anak, Tabungan Rumah" class="w-full border border-gray-200 rounded-lg p-2 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">Alokasi Dana Awal (Rp)</label>
-                    <input type="number" id="posAlokasi" required placeholder="Maksimal sisa gaji" class="w-full border border-gray-200 rounded-lg p-2 text-sm">
-                </div>
-                <div class="flex items-center gap-2 py-1">
-                    <input type="checkbox" id="posIsTarget" class="w-4 h-4 text-blue-600 rounded">
-                    <label for="posIsTarget" class="text-xs font-bold text-gray-600">Jadikan Pos Target Tabungan</label>
-                </div>
-                <div id="divTargetNominal" class="hidden">
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">Target Akhir Tabungan (Rp)</label>
-                    <input type="number" id="posTargetNominal" placeholder="Contoh: 500000" class="w-full border border-gray-200 rounded-lg p-2 text-sm">
+                    <label class="block text-xs font-semibold text-gray-500 mb-1">Total Pemasukan / Gaji (Rp)</label>
+                    <input type="number" id="inputGajiTotal" required class="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
                 </div>
                 <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="tutupModalPos()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold p-2 rounded-lg transition">Batal</button>
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold p-2 rounded-lg transition">Tambah</button>
+                    <button type="button" onclick="tutupModalGaji()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold p-2 rounded-lg transition">Batal</button>
+                    <button type="submit" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white text-sm font-bold p-2 rounded-lg transition">Perbarui</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- MODAL POPUP: TAMBAH / EDIT POS ANGGARAN & TARGET -->
+    <div id="modalPos" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-xl">
+            <h3 id="modalPosTitle" class="font-bold text-lg text-gray-800">Tambah Pos Keuangan Baru</h3>
+            <form id="formPos" class="space-y-3">
+                <input type="hidden" id="posEditId">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1">Nama Pos / Kantong</label>
+                    <input type="text" id="posNama" required placeholder="Contoh: Susu Anak, Listrik" class="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1">Alokasi Anggaran Bulanan (Rp)</label>
+                    <input type="number" id="posAlokasi" required placeholder="Jatah uang untuk pos ini" class="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                </div>
+                <div class="flex items-center gap-2 py-1">
+                    <input type="checkbox" id="posIsTarget" class="w-4 h-4 text-pink-500 border-gray-300 rounded focus:ring-pink-400">
+                    <label for="posIsTarget" class="text-xs font-bold text-gray-600">Jadikan Pos Target Tabungan</label>
+                </div>
+                <div id="divTargetNominal" class="hidden">
+                    <label class="block text-xs font-semibold text-gray-500 mb-1">Target Akhir Tabungan (Rp)</label>
+                    <input type="number" id="posTargetNominal" placeholder="Contoh: 500000" class="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="tutupModalPos()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold p-2 rounded-lg transition">Batal</button>
+                    <button type="submit" id="btnSimpanPos" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white text-sm font-bold p-2 rounded-lg transition">Tambah</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- LOGIKA JAVASCRIPT & DATABASE OFFLINE -->
     <script type="module">
         import Dexie from 'https://cdn.jsdelivr.net/npm/dexie@3.2.4/dist/dexie.mjs';
 
-
-        // 1. INISIALISASI DATABASE OFFLINE HP (IndexedDB)
-        const db = new Dexie("DatabaseKeuanganSurvival");
+        const db = new Dexie("DatabaseKeuanganSoftPink");
         db.version(1).stores({
+            konfigurasi: 'kunci, nilai',
             pos: '++id, nama, alokasi, isTarget, targetNominal, bulanTahun',
             transaksi: '++id, posId, nominal, catatan, tanggal, bulanTahun'
         });
 
-
-        // Variabel Global Waktu Aktif Saat Ini (Sesuai Konteks 2026)
         let bulanAktif = "2026-05"; 
+        let totalGajiSistem = 1200000;
 
-
-        // 2. DATA DEFAULT JIKA BARU PERTAMA KALI DIBUKA
         async function isiDataDefaultSistem() {
+            const g = await db.konfigurasi.get("gaji_total");
+            if (!g) {
+                await db.konfigurasi.add({ kunci: "gaji_total", nilai: 1200000 });
+            } else {
+                totalGajiSistem = Number(g.nilai);
+            }
+
             const hitungPos = await db.pos.count();
             if (hitungPos === 0) {
-                // Sesuai kesepakatan pembagian kategori efisien untuk gaji Rp 1.200.000
                 await db.pos.bulkAdd([
                     { nama: "Dapur & Pangan", alokasi: 600000, isTarget: false, targetNominal: 0, bulanTahun: "2026-05" },
                     { nama: "Keperluan Anak", alokasi: 200000, isTarget: false, targetNominal: 0, bulanTahun: "2026-05" },
                     { nama: "Listrik, Air & Sabun", alokasi: 200000, isTarget: false, targetNominal: 0, bulanTahun: "2026-05" },
                     { nama: "Bensin & Paket Data", alokasi: 150000, isTarget: false, targetNominal: 0, bulanTahun: "2026-05" },
-                    { nama: "Dana Darurat", alokasi: 500000, isTarget: true, targetNominal: 500000, bulanTahun: "2026-05" } // Pos Target Default
+                    { nama: "Dana Darurat", alokasi: 50000, isTarget: true, targetNominal: 500000, bulanTahun: "2026-05" }
                 ]);
             }
         }
 
-
-        // 3. FUNGSI UNTUK MERENDER SELURUH TAMPILAN WEB
         async function renderAplikasi() {
+            const g = await db.konfigurasi.get("gaji_total");
+            totalGajiSistem = g ? Number(g.nilai) : 1200000;
+
             const daftarPos = await db.pos.where({ bulanTahun: bulanAktif }).toArray();
             const daftarTransaksi = await db.transaksi.where({ bulanTahun: bulanAktif }).toArray();
 
-
-            // Hitung kalkulasi saldo pos
-            let totalAnggaran = 0;
+            let totalPosAlokasi = 0;
             let totalPengeluaran = 0;
-            
-            // Map untuk menghitung sisa per pos
             let pengeluaranPerPos = {};
+
             daftarTransaksi.forEach(t => {
                 pengeluaranPerPos[t.posId] = (pengeluaranPerPos[t.posId] || 0) + Number(t.nominal);
                 totalPengeluaran += Number(t.nominal);
             });
 
-
-            // Render komponen POS
             const containerPos = document.getElementById("containerPos");
             const selectPos = document.getElementById("selectPos");
             containerPos.innerHTML = "";
             selectPos.innerHTML = `<option value="" disabled selected>Pilih kantong...</option>`;
 
-
             daftarPos.forEach(p => {
-                totalAnggaran += p.isTarget ? 0 : Number(p.alokasi); // Tabungan tidak masuk beban bulanan utama
+                totalPosAlokasi += Number(p.alokasi);
                 const terpakai = pengeluaranPerPos[p.id] || 0;
-                
                 let htmlPos = "";
+
                 if (p.isTarget) {
-                    // JIKA POS ADALAH TARGET MENABUNG (Progress Bar Naik)
-                    const totalTerabung = Number(p.alokasi) + terpakai; // Dianggap transaksi masuk menambah tabungan
+                    const totalTerabung = Number(p.alokasi) + terpakai;
                     const persen = Math.min(Math.round((totalTerabung / p.targetNominal) * 100), 100);
                     htmlPos = `
-                        <div class="bg-white rounded-xl p-3.5 shadow-sm border border-gray-100 print-card">
+                        <div class="bg-white rounded-xl p-3.5 shadow-sm border border-pink-100 print-card group">
                             <div class="flex justify-between text-xs font-bold text-gray-500 mb-1">
-                                <span class="text-blue-700">🎯 ${p.nama} (Target)</span>
-                                <span>${persen}%</span>
+                                <span class="text-pink-600">🎯 ${p.nama}</span>
+                                <div class="space-x-1.5 no-print text-[11px]">
+                                    <button onclick="aksiEditPos(${p.id}, '${p.nama}', ${p.alokasi}, true, ${p.targetNominal})" class="text-pink-500 hover:underline">Ubah</button>
+                                    <button onclick="aksiHapusPos(${p.id})" class="text-red-400 hover:underline">Hapus</button>
+                                </div>
                             </div>
                             <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-1.5">
-                                <div class="bg-blue-500 h-full transition-all" style="width: ${persen}%"></div>
+                                <div class="bg-pink-400 h-full transition-all" style="width: ${persen}%"></div>
                             </div>
                             <div class="text-xs text-gray-500 flex justify-between">
                                 <span>Terkumpul: <b>Rp ${totalTerabung.toLocaleString('id-ID')}</b></span>
-                                <span>Target: Rp ${Number(p.targetNominal).toLocaleString('id-ID')}</span>
+                                <span>Target: Rp ${Number(p.targetNominal).toLocaleString('id-ID')} (${persen}%)</span>
                             </div>
                         </div>`;
                 } else {
-                    // JIKA POS ANGGARAN BIASA (Sistem Lampu Lalu Lintas Berkurang)
                     const sisa = Number(p.alokasi) - terpakai;
-                    let warnaLampu = "bg-green-500";
-                    let warnaTeks = "text-green-700 bg-green-50";
-                    if (sisa <= 0) {
-                        warnaLampu = "bg-red-500";
-                        warnaTeks = "text-red-700 bg-red-50";
-                    } else if (sisa < (p.alokasi * 0.25)) {
-                        warnaLampu = "bg-yellow-500";
-                        warnaTeks = "text-yellow-700 bg-yellow-50";
-                    }
-
+                    let warnaLampu = "text-green-700 bg-green-50";
+                    if (sisa <= 0) warnaLampu = "text-red-700 bg-red-50";
+                    else if (sisa < (p.alokasi * 0.25)) warnaLampu = "text-amber-700 bg-amber-50";
 
                     htmlPos = `
-                        <div class="bg-white rounded-xl p-3.5 shadow-sm border border-gray-100 flex justify-between items-center print-card">
+                        <div class="bg-white rounded-xl p-3.5 shadow-sm border border-pink-100/60 flex justify-between items-center print-card">
                             <div class="space-y-0.5">
-                                <h4 class="font-bold text-gray-800 text-sm">${p.nama}</h4>
-                                <p class="text-xs text-gray-400">Modal Awal: Rp ${Number(p.alokasi).toLocaleString('id-ID')}</p>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-bold text-gray-800 text-sm">${p.nama}</h4>
+                                    <div class="text-[10px] space-x-1 no-print text-gray-400">
+                                        <button onclick="aksiEditPos(${p.id}, '${p.nama}', ${p.alokasi}, false, 0)" class="hover:text-pink-500">✏️</button>
+                                        <button onclick="aksiHapusPos(${p.id})" class="hover:text-red-500">🗑️</button>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-400">Jatah: Rp ${Number(p.alokasi).toLocaleString('id-ID')}</p>
                             </div>
                             <div class="text-right">
-                                <span class="inline-block text-xs font-bold px-2.5 py-1 rounded-full ${warnaTeks}">
-                                    Rp ${sisa.toLocaleString('id-ID')}
+                                <span class="inline-block text-xs font-bold px-2.5 py-1 rounded-full ${warnaLampu}">
+                                    Sisa: Rp ${sisa.toLocaleString('id-ID')}
                                 </span>
                             </div>
                         </div>`;
@@ -273,37 +284,37 @@
                 selectPos.innerHTML += `<option value="${p.id}">${p.nama}</option>`;
             });
 
-
-            // HITUNG JATAH HARIAN OTOMATIS
             const d = new Date();
             const totalHariBulanIni = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-            const hariIni = d.getDate();
-            const sisaHari = Math.max((totalHariBulanIni - hariIni) + 1, 1);
-
-
-            // Ambil khusus saldo pos dapur/makan untuk jatah harian ketat
-            const posDapur = daftarPos.find(p => p.nama.includes("Dapur"));
-            let sisaDapur = 0;
-            if (posDapur) {
-                sisaDapur = Number(posDapur.alokasi) - (pengeluaranPerPos[posDapur.id] || 0);
-            }
+            const sisaHari = Math.max((totalHariBulanIni - d.getDate()) + 1, 1);
+            const posDapur = daftarPos.find(p => p.nama.toLowerCase().includes("dapur") || p.nama.toLowerCase().includes("pangan"));
+            let sisaDapur = posDapur ? (Number(posDapur.alokasi) - (pengeluaranPerPos[posDapur.id] || 0)) : 0;
             const jatahHariIni = Math.max(sisaDapur / sisaHari, 0);
 
-
-            // Pasang angka ke Dasbor Utama
             document.getElementById("txtJatahHariIni").innerText = `Rp ${Math.round(jatahHariIni).toLocaleString('id-ID')}`;
-            document.getElementById("txtTotalAnggaran").innerText = `Rp ${totalAnggaran.toLocaleString('id-ID')}`;
-            document.getElementById("txtSisaBulanIni").innerText = `Rp ${Math.max(totalAnggaran - totalPengeluaran, 0).toLocaleString('id-ID')}`;
+            document.getElementById("txtTotalAnggaran").innerText = `Rp ${totalGajiSistem.toLocaleString('id-ID')}`;
+            document.getElementById("txtSisaBulanIni").innerText = `Rp ${Math.max(totalGajiSistem - totalPengeluaran, 0).toLocaleString('id-ID')}`;
 
+            const selisihAlokasi = totalGajiSistem - totalPosAlokasi;
+            const txtAlokasi = document.getElementById("txtSisaAlokasiGaji");
+            if (selisihAlokasi > 0) {
+                txtAlokasi.innerText = `💡 Masih ada sisa Rp ${selisihAlokasi.toLocaleString('id-ID')} dari gaji Anda yang belum dibagi ke pos mana pun.`;
+                txtAlokasi.className = "mt-3 pt-2 border-t border-white/10 text-xs text-yellow-100 italic";
+            } else if (selisihAlokasi < 0) {
+                txtAlokasi.innerText = `⚠️ Perhatian: Total pembagian pos Anda melebihi jumlah gaji sebesar Rp ${Math.abs(selisihAlokasi).toLocaleString('id-ID')}!`;
+                txtAlokasi.className = "mt-3 pt-2 border-t border-white/10 text-xs text-red-200 font-bold";
+            } else {
+                txtAlokasi.innerText = `✨ Sempurna: Seluruh gaji bulanan Anda telah didistribusikan ke pos anggaran dengan pas.`;
+                txtAlokasi.className = "mt-3 pt-2 border-t border-white/10 text-xs text-pink-50 italic";
+            }
 
-            // RENDER TABEL RIWAYAT TRANSAKSI
             const tabelRiwayat = document.getElementById("tabelRiwayat");
             tabelRiwayat.innerHTML = "";
             if (daftarTransaksi.length === 0) {
-                tabelRiwayat.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-xs text-gray-400 italic">Belum ada catatan transaksi bulan ini.</td></tr>`;
+                tabelRiwayat.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-xs text-gray-400 italic">Belum ada catatan transaksi.</td></tr>`;
             }
             daftarTransaksi.reverse().forEach(t => {
-                const namaPos = daftarPos.find(p => p.id == t.posId)?.nama || "Pos Dihapus";
+                const namaPos = daftarPos.find(p => p.id == t.posId)?.nama || "Pos Pengeluaran";
                 tabelRiwayat.innerHTML += `
                     <tr class="hover:bg-gray-50/50">
                         <td class="py-2.5">
@@ -314,15 +325,91 @@
                             Rp ${Number(t.nominal).toLocaleString('id-ID')}
                         </td>
                         <td class="py-2.5 text-center space-x-1 no-print">
-                            <button onclick="aksiEditTransaksi(${t.id}, ${t.nominal}, '${t.catatan}', ${t.posId})" class="text-blue-600 hover:text-blue-800 font-bold text-xs">✏️</button>
-                            <button onclick="aksiHapusTransaksi(${t.id})" class="text-red-500 hover:text-red-700 font-bold text-xs">🗑️</button>
+                            <button onclick="aksiEditTransaksi(${t.id}, ${t.nominal}, '${t.catatan}', ${t.posId})" class="text-pink-500 font-bold text-xs">✏️</button>
+                            <button onclick="aksiHapusTransaksi(${t.id})" class="text-red-400 font-bold text-xs">🗑️</button>
                         </td>
                     </tr>`;
             });
         }
 
+        window.bukaModalGaji = () => {
+            document.getElementById("inputGajiTotal").value = totalGajiSistem;
+            document.getElementById("modalGaji").classList.remove("hidden");
+        };
+        window.tutupModalGaji = () => document.getElementById("modalGaji").classList.add("hidden");
+        document.getElementById("formGaji").onsubmit = async (e) => {
+            e.preventDefault();
+            const gajiBaru = document.getElementById("inputGajiTotal").value;
+            await db.konfigurasi.put({ kunci: "gaji_total", nilai: Number(gajiBaru) });
+            tutupModalGaji();
+            renderAplikasi();
+        };
 
-        // 4. LOGIKA OPERASI FORM (INPUT & EDIT)
+        window.bukaModalPos = () => {
+            document.getElementById("modalPosTitle").innerText = "Tambah Pos Keuangan Baru";
+            document.getElementById("btnSimpanPos").innerText = "Tambah";
+            document.getElementById("posEditId").value = "";
+            document.getElementById("modalPos").classList.remove("hidden");
+        };
+        window.tutupModalPos = () => {
+            document.getElementById("modalPos").classList.add("hidden");
+            document.getElementById("formPos").reset();
+            document.getElementById("divTargetNominal").classList.add("hidden");
+        };
+
+        window.aksiEditPos = (id, nama, alokasi, isTarget, targetNominal) => {
+            document.getElementById("posEditId").value = id;
+            document.getElementById("posNama").value = nama;
+            document.getElementById("posAlokasi").value = alokasi;
+            document.getElementById("posIsTarget").checked = isTarget;
+            
+            if (isTarget) {
+                document.getElementById("divTargetNominal").classList.remove("hidden");
+                document.getElementById("posTargetNominal").value = targetNominal;
+            } else {
+                document.getElementById("divTargetNominal").classList.add("hidden");
+            }
+            
+            document.getElementById("modalPosTitle").innerText = "Ubah Detail Pos Anggaran";
+            document.getElementById("btnSimpanPos").innerText = "💾 Perbarui Pos";
+            document.getElementById("modalPos").classList.remove("hidden");
+        };
+
+        window.aksiHapusPos = async (id) => {
+            if (confirm("Hapus pos anggaran ini? Seluruh riwayat transaksi yang terikat di pos ini juga akan terhapus.")) {
+                await db.pos.delete(id);
+                const terikat = await db.transaksi.where({ posId: id }).toArray();
+                for (let t of terikat) { await db.transaksi.delete(t.id); }
+                renderAplikasi();
+            }
+        };
+
+        document.getElementById("formPos").onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById("posEditId").value;
+            const nama = document.getElementById("posNama").value;
+            const alokasi = document.getElementById("posAlokasi").value;
+            const isTarget = document.getElementById("posIsTarget").checked;
+            const targetNominal = document.getElementById("posTargetNominal").value || 0;
+
+            const dataPos = {
+                nama: nama,
+                alokasi: Number(alokasi),
+                isTarget: isTarget,
+                targetNominal: Number(targetNominal),
+                bulanTahun: bulanAktif
+            };
+
+            if (id) {
+                await db.pos.update(Number(id), dataPos);
+            } else {
+                await db.pos.add(dataPos);
+            }
+
+            tutupModalPos();
+            renderAplikasi();
+        };
+
         document.getElementById("formTransaksi").onsubmit = async (e) => {
             e.preventDefault();
             const id = document.getElementById("editId").value;
@@ -332,26 +419,15 @@
             const d = new Date();
             const tanggalStr = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
 
-
             if (id) {
-                // PROSES UPDATE DATA (EDIT)
                 await db.transaksi.update(Number(id), { posId: Number(posId), nominal: Number(nominal), catatan: catatan });
             } else {
-                // PROSES SIMPAN BARU
-                await db.transaksi.add({
-                    posId: Number(posId),
-                    nominal: Number(nominal),
-                    catatan: catatan,
-                    tanggal: tanggalStr,
-                    bulanTahun: bulanAktif
-                });
+                await db.transaksi.add({ posId: Number(posId), nominal: Number(nominal), catatan: catatan, tanggal: tanggalStr, bulanTahun: bulanAktif });
             }
             resetFormTransaksi();
             renderAplikasi();
         };
 
-
-        // KOREKSI DATA: EDIT & HAPUS
         window.aksiEditTransaksi = (id, nominal, catatan, posId) => {
             document.getElementById("editId").value = id;
             document.getElementById("inputNominal").value = nominal;
@@ -361,7 +437,6 @@
             document.getElementById("btnBatalEdit").classList.remove("hidden");
         };
 
-
         window.resetFormTransaksi = () => {
             document.getElementById("formTransaksi").reset();
             document.getElementById("editId").value = "";
@@ -369,56 +444,20 @@
             document.getElementById("btnBatalEdit").classList.add("hidden");
         };
 
-
         window.aksiHapusTransaksi = async (id) => {
-            if (confirm("Hapus catatan pengeluaran ini? Saldo pos akan dikembalikan.")) {
+            if (confirm("Hapus catatan transaksi ini?")) {
                 await db.transaksi.delete(id);
                 renderAplikasi();
             }
         };
 
-
-        // MANAGEMEN MODAL POS BARU / TARGET
         const checkboxTarget = document.getElementById("posIsTarget");
         checkboxTarget.onchange = () => {
             document.getElementById("divTargetNominal").classList.toggle("hidden", !checkboxTarget.checked);
         };
 
-
-        window.bukaModalPos = () => document.getElementById("modalPos").classList.remove("hidden");
-        window.tutupModalPos = () => {
-            document.getElementById("modalPos").classList.add("hidden");
-            document.getElementById("formPos").reset();
-            document.getElementById("divTargetNominal").classList.add("hidden");
-        };
-
-
-        document.getElementById("formPos").onsubmit = async (e) => {
-            e.preventDefault();
-            const nama = document.getElementById("posNama").value;
-            const alokasi = document.getElementById("posAlokasi").value;
-            const isTarget = checkboxTarget.checked;
-            const targetNominal = document.getElementById("posTargetNominal").value || 0;
-
-
-            await db.pos.add({
-                nama: nama,
-                alokasi: Number(alokasi),
-                isTarget: isTarget,
-                targetNominal: Number(targetNominal),
-                bulanTahun: bulanAktif
-            });
-
-
-            tutupModalPos();
-            renderAplikasi();
-        };
-
-
-        // INITIALISASI FILTER BULAN (HISTORI ANGGARAN)
         function inisialisasiFilterBulan() {
             const select = document.getElementById("filterBulan");
-            // Menyediakan histori untuk 3 bulan terakhir (Simulasi Konteks Mei 2026)
             const opsiBulan = [
                 { kode: "2026-05", nama: "Mei 2026" },
                 { kode: "2026-04", nama: "April 2026" },
@@ -431,8 +470,6 @@
             };
         }
 
-
-        // JALANKAN SEWAKTU SISTEM DIBUKA
         (async () => {
             inisialisasiFilterBulan();
             await isiDataDefaultSistem();
