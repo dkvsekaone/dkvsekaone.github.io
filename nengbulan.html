@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keuangan Keluarga Mikro - Mode Grosir Soft Pink</title>
-    <!-- Tailwind CSS untuk Tampilan Bagus & Ringan -->
+    <title>Keuangan Keluarga Mikro - Mode Grosir Fleksibel Soft Pink</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Dexie.js untuk Database Offline di HP (IndexedDB) -->
     <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.4/dist/dexie.mjs" type="module"></script>
     <style>
         @media print {
@@ -18,21 +16,18 @@
 </head>
 <body class="bg-pink-50/30 text-gray-800 font-sans antialiased pb-12">
 
-    <!-- HEADER / NAVIGASI -->
     <header class="bg-pink-400 text-white p-4 shadow-sm no-print sticky top-0 z-40">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <h1 class="text-lg font-bold flex items-center gap-2">
-                🌸 Keuanganku <span class="text-[10px] bg-pink-500/50 px-2 py-0.5 rounded-full font-normal">Offline</span>
+                🌸 Keuanganku <span class="text-[10px] bg-pink-500/50 px-2 py-0.5 rounded-full font-normal">Fleksibel</span>
             </h1>
             <select id="filterBulan" class="bg-pink-500/80 text-white font-medium text-sm rounded-lg px-2 py-1 border-none focus:ring-2 focus:ring-white focus:outline-none">
-                <!-- Diisi otomatis oleh JavaScript -->
-            </select>
+                </select>
         </div>
     </header>
 
     <main class="max-w-md mx-auto p-4 space-y-6">
 
-        <!-- 1. JATAH HARIAN & RINGKASAN GAJI -->
         <section class="bg-gradient-to-br from-pink-400 to-pink-500 text-white rounded-2xl p-5 shadow-sm print-card">
             <div class="flex justify-between items-start">
                 <div>
@@ -56,13 +51,10 @@
                     <p id="txtSisaBulanIni" class="font-bold text-base">Rp 0</p>
                 </div>
             </div>
-            <!-- Notifikasi Alokasi Pos -->
             <div id="txtSisaAlokasiGaji" class="mt-3 pt-2 border-t border-white/10 text-xs text-pink-50 italic">
-                <!-- Diisi otomatis -->
-            </div>
+                </div>
         </section>
 
-        <!-- 2. DAFTAR POS ANGGARAN & TARGET TABUNGAN -->
         <section class="space-y-3">
             <div class="flex justify-between items-center">
                 <h3 class="font-bold text-gray-700 text-base">Kantong Anggaran & Target</h3>
@@ -70,13 +62,10 @@
                     ➕ Tambah Pos
                 </button>
             </div>
-            
             <div id="containerPos" class="space-y-2.5">
-                <!-- Diisi dinamis oleh JavaScript -->
-            </div>
+                </div>
         </section>
 
-        <!-- 3. FORM INPUT TRANSAKSI BARU (DENGAN KALKULATOR GROSIR) -->
         <section class="no-print bg-white rounded-xl p-4 shadow-sm border border-pink-100/60">
             <h3 class="font-bold text-gray-700 text-sm mb-3">Catat Transaksi Baru</h3>
             <form id="formTransaksi" class="space-y-3">
@@ -86,39 +75,49 @@
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1">Pilih Pos</label>
                         <select id="selectPos" required class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
-                            <!-- Diisi oleh JS -->
-                        </select>
+                            </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1">Catatan Singkat</label>
-                        <input type="text" id="inputCatatan" required placeholder="Beli beras, sabun grosir..." class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                        <input type="text" id="inputCatatan" required placeholder="Beli sabun kiloan, susu..." class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
                     </div>
                 </div>
 
-                <!-- Bagian Detail Item & Grosir -->
-                <div class="grid grid-cols-3 gap-2 bg-pink-50/20 p-2.5 rounded-xl border border-pink-100/30">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-500 mb-1">Harga 1 Item (Rp)</label>
-                        <input type="number" id="inputHargaSatuan" required placeholder="0" oninput="hitungKalkulasiGrosir()" class="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                <div class="bg-pink-50/20 p-3 rounded-xl border border-pink-100/30 space-y-2">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1">Harga 1 Item (Rp)</label>
+                            <input type="number" id="inputHargaSatuan" required placeholder="0" oninput="hitungKalkulasiGrosir()" class="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1">Jumlah Item Belanja</label>
+                            <input type="number" id="inputJumlahItem" required value="1" min="1" oninput="hitungKalkulasiGrosir()" class="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-500 mb-1">Jumlah Item</label>
-                        <input type="number" id="inputJumlahItem" required value="1" min="1" oninput="hitungKalkulasiGrosir()" class="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-500 mb-1">Durasi (Bulan)</label>
-                        <input type="number" id="inputDurasiBulan" required value="1" min="1" oninput="hitungKalkulasiGrosir()" class="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                    
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1">Durasi Pemakaian (Stok)</label>
+                            <input type="number" id="inputDurasi" required value="1" min="1" oninput="hitungKalkulasiGrosir()" class="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1">Satuan Waktu</label>
+                            <select id="selectSatuanWaktu" onchange="hitungKalkulasiGrosir()" class="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                                <option value="bulan" selected>Bulan</option>
+                                <option value="minggu">Minggu</option>
+                                <option value="hari">Hari</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Hasil Kalkulasi Otomatis -->
                 <div class="bg-gray-50 rounded-lg p-2.5 text-xs text-gray-600 space-y-1">
                     <div class="flex justify-between">
-                        <span>Total Pengeluaran Saat Ini:</span>
+                        <span>Total Bayar Sekarang:</span>
                         <span class="font-bold text-gray-800" id="infoTotalBelanja">Rp 0</span>
                     </div>
                     <div class="flex justify-between text-pink-600 font-medium">
-                        <span>Beban Anggaran Bulanan:</span>
+                        <span>Beban Anggaran Bulanan Setara:</span>
                         <span id="infoBebanBulanan">Rp 0 / bulan</span>
                     </div>
                 </div>
@@ -134,7 +133,6 @@
             </form>
         </section>
 
-        <!-- 4. RIWAYAT TRANSAKSI BULANAN -->
         <section class="bg-white rounded-xl shadow-sm border border-pink-100/60 p-4 print-card">
             <h3 class="font-bold text-gray-700 text-base mb-3">Riwayat Pengeluaran & Masukan</h3>
             <div class="overflow-x-auto">
@@ -147,14 +145,12 @@
                         </tr>
                     </thead>
                     <tbody id="tabelRiwayat" class="divide-y divide-gray-50 text-gray-600">
-                        <!-- Diisi dinamis oleh JavaScript -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </section>
     </main>
 
-    <!-- MODAL POPUP: EDIT GAJI TOTAL -->
     <div id="modalGaji" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-xl">
             <h3 class="font-bold text-lg text-gray-800">Ubah Nominal Gaji Bulanan</h3>
@@ -171,7 +167,6 @@
         </div>
     </div>
 
-    <!-- MODAL POPUP: TAMBAH / EDIT POS ANGGARAN -->
     <div id="modalPos" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-xl">
             <h3 id="modalPosTitle" class="font-bold text-lg text-gray-800">Tambah Pos Keuangan Baru</h3>
@@ -179,11 +174,11 @@
                 <input type="hidden" id="posEditId">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1">Nama Pos / Kantong</label>
-                    <input type="text" id="posNama" required placeholder="Contoh: Susu Anak, Listrik" class="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                    <input type="text" id="posNama" required placeholder="Susu, Listrik..." class="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1">Alokasi Anggaran Bulanan (Rp)</label>
-                    <input type="number" id="posAlokasi" required placeholder="Jatah uang untuk pos ini" class="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                    <input type="number" id="posAlokasi" required class="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
                 </div>
                 <div class="flex items-center gap-2 py-1">
                     <input type="checkbox" id="posIsTarget" class="w-4 h-4 text-pink-500 border-gray-300 rounded focus:ring-pink-400">
@@ -191,7 +186,7 @@
                 </div>
                 <div id="divTargetNominal" class="hidden">
                     <label class="block text-xs font-semibold text-gray-500 mb-1">Target Akhir Tabungan (Rp)</label>
-                    <input type="number" id="posTargetNominal" placeholder="Contoh: 500000" class="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
+                    <input type="number" id="posTargetNominal" class="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-400">
                 </div>
                 <div class="flex gap-2 pt-2">
                     <button type="button" onclick="tutupModalPos()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold p-2 rounded-lg transition">Batal</button>
@@ -201,65 +196,97 @@
         </div>
     </div>
 
-    <!-- LOGIKA JAVASCRIPT & DATABASE OFFLINE -->
     <script type="module">
         import Dexie from 'https://cdn.jsdelivr.net/npm/dexie@3.2.4/dist/dexie.mjs';
 
-        const db = new Dexie("DatabaseKeuanganGrosirPink");
+        const db = new Dexie("DatabaseKeuanganGrosirMultiSatuan");
         db.version(1).stores({
             konfigurasi: 'kunci, nilai',
             pos: '++id, nama, alokasi, isTarget, targetNominal, bulanTahun',
-            transaksi: '++id, posId, nominal, catatan, tanggal, bulanTahun, hargaSatuan, jumlahItem, durasiBulan'
+            transaksi: '++id, posId, nominal, catatan, tanggal, bulanTahun, hargaSatuan, jumlahItem, durasi, satuanWaktu'
         });
 
-        let bulanAktif = "2026-05"; 
-        let totalGajiSistem = 0; // BERUBAH: Dimulai dari 0 rupiah untuk pertama kali buka
+        let bulanAktif = ""; 
+        let totalGajiSistem = 0;
 
-        async function isiDataDefaultSistem() {
-            const g = await db.konfigurasi.get("gaji_total");
-            if (!g) {
-                await db.konfigurasi.add({ kunci: "gaji_total", nilai: 0 }); // Gaji Awal 0
-                totalGajiSistem = 0;
-            } else {
-                totalGajiSistem = Number(g.nilai);
-            }
+        function dapatkanBulanSekarang() {
+            const d = new Date();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            return `${d.getFullYear()}-${mm}`;
+        }
 
-            const hitungPos = await db.pos.count();
-            if (hitungPos === 0) {
-                // Pos default terbuat tetapi alokasi diatur 0 agar pengguna bisa edit sendiri seiring pengisian gaji
-                await db.pos.bulkAdd([
-                    { nama: "Dapur & Pangan", alokasi: 0, isTarget: false, targetNominal: 0, bulanTahun: "2026-05" },
-                    { nama: "Keperluan Anak", alokasi: 0, isTarget: false, targetNominal: 0, bulanTahun: "2026-05" },
-                    { nama: "Listrik, Air & Sabun", alokasi: 0, isTarget: false, targetNominal: 0, bulanTahun: "2026-05" },
-                    { nama: "Bensin & Paket Data", alokasi: 0, isTarget: false, targetNominal: 0, bulanTahun: "2026-05" },
-                    { nama: "Dana Darurat", alokasi: 0, isTarget: true, targetNominal: 500000, bulanTahun: "2026-05" }
-                ]);
+        async function periksaDanDuplikasiPosBulanLalu(bulanTujuan) {
+            const hitungPosTujuan = await db.pos.where({ bulanTahun: bulanTujuan }).count();
+            if (hitungPosTujuan === 0) {
+                const semuaPos = await db.pos.toArray();
+                if (semuaPos.length > 0) {
+                    const daftarBulanTersedia = [...new Set(semuaPos.map(p => p.bulanTahun))].sort();
+                    const bulanTerakhirAdaData = daftarBulanTersedia[daftarBulanTersedia.length - 1];
+                    const posBulanLalu = await db.pos.where({ bulanTahun: bulanTerakhirAdaData }).toArray();
+                    
+                    const posBaru = posBulanLalu.map(p => ({
+                        nama: p.nama, alokasi: p.alokasi, isTarget: p.isTarget, targetNominal: p.targetNominal, bulanTahun: bulanTujuan
+                    }));
+                    await db.pos.bulkAdd(posBaru);
+                } else {
+                    await db.pos.bulkAdd([
+                        { nama: "Dapur & Pangan", alokasi: 0, isTarget: false, targetNominal: 0, bulanTahun: bulanTujuan },
+                        { nama: "Keperluan Anak", alokasi: 0, isTarget: false, targetNominal: 0, bulanTahun: bulanTujuan },
+                        { nama: "Listrik, Air & Sabun", alokasi: 0, isTarget: false, targetNominal: 0, bulanTahun: bulanTujuan },
+                        { nama: "Bensin & Paket Data", alokasi: 0, isTarget: false, targetNominal: 0, bulanTahun: bulanTujuan },
+                        { nama: "Dana Darurat", alokasi: 0, isTarget: true, targetNominal: 500000, bulanTahun: bulanTujuan }
+                    ]);
+                }
             }
         }
 
-        // Fungsi Hitung Kalkulator Belanja Grosir Otomatis di Form
+        async function isiDataDefaultSistem() {
+            bulanAktif = dapatkanBulanSekarang();
+            const g = await db.konfigurasi.get("gaji_total_" + bulanAktif);
+            if (!g) {
+                const semuaGaji = await db.konfigurasi.toArray();
+                const gajiBulanLalu = semuaGaji.find(c => c.kunci.startsWith("gaji_total_"));
+                const nominalContekan = gajiBulanLalu ? Number(gajiBulanLalu.nilai) : 0;
+                await db.konfigurasi.add({ kunci: "gaji_total_" + bulanAktif, nilai: nominalContekan });
+                totalGajiSistem = nominalContekan;
+            } else {
+                totalGajiSistem = Number(g.nilai);
+            }
+            await periksaDanDuplikasiPosBulanLalu(bulanAktif);
+        }
+
+        // LOGIKA BARU: KALKULATOR MULTI SATUAN WAKTU (HARI/MINGGU/BULAN)
         window.hitungKalkulasiGrosir = () => {
             const hargaSatuan = Number(document.getElementById("inputHargaSatuan").value) || 0;
             const jumlahItem = Number(document.getElementById("inputJumlahItem").value) || 1;
-            const durasiBulan = Number(document.getElementById("inputDurasiBulan").value) || 1;
+            const durasi = Number(document.getElementById("inputDurasi").value) || 1;
+            const satuanWaktu = document.getElementById("selectSatuanWaktu").value;
 
             const totalBelanja = hargaSatuan * jumlahItem;
-            const bebanBulanan = totalBelanja / durasiBulan;
+            let bebanBulanan = 0;
+
+            // Konversi kalkulasi penyerapan anggaran disetarakan ke hitungan bulan (30 Hari)
+            if (satuanWaktu === "bulan") {
+                bebanBulanan = totalBelanja / durasi;
+            } else if (satuanWaktu === "minggu") {
+                // 1 Bulan rata-rata ada 4.28 minggu
+                bebanBulanan = totalBelanja / (durasi / 4.28);
+            } else if (satuanWaktu === "hari") {
+                bebanBulanan = totalBelanja / (durasi / 30);
+            }
 
             document.getElementById("infoTotalBelanja").innerText = `Rp ${totalBelanja.toLocaleString('id-ID')}`;
             document.getElementById("infoBebanBulanan").innerText = `Rp ${Math.round(bebanBulanan).toLocaleString('id-ID')} / bulan`;
         };
 
         async function renderAplikasi() {
-            const g = await db.konfigurasi.get("gaji_total");
+            const g = await db.konfigurasi.get("gaji_total_" + bulanAktif);
             totalGajiSistem = g ? Number(g.nilai) : 0;
 
             const daftarPos = await db.pos.where({ bulanTahun: bulanAktif }).toArray();
             const daftarTransaksi = await db.transaksi.where({ bulanTahun: bulanAktif }).toArray();
 
-            let totalPosAlokasi = 0;
-            let totalPengeluaran = 0;
-            let pengeluaranPerPos = {};
+            let totalPosAlokasi = 0, totalPengeluaran = 0, pengeluaranPerPos = {};
 
             daftarTransaksi.forEach(t => {
                 pengeluaranPerPos[t.posId] = (pengeluaranPerPos[t.posId] || 0) + Number(t.nominal);
@@ -280,7 +307,7 @@
                     const totalTerabung = Number(p.alokasi) + terpakai;
                     const persen = p.targetNominal > 0 ? Math.min(Math.round((totalTerabung / p.targetNominal) * 100), 100) : 0;
                     htmlPos = `
-                        <div class="bg-white rounded-xl p-3.5 shadow-sm border border-pink-100 print-card group">
+                        <div class="bg-white rounded-xl p-3.5 shadow-sm border border-pink-100 print-card">
                             <div class="flex justify-between text-xs font-bold text-gray-500 mb-1">
                                 <span class="text-pink-600">🎯 ${p.nama}</span>
                                 <div class="space-x-1.5 no-print text-[11px]">
@@ -325,35 +352,38 @@
                 selectPos.innerHTML += `<option value="${p.id}">${p.nama}</option>`;
             });
 
-            // HITUNG JATAH HARIAN
+            // JATAH HARIAN JALAN KONDISIONAL
             const d = new Date();
-            const totalHariBulanIni = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-            const sisaHari = Math.max((totalHariBulanIni - d.getDate()) + 1, 1);
-            const posDapur = daftarPos.find(p => p.nama.toLowerCase().includes("dapur") || p.nama.toLowerCase().includes("pangan"));
-            let sisaDapur = posDapur ? (Number(posDapur.alokasi) - (pengeluaranPerPos[posDapur.id] || 0)) : 0;
-            const jatahHariIni = Math.max(sisaDapur / sisaHari, 0);
+            if (bulanAktif === dapatkanBulanSekarang()) {
+                const totalHariBulanIni = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+                const sisaHari = Math.max((totalHariBulanIni - d.getDate()) + 1, 1);
+                const posDapur = daftarPos.find(p => p.nama.toLowerCase().includes("dapur") || p.nama.toLowerCase().includes("pangan"));
+                let sisaDapur = posDapur ? (Number(posDapur.alokasi) - (pengeluaranPerPos[posDapur.id] || 0)) : 0;
+                document.getElementById("txtJatahHariIni").innerText = `Rp ${Math.round(Math.max(sisaDapur / sisaHari, 0)).toLocaleString('id-ID')}`;
+            } else {
+                document.getElementById("txtJatahHariIni").innerText = "- (Selesai)";
+            }
 
-            document.getElementById("txtJatahHariIni").innerText = `Rp ${Math.round(jatahHariIni).toLocaleString('id-ID')}`;
             document.getElementById("txtTotalAnggaran").innerText = `Rp ${totalGajiSistem.toLocaleString('id-ID')}`;
             document.getElementById("txtSisaBulanIni").innerText = `Rp ${Math.max(totalGajiSistem - totalPengeluaran, 0).toLocaleString('id-ID')}`;
 
             const selisihAlokasi = totalGajiSistem - totalPosAlokasi;
             const txtAlokasi = document.getElementById("txtSisaAlokasiGaji");
             if (totalGajiSistem === 0) {
-                txtAlokasi.innerText = `👋 Selamat datang! Silakan klik tombol pensil (✏️) di atas untuk mengatur Nominal Gaji bulanan Anda terlebih dahulu.`;
+                txtAlokasi.innerText = `👋 Silakan klik tombol pensil (✏️) di atas untuk mengatur Nominal Gaji bulanan Anda.`;
                 txtAlokasi.className = "mt-3 pt-2 border-t border-white/10 text-xs text-yellow-100 font-medium";
             } else if (selisihAlokasi > 0) {
-                txtAlokasi.innerText = `💡 Masih ada sisa Rp ${selisihAlokasi.toLocaleString('id-ID')} dari gaji Anda yang belum dibagi ke pos mana pun.`;
+                txtAlokasi.innerText = `💡 Sisa Rp ${selisihAlokasi.toLocaleString('id-ID')} belum dibagi ke pos mana pun.`;
                 txtAlokasi.className = "mt-3 pt-2 border-t border-white/10 text-xs text-yellow-100 italic";
             } else if (selisihAlokasi < 0) {
-                txtAlokasi.innerText = `⚠️ Perhatian: Total pembagian pos Anda melebihi jumlah gaji sebesar Rp ${Math.abs(selisihAlokasi).toLocaleString('id-ID')}!`;
+                txtAlokasi.innerText = `⚠️ Distribusi pos melebihi gaji sebesar Rp ${Math.abs(selisihAlokasi).toLocaleString('id-ID')}!`;
                 txtAlokasi.className = "mt-3 pt-2 border-t border-white/10 text-xs text-red-200 font-bold";
             } else {
-                txtAlokasi.innerText = `✨ Sempurna: Seluruh gaji bulanan Anda telah didistribusikan ke pos anggaran dengan pas.`;
+                txtAlokasi.innerText = `✨ Seluruh gaji bulan ini telah didistribusikan secara pas.`;
                 txtAlokasi.className = "mt-3 pt-2 border-t border-white/10 text-xs text-pink-50 italic";
             }
 
-            // RENDER TABEL RIWAYAT TRANSAKSI DENGAN INFORMASI GROSIR
+            // TABEL RIWAYAT DENGAN SATUAN TEMPO KONDISINAl
             const tabelRiwayat = document.getElementById("tabelRiwayat");
             tabelRiwayat.innerHTML = "";
             if (daftarTransaksi.length === 0) {
@@ -362,33 +392,104 @@
             daftarTransaksi.reverse().forEach(t => {
                 const namaPos = daftarPos.find(p => p.id == t.posId)?.nama || "Pos Pengeluaran";
                 
-                // Kondisional Teks Tambahan Jika Item Grosir/Stok Lebih dari 1 Bulan
                 let teksGrosir = "";
-                if (t.durasiBulan && t.durasiBulan > 1) {
-                    const bebanBulan = Math.round(Number(t.nominal) / t.durasiBulan);
-                    teksGrosir = ` <span class="text-pink-500 font-medium">[Stok ${t.durasiBulan} Bln - Rp ${bebanBulan.toLocaleString('id-ID')}/bln]</span>`;
+                if (t.durasi && t.durasi > 1) {
+                    const singkatanSatuan = t.satuanWaktu === "bulan" ? "Bln" : t.satuanWaktu === "minggu" ? "Mggu" : "Hari";
+                    teksGrosir = ` <span class="text-pink-500 font-medium">[Stok ${t.durasi} ${singkatanSatuan}]</span>`;
                 } else if (t.jumlahItem && t.jumlahItem > 1) {
-                    teksGrosir = ` <span class="text-gray-400">(${t.jumlahItem}x @Rp ${Number(t.hargaSatuan).toLocaleString('id-ID')})</span>`;
+                    teksGrosir = ` <span class="text-gray-400">(${t.jumlahItem}x)</span>`;
                 }
 
                 tabelRiwayat.innerHTML += `
                     <tr class="hover:bg-gray-50/50">
                         <td class="py-2.5">
-                            <p class="font-bold text-gray-800 text-xs">${t.catatan}${teksGrosir}</p>
-                            <span class="text-[10px] text-gray-400">${t.tanggal} | ${namaPos}</span>
+                            <p class="font-bold text-gray-800 text-xs">${t.catatan}</p>
+                            <span class="text-[10px] text-gray-400">${t.tanggal} | ${namaPos}${teksGrosir}</span>
                         </td>
                         <td class="py-2.5 text-right font-semibold text-gray-700 text-xs">
                             Rp ${Number(t.nominal).toLocaleString('id-ID')}
                         </td>
                         <td class="py-2.5 text-center space-x-1 no-print">
-                            <button onclick="aksiEditTransaksi(${t.id}, ${t.hargaSatuan}, ${t.jumlahItem}, ${t.durasiBulan}, '${t.catatan}', ${t.posId})" class="text-pink-500 font-bold text-xs">✏️</button>
+                            <button onclick="aksiEditTransaksi(${t.id}, ${t.hargaSatuan}, ${t.jumlahItem}, ${t.durasi}, '${t.satuanWaktu}', '${t.catatan}', ${t.posId})" class="text-pink-500 font-bold text-xs">✏️</button>
                             <button onclick="aksiHapusTransaksi(${t.id})" class="text-red-400 font-bold text-xs">🗑️</button>
                         </td>
                     </tr>`;
             });
         }
 
-        // KONTROL POPUP GAJI
+        async function muatDropdownBulanDinamis() {
+            const select = document.getElementById("filterBulan");
+            const d = new Date();
+            let daftarOpsi = [];
+            const namaBulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            
+            for (let i = 0; i < 12; i++) {
+                const targetDate = new Date(d.getFullYear(), d.getMonth() - i, 1);
+                const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+                const kode = `${targetDate.getFullYear()}-${mm}`;
+                daftarOpsi.push({ kode, namaTampilan: `${namaBulanIndo[targetDate.getMonth()]} ${targetDate.getFullYear()}` });
+            }
+            select.innerHTML = daftarOpsi.map(b => `<option value="${b.kode}">${b.namaTampilan}</option>`).join("");
+            select.value = bulanAktif;
+
+            select.onchange = async (e) => {
+                bulanAktif = e.target.value;
+                const g = await db.konfigurasi.get("gaji_total_" + bulanAktif);
+                if (!g) { await db.konfigurasi.add({ kunci: "gaji_total_" + bulanAktif, nilai: totalGajiSistem }); }
+                await periksaDanDuplikasiPosBulanLalu(bulanAktif);
+                renderAplikasi();
+            };
+        }
+
+        // AKSI PASCA SUBMIT FORM TRANSAKSI
+        document.getElementById("formTransaksi").onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById("editId").value;
+            const posId = document.getElementById("selectPos").value;
+            const catatan = document.getElementById("inputCatatan").value;
+            const hargaSatuan = Number(document.getElementById("inputHargaSatuan").value) || 0;
+            const jumlahItem = Number(document.getElementById("inputJumlahItem").value) || 1;
+            const durasi = Number(document.getElementById("inputDurasi").value) || 1;
+            const satuanWaktu = document.getElementById("selectSatuanWaktu").value;
+            const totalBelanja = hargaSatuan * jumlahItem;
+            
+            const d = new Date();
+            const tanggalStr = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+
+            const dataTransaksi = {
+                posId: Number(posId), nominal: totalBelanja, catatan: catatan, tanggal: tanggalStr, bulanTahun: bulanAktif,
+                hargaSatuan: hargaSatuan, jumlahItem: jumlahItem, durasi: durasi, satuanWaktu: satuanWaktu
+            };
+
+            if (id) { await db.transaksi.update(Number(id), dataTransaksi); } 
+            else { await db.transaksi.add(dataTransaksi); }
+            resetFormTransaksi();
+            renderAplikasi();
+        };
+
+        window.aksiEditTransaksi = (id, hargaSatuan, jumlahItem, durasi, satuanWaktu, catatan, posId) => {
+            document.getElementById("editId").value = id;
+            document.getElementById("inputHargaSatuan").value = hargaSatuan;
+            document.getElementById("inputJumlahItem").value = jumlahItem;
+            document.getElementById("inputDurasi").value = durasi;
+            document.getElementById("selectSatuanWaktu").value = satuanWaktu || "bulan";
+            document.getElementById("inputCatatan").value = catatan;
+            document.getElementById("selectPos").value = posId;
+            hitungKalkulasiGrosir();
+            document.getElementById("btnSimpan").innerText = "🔄 Perbarui Catatan";
+            document.getElementById("btnBatalEdit").classList.remove("hidden");
+        };
+
+        window.resetFormTransaksi = () => {
+            document.getElementById("formTransaksi").reset();
+            document.getElementById("editId").value = "";
+            document.getElementById("btnSimpan").innerText = "💾 Simpan Catatan";
+            document.getElementById("btnBatalEdit").classList.add("hidden");
+            document.getElementById("infoTotalBelanja").innerText = "Rp 0";
+            document.getElementById("infoBebanBulanan").innerText = "Rp 0 / bulan";
+        };
+
+        // MODAL GAJI & POS MANAGEMENT CONTROL
         window.bukaModalGaji = () => {
             document.getElementById("inputGajiTotal").value = totalGajiSistem;
             document.getElementById("modalGaji").classList.remove("hidden");
@@ -396,13 +497,12 @@
         window.tutupModalGaji = () => document.getElementById("modalGaji").classList.add("hidden");
         document.getElementById("formGaji").onsubmit = async (e) => {
             e.preventDefault();
-            const gajiBaru = document.getElementById("inputGajiTotal").value;
-            await db.konfigurasi.put({ kunci: "gaji_total", nilai: Number(gajiBaru) });
+            const gBaru = document.getElementById("inputGajiTotal").value;
+            await db.konfigurasi.put({ kunci: "gaji_total_" + bulanAktif, nilai: Number(gBaru) });
             tutupModalGaji();
             renderAplikasi();
         };
 
-        // KONTROL POPUP KANTONG POS
         window.bukaModalPos = () => {
             document.getElementById("modalPosTitle").innerText = "Tambah Pos Keuangan Baru";
             document.getElementById("btnSimpanPos").innerText = "Tambah";
@@ -432,7 +532,7 @@
         };
 
         window.aksiHapusPos = async (id) => {
-            if (confirm("Hapus pos ini? Seluruh transaksi di pos ini juga akan bersih terhapus.")) {
+            if (confirm("Hapus pos anggaran ini beserta transaksinya?")) {
                 await db.pos.delete(id);
                 const terikat = await db.transaksi.where({ posId: id }).toArray();
                 for (let t of terikat) { await db.transaksi.delete(t.id); }
@@ -455,63 +555,8 @@
             renderAplikasi();
         };
 
-        // KONTROL PEMBUATAN DAN EDIT TRANSAKSI BELANJA
-        document.getElementById("formTransaksi").onsubmit = async (e) => {
-            e.preventDefault();
-            const id = document.getElementById("editId").value;
-            const posId = document.getElementById("selectPos").value;
-            const catatan = document.getElementById("inputCatatan").value;
-            
-            const hargaSatuan = Number(document.getElementById("inputHargaSatuan").value) || 0;
-            const jumlahItem = Number(document.getElementById("inputJumlahItem").value) || 1;
-            const durasiBulan = Number(document.getElementById("inputDurasiBulan").value) || 1;
-            
-            const totalBelanja = hargaSatuan * jumlahItem; // Total riil uang keluar saat itu
-            const d = new Date();
-            const tanggalStr = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
-
-            const dataTransaksi = {
-                posId: Number(posId),
-                nominal: totalBelanja,
-                catatan: catatan,
-                tanggal: tanggalStr,
-                bulanTahun: bulanAktif,
-                hargaSatuan: hargaSatuan,
-                jumlahItem: jumlahItem,
-                durasiBulan: durasiBulan
-            };
-
-            if (id) { await db.transaksi.update(Number(id), dataTransaksi); } 
-            else { await db.transaksi.add(dataTransaksi); }
-            
-            resetFormTransaksi();
-            renderAplikasi();
-        };
-
-        window.aksiEditTransaksi = (id, hargaSatuan, jumlahItem, durasiBulan, catatan, posId) => {
-            document.getElementById("editId").value = id;
-            document.getElementById("inputHargaSatuan").value = hargaSatuan;
-            document.getElementById("inputJumlahItem").value = jumlahItem;
-            document.getElementById("inputDurasiBulan").value = durasiBulan;
-            document.getElementById("inputCatatan").value = catatan;
-            document.getElementById("selectPos").value = posId;
-            
-            hitungKalkulasiGrosir();
-            document.getElementById("btnSimpan").innerText = "🔄 Perbarui Catatan";
-            document.getElementById("btnBatalEdit").classList.remove("hidden");
-        };
-
-        window.resetFormTransaksi = () => {
-            document.getElementById("formTransaksi").reset();
-            document.getElementById("editId").value = "";
-            document.getElementById("btnSimpan").innerText = "💾 Simpan Catatan";
-            document.getElementById("btnBatalEdit").classList.add("hidden");
-            document.getElementById("infoTotalBelanja").innerText = "Rp 0";
-            document.getElementById("infoBebanBulanan").innerText = "Rp 0 / bulan";
-        };
-
         window.aksiHapusTransaksi = async (id) => {
-            if (confirm("Hapus catatan transaksi ini? Saldo kantong akan kembali.")) {
+            if (confirm("Hapus catatan transaksi ini?")) {
                 await db.transaksi.delete(id);
                 renderAplikasi();
             }
@@ -522,23 +567,9 @@
             document.getElementById("divTargetNominal").classList.toggle("hidden", !checkboxTarget.checked);
         };
 
-        function inisialisasiFilterBulan() {
-            const select = document.getElementById("filterBulan");
-            const opsiBulan = [
-                { kode: "2026-05", nama: "Mei 2026" },
-                { kode: "2026-04", nama: "April 2026" },
-                { kode: "2026-03", nama: "Maret 2026" }
-            ];
-            select.innerHTML = opsiBulan.map(b => `<option value="${b.kode}">${b.nama}</option>`).join("");
-            select.onchange = (e) => {
-                bulanAktif = e.target.value;
-                renderAplikasi();
-            };
-        }
-
         (async () => {
-            inisialisasiFilterBulan();
             await isiDataDefaultSistem();
+            await muatDropdownBulanDinamis();
             await renderAplikasi();
         })();
     </script>
