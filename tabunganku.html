@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnggaranKu</title>
+    <style>
+        /* === VARIABEL WARNA (TEMA PINK) === */
+        :root {
+            --bg-color: #ffffff;
+            --primary-pink: #ff4da6;
+            --secondary-pink: #ff80bf;
+            --light-pink: #ffcce6;
+            --very-light-pink: #ffe6f2;
+            --text-dark: #cc0066;
+            --text-light: #ffffff;
+        }
+
+        /* === RESET & UMUM === */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: #333;
+            padding: 10px;
+            max-width: 800px;
+            margin: auto;
+        }
+        .icon-btn {
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 14px;
+        }
+
+        /* === HEADER === */
+        .header-container {
+            background-color: var(--secondary-pink);
+            color: var(--text-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header-container h1 {
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .header-controls input[type="month"] {
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: none;
+            color: var(--primary-pink);
+            font-weight: bold;
+            outline: none;
+        }
+        .btn-cetak {
+            background-color: rgba(255,255,255,0.7);
+            color: #333;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* === KARTU RINGKASAN & TABUNGAN === */
+        .summary-card {
+            background-color: var(--secondary-pink);
+            border-radius: 15px;
+            padding: 15px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .summary-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .summary-top h2 {
+            font-size: 16px;
+            font-weight: normal;
+        }
+        .summary-top h3 {
+            font-size: 20px;
+            margin-top: 5px;
+        }
+        .savings-container {
+            background-color: var(--light-pink);
+            padding: 15px;
+            border-radius: 10px;
+            color: var(--text-dark);
+            position: relative;
+        }
+        .saving-item {
+            margin-bottom: 10px;
+        }
+        .saving-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .progress-bar-bg {
+            background-color: white;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            background-color: var(--primary-pink);
+            height: 100%;
+        }
+        .btn-add-saving {
+            position: absolute;
+            bottom: -15px;
+            right: 15px;
+            background-color: var(--primary-pink);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* === TABEL ANGGARAN === */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 2px solid var(--very-light-pink);
+            padding: 10px;
+            vertical-align: top;
+        }
+        th {
+            background-color: var(--light-pink);
+            color: var(--text-dark);
+            text-align: center;
+        }
+        .col-date {
+            width: 15%;
+            text-align: center;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+        .col-data {
+            width: 42.5%;
+        }
+        
+        .cat-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .cat-budget {
+            font-size: 12px;
+            font-weight: normal;
+        }
+        
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+        .expense-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+        .add-expense-btn {
+            background-color: var(--primary-pink);
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        /* === MODAL === */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+        }
+        .modal-box h3 { margin-bottom: 15px; color: var(--primary-pink); }
+        .modal-box label { display: block; margin-bottom: 5px; font-size: 14px; }
+        .modal-box input { width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .modal-actions button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-save { background-color: var(--primary-pink); color: white; }
+        .btn-cancel { background-color: #ddd; color: black; }
+
+        /* === MODE CETAK (PRINT B&W PDF) === */
+        @media print {
+            body { background: white; color: black; margin: 0; padding: 0; }
+            .header-container, .summary-card, table, th, td {
+                background: white !important;
+                color: black !important;
+                box-shadow: none !important;
+                border: 1px solid black !important;
+            }
+            .header-controls, .btn-add-saving, .add-expense-btn, .icon-btn { display: none !important; }
+            .progress-bar-bg { border: 1px solid black; }
+            .progress-bar-fill { background: black !important; }
+            * { color: black !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h1>💸🌸 AnggaranKu</h1>
+        <div class="header-controls">
+            <input type="month" id="monthSelector" onchange="changeMonth()">
+            <button class="btn-cetak" onclick="window.print()">🖨️ Cetak</button>
+        </div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-top">
+            <div style="font-size: 40px;">💰</div>
+            <div>
+                <h2>Total Anggaran / Pengeluaran / Sisa <span class="icon-btn" onclick="openModal('editTotal')">✏️</span></h2>
+                <h3 id="txtSummaryValues">Rp. 0,- / Rp. 0,- / Rp. 0,-</h3>
+            </div>
+        </div>
+        <div class="savings-container" id="savingsContainer">
+            <button class="btn-add-saving" onclick="openModal('addSaving')">➕</button>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-date">Hari/Tgl</th>
+                <th class="col-data" id="thCat1">
+                    <div class="cat-header"><span id="txtCat1Name">Kebutuhan</span> <span class="icon-btn" onclick="openModal('editCat', 'cat1')">✏️</span></div>
+                    <div class="cat-budget" id="txtCat1Budget">Rp. 0,-<br>Sisa : Rp. 0,-</div>
+                </th>
+                <th class="col-data" id="thCat2">
+                    <div class="cat-header"><span id="txtCat2Name">Uang Saku</span> <span class="icon-btn" onclick="openModal('editCat', 'cat2')">✏️</span></div>
+                    <div class="cat-budget" id="txtCat2Budget">Rp. 0,-<br>Sisa : Rp. 0,-</div>
+                </th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal-box">
+            <h3 id="modalTitle">Judul</h3>
+            <div id="modalInputs"></div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Batal</button>
+                <button class="btn-save" onclick="saveModal()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === INISIALISASI DATA LOCAL STORAGE ===
+        let currentMonthStr = "";
+        let appData = JSON.parse(localStorage.getItem('anggaranKuDB')) || { savings: [], months: {} };
+
+        // Helper Format Rupiah
+        function formatRp(num) {
+            if(isNaN(num)) num = 0;
+            let isNeg = num < 0;
+            let val = Math.abs(num);
+            let str = "Rp. " + val.toLocaleString('id-ID') + ",-";
+            return isNeg ? "- " + str : str;
+        }
+
+        // Helper Tanggal Indonesia
+        function formatDateIndo(year, month, day) {
+            let d = new Date(year, month - 1, day);
+            let days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            return `${days[d.getDay()]}<br>${String(day).padStart(2, '0')} - ${String(month).padStart(2, '0')}`;
+        }
+
+        // Setup Awal
+        function init() {
+            let today = new Date();
+            let yyyy = today.getFullYear();
+            let mm = String(today.getMonth() + 1).padStart(2, '0');
+            currentMonthStr = `${yyyy}-${mm}`;
+            document.getElementById('monthSelector').value = currentMonthStr;
+            checkMonthData(currentMonthStr);
+            renderApp();
+        }
+
+        function changeMonth() {
+            currentMonthStr = document.getElementById('monthSelector').value;
+            checkMonthData(currentMonthStr);
+            renderApp();
+        }
+
+        function checkMonthData(monthStr) {
+            if (!appData.months[monthStr]) {
+                appData.months[monthStr] = {
+                    totalBudget: 900000,
+                    categories: {
+                        cat1: { name: "Kebutuhan", budget: 350000 },
+                        cat2: { name: "Uang Saku", budget: 350000 }
+                    },
+                    expenses: {}
+                };
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('anggaranKuDB', JSON.stringify(appData));
+        }
+
+        // === FUNGSI RENDER ===
+        function renderApp() {
+            renderSavings();
+            renderTable();
+            renderSummary();
+        }
+
+        function renderSummary() {
+            let md = appData.months[currentMonthStr];
+            let totalPengeluaran = 0;
+            
+            // Hitung pengeluaran bulanan
+            for (let day in md.expenses) {
+                (md.expenses[day].cat1 || []).forEach(e => totalPengeluaran += e.amount);
+                (md.expenses[day].cat2 || []).forEach(e => totalPengeluaran += e.amount);
+            }
+
+            let sisa = md.totalBudget - totalPengeluaran;
+            document.getElementById('txtSummaryValues').innerHTML = `${formatRp(md.totalBudget)} / ${formatRp(totalPengeluaran)} / ${formatRp(sisa)}`;
+        }
+
+        function renderSavings() {
+            let html = '';
+            appData.savings.forEach((sv, idx) => {
+                let percent = (sv.current / sv.target) * 100;
+                if(percent > 100) percent = 100;
+                html += `
+                <div class="saving-item">
+                    <div class="saving-header">
+                        <span><span class="icon-btn" onclick="openModal('editSaving', ${idx})">✏️</span> ${sv.name}</span>
+                        <span>${sv.current.toLocaleString('id-ID')} / ${sv.target.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${percent}%;"></div>
+                    </div>
+                </div>`;
+            });
+            html += `<button class="btn-add-saving" onclick="openModal('addSaving')">➕</button>`;
+            document.getElementById('savingsContainer').innerHTML = html;
+        }
+
+        function renderTable() {
+            let md = appData.months[currentMonthStr];
+            let [y, m] = currentMonthStr.split('-');
+            let daysInMonth = new Date(y, m, 0).getDate();
+
+            // Hitung Pengeluaran per Kategori untuk "Sisa" di Header
+            let sumCat1 = 0; let sumCat2 = 0;
+            for (let day in md.expenses) {
+                (md.expenses[day].cat1 || []).forEach(e => sumCat1 += e.amount);
+                (md.expenses[day].cat2 || []).forEach(e => sumCat2 += e.amount);
+            }
+
+            // Update Header Kategori
+            document.getElementById('txtCat1Name').innerText = md.categories.cat1.name;
+            document.getElementById('txtCat2Name').innerText = md.categories.cat2.name;
+            document.getElementById('txtCat1Budget').innerHTML = `${formatRp(md.categories.cat1.budget)}<br>Sisa : ${formatRp(md.categories.cat1.budget - sumCat1)}`;
+            document.getElementById('txtCat2Budget').innerHTML = `${formatRp(md.categories.cat2.budget)}<br>Sisa : ${formatRp(md.categories.cat2.budget - sumCat2)}`;
+
+            // Render Baris Hari
+            let tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                let dayKey = String(d);
+                let expCat1 = (md.expenses[dayKey] && md.expenses[dayKey].cat1) ? md.expenses[dayKey].cat1 : [];
+                let expCat2 = (md.expenses[dayKey] && md.expenses[dayKey].cat2) ? md.expenses[dayKey].cat2 : [];
+                
+                let daySum1 = expCat1.reduce((a, b) => a + b.amount, 0);
+                let daySum2 = expCat2.reduce((a, b) => a + b.amount, 0);
+
+                let cell1HTML = renderExpenseList(expCat1, dayKey, 'cat1') + `<div class="expense-footer"><span>Jml : ${formatRp(daySum1)}</span> <span class="add-expense-btn" onclick="openModal('addExpense', '${dayKey}', 'cat1')">➕</span></div>`;
+                let cell2HTML = renderExpenseList(expCat2, dayKey, 'cat2') + `<div class="expense-footer"><span>Jml : ${formatRp(daySum2)}</span> <span class="add-expense-btn" onclick="openModal('addExpense', '${dayKey}', 'cat2')">➕</span></div>`;
+
+                let tr = `<tr>
+                    <td class="col-date">${formatDateIndo(y, m, d)}</td>
+                    <td class="col-data">${cell1HTML}</td>
+                    <td class="col-data">${cell2HTML}</td>
+                </tr>`;
+                tbody.innerHTML += tr;
+            }
+        }
+
+        function renderExpenseList(items, dayKey, catKey) {
+            return items.map((itm, idx) => `
+                <div class="expense-item">
+                    <span><span class="icon-btn" onclick="openModal('editExpense', '${dayKey}', '${catKey}', ${idx})">✏️</span> ${itm.name}</span>
+                    <span>${formatRp(itm.amount)}</span>
+                </div>
+            `).join('');
+        }
+
+        // === SISTEM MODAL ===
+        let currentModalAction = {};
+
+        function openModal(action, p1, p2, p3) {
+            let title = ""; let inputs = "";
+            let md = appData.months[currentMonthStr];
+
+            if (action === 'editTotal') {
+                title = "Edit Total Anggaran Bulan Ini";
+                inputs = `<label>Nominal (Rp)</label><input type="number" id="inp1" value="${md.totalBudget}">`;
+            } else if (action === 'addSaving') {
+                title = "Tambah Tabungan";
+                inputs = `
+                    <label>Nama Tabungan</label><input type="text" id="inp1">
+                    <label>Target Nominal</label><input type="number" id="inp2">
+                    <label>Sudah Terkumpul</label><input type="number" id="inp3" value="0">
+                `;
+            } else if (action === 'editSaving') {
+                title = "Edit Tabungan";
+                let sv = appData.savings[p1];
+                inputs = `
+                    <label>Nama Tabungan</label><input type="text" id="inp1" value="${sv.name}">
+                    <label>Target Nominal</label><input type="number" id="inp2" value="${sv.target}">
+                    <label>Sudah Terkumpul</label><input type="number" id="inp3" value="${sv.current}">
+                `;
+            } else if (action === 'editCat') {
+                title = "Edit Kategori";
+                let c = md.categories[p1];
+                inputs = `
+                    <label>Nama Kategori</label><input type="text" id="inp1" value="${c.name}">
+                    <label>Nominal Anggaran</label><input type="number" id="inp2" value="${c.budget}">
+                `;
+            } else if (action === 'addExpense') {
+                title = `Tambah Pengeluaran (Tgl ${p1})`;
+                inputs = `
+                    <label>Nama Pengeluaran</label><input type="text" id="inp1">
+                    <label>Nominal (Rp)</label><input type="number" id="inp2">
+                `;
+            } else if (action === 'editExpense') {
+                title = `Edit Pengeluaran (Tgl ${p1})`;
+                let exp = md.expenses[p1][p2][p3];
+                inputs = `
+                    <label>Nama Pengeluaran</label><input type="text" id="inp1" value="${exp.name}">
+                    <label>Nominal (Rp)</label><input type="number" id="inp2" value="${exp.amount}">
+                    <p style="font-size:12px; color:red; cursor:pointer;" onclick="deleteExpense('${p1}','${p2}',${p3})">Hapus Item Ini</p>
+                `;
+            }
+
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalInputs').innerHTML = inputs;
+            document.getElementById('modal').style.display = 'flex';
+            currentModalAction = { action, p1, p2, p3 };
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function saveModal() {
+            let md = appData.months[currentMonthStr];
+            let a = currentModalAction.action;
+            let p1 = currentModalAction.p1, p2 = currentModalAction.p2, p3 = currentModalAction.p3;
+
+            let val1 = document.getElementById('inp1') ? document.getElementById('inp1').value : null;
+            let val2 = document.getElementById('inp2') ? document.getElementById('inp2').value : null;
+            let val3 = document.getElementById('inp3') ? document.getElementById('inp3').value : null;
+
+            if (a === 'editTotal') {
+                md.totalBudget = parseInt(val1) || 0;
+            } else if (a === 'addSaving') {
+                appData.savings.push({ name: val1, target: parseInt(val2)||0, current: parseInt(val3)||0 });
+            } else if (a === 'editSaving') {
+                appData.savings[p1] = { name: val1, target: parseInt(val2)||0, current: parseInt(val3)||0 };
+            } else if (a === 'editCat') {
+                md.categories[p1] = { name: val1, budget: parseInt(val2)||0 };
+            } else if (a === 'addExpense') {
+                if(!md.expenses[p1]) md.expenses[p1] = { cat1: [], cat2: [] };
+                if(!md.expenses[p1][p2]) md.expenses[p1][p2] = [];
+                md.expenses[p1][p2].push({ name: val1, amount: parseInt(val2)||0 });
+            } else if (a === 'editExpense') {
+                md.expenses[p1][p2][p3] = { name: val1, amount: parseInt(val2)||0 };
+            }
+
+            saveData();
+            closeModal();
+            renderApp();
+        }
+
+        function deleteExpense(day, cat, idx) {
+            if(confirm('Hapus pengeluaran ini?')) {
+                appData.months[currentMonthStr].expenses[day][cat].splice(idx, 1);
+                saveData();
+                closeModal();
+                renderApp();
+            }
+        }
+
+        // Jalankan aplikasi
+        window.onload = init;
+    </script>
+</body>
+</html>
