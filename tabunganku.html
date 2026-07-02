@@ -15,8 +15,8 @@
             --pink-header: #ff66a3;
             --pink-light: #ffe6f0;
             --pink-table-header: #ffcce0;
-            --pink-soft-btn: #ffe3ec; /* Warna soft pink baru untuk tombol tabungan */
-            --text-dark: #b30047; /* Warna pink gelap */
+            --pink-soft-btn: #ffe3ec; 
+            --text-dark: #b30047; 
             --text-price: #ff1a75;
             --white: #ffffff;
             --icon-gold: #f1c40f; 
@@ -99,13 +99,13 @@
             background-color: rgba(255,255,255,0.8);
             color: var(--text-dark);
             border: none;
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
+            padding: 6px 10px; 
+            border-radius: 8px;
+            font-size: 14px; 
             display: flex;
             align-items: center;
-            gap: 5px;
+            justify-content: center;
+            cursor: pointer;
         }
 
         /* === KARTU RINGKASAN & TABUNGAN === */
@@ -136,7 +136,7 @@
         
         .savings-container {
             background-color: rgba(255,255,255,0.25);
-            padding: 12px 10px 40px 10px; /* Ditambah padding bawah agar tombol plus serasi */
+            padding: 12px 10px 40px 10px;
             border-radius: 8px;
             position: relative;
         }
@@ -161,14 +161,13 @@
             height: 100%;
         }
         
-        /* Tombol Tambah Tabungan Hasil Pembaruan Desain */
         .btn-add-saving {
             position: absolute;
             bottom: 10px;
             right: 10px;
-            background-color: var(--pink-soft-btn); /* Soft Pink */
-            color: var(--text-dark); /* Pink lebih gelap */
-            border: none; /* Border putih dihilangkan */
+            background-color: var(--pink-soft-btn); 
+            color: var(--text-dark); 
+            border: none; 
             border-radius: 50%;
             width: 26px;
             height: 26px;
@@ -277,13 +276,46 @@
         }
         .modal-box h3 { margin-bottom: 15px; color: var(--pink-primary); font-size: 16px;}
         .modal-box label { display: block; margin-bottom: 5px; font-size: 12px; font-weight: bold; color: var(--text-dark);}
-        .modal-box input, .modal-box select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ffb3d1; border-radius: 8px; font-size: 14px; outline: none; background: white;}
+        .modal-box input, .modal-box select { width: 100%; padding: 10px; margin-bottom: 5px; border: 1px solid #ffb3d1; border-radius: 8px; font-size: 14px; outline: none; background: white;}
         .modal-box input:focus, .modal-box select:focus { border-color: var(--pink-primary); }
-        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
-        .modal-actions button { padding: 8px 16px; border: none; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;}
+        
+        /* Tata Letak Tombol Bawah (Aksi) */
+        .modal-actions { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-top: 20px; 
+        }
+        .modal-actions-right { 
+            display: flex; 
+            gap: 10px; 
+        }
+        .modal-actions button { 
+            padding: 8px 16px; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            font-size: 12px; 
+            cursor: pointer;
+        }
         .btn-save { background-color: var(--pink-primary); color: white; }
         .btn-cancel { background-color: #f2f2f2; color: #555; }
-        .btn-delete { margin-top:10px; font-size:12px; color:#e74c3c; cursor:pointer; font-weight:bold; text-align:right; display: block;}
+        
+        /* Tombol Ikon Sampah Kiri Bawah */
+        .btn-delete-icon {
+            color: #e74c3c;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: #fceceb; /* Merah soft untuk estetik */
+            transition: background-color 0.2s;
+        }
+        .btn-delete-icon:hover { background-color: #f8d7d5; }
 
         /* === MODE CETAK === */
         @media print {
@@ -304,10 +336,10 @@
 
     <!-- Header -->
     <div class="header-container">
-        <h1><i class="fa-solid fa-money-bills"></i> <i class="fa-solid fa-seedling" style="color: #ffb3d1;"></i> AnggaranKu</h1>
+        <h1><i class="fa-solid fa-money-bills"></i> AnggaranKu</h1>
         <div class="header-controls">
             <input type="month" id="monthSelector" onchange="changeMonth()">
-            <button class="btn-cetak" onclick="window.print()"><i class="fa-solid fa-print"></i> Cetak</button>
+            <button class="btn-cetak" onclick="window.print()" title="Cetak ke PDF"><i class="fa-solid fa-print"></i></button>
         </div>
     </div>
 
@@ -351,8 +383,13 @@
             <h3 id="modalTitle">Judul</h3>
             <div id="modalInputs"></div>
             <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeModal()">Batal</button>
-                <button class="btn-save" onclick="saveModal()">Simpan</button>
+                <!-- Ikon Tempat Sampah (Akan Muncul Hanya Saat Edit) -->
+                <div id="modalDeleteBtn"></div>
+                <!-- Tombol Batal & Simpan -->
+                <div class="modal-actions-right">
+                    <button class="btn-cancel" onclick="closeModal()">Batal</button>
+                    <button class="btn-save" onclick="saveModal()">Simpan</button>
+                </div>
             </div>
         </div>
     </div>
@@ -539,7 +576,6 @@
             `).join('');
         }
 
-        // Otomatis mengisi nama pengeluaran jika opsi tabungan dipilih
         function autoFillExpenseName() {
             let sel = document.getElementById('inpSaving');
             let nameInput = document.getElementById('inp1');
@@ -555,10 +591,11 @@
         let currentModalAction = {};
 
         function openModal(action, p1, p2, p3) {
-            let title = ""; let inputs = "";
+            let title = ""; 
+            let inputs = "";
+            let deleteBtnHtml = ""; // Variabel baru untuk tombol hapus
             let md = appData.months[currentMonthStr];
 
-            // Generate opsi pilihan tabungan untuk digunakan di modal input pengeluaran
             let getSavingOptions = (selectedIdx) => {
                 let options = `<option value="-1">-- Pengeluaran Biasa --</option>`;
                 appData.savings.forEach((sv, idx) => {
@@ -569,7 +606,7 @@
             };
 
             if (action === 'editTotal') {
-                title = "Edit Total Anggaran Bulan Ini";
+                title = "Edit Total Anggaran";
                 inputs = `<label>Nominal (Rp)</label><input type="number" id="inp1" value="${md.totalBudget}">`;
             } else if (action === 'addSaving') {
                 title = "Tambah Tabungan Baru";
@@ -578,27 +615,27 @@
                     <label>Nominal Total Target</label><input type="number" id="inp2" placeholder="Contoh: 2000000">
                 `;
             } else if (action === 'editSaving') {
-                title = "Edit Pengaturan Tabungan";
+                title = "Edit Tabungan";
                 let sv = appData.savings[p1];
                 inputs = `
                     <label>Nama/Jenis Tabungan</label><input type="text" id="inp1" value="${sv.name}">
-                    <label>Nominal Total Target</label><input type="number" id="inp2" value="${sv.target}">
-                    <span class="btn-delete" onclick="deleteSaving(${p1})"><i class="fa-solid fa-trash"></i> Hapus Tabungan Ini</span>
+                    <br><label>Nominal Total Target</label><input type="number" id="inp2" value="${sv.target}">
                 `;
+                deleteBtnHtml = `<div class="btn-delete-icon" onclick="deleteSaving(${p1})" title="Hapus Tabungan"><i class="fa-solid fa-trash"></i></div>`;
             } else if (action === 'editCat') {
                 title = "Edit Kategori";
                 let c = md.categories[p1];
                 inputs = `
                     <label>Nama Kategori</label><input type="text" id="inp1" value="${c.name}">
-                    <label>Nominal Anggaran 1 Bulan</label><input type="number" id="inp2" value="${c.budget}">
+                    <br><label>Nominal Anggaran 1 Bulan</label><input type="number" id="inp2" value="${c.budget}">
                 `;
             } else if (action === 'addExpense') {
                 title = `Tambah Item (Tgl ${p1})`;
                 inputs = `
                     <label>Hubungkan ke Tabungan? (Opsional)</label>
                     <select id="inpSaving" onchange="autoFillExpenseName()">${getSavingOptions(-1)}</select>
-                    <label>Nama Item Pengeluaran</label><input type="text" id="inp1">
-                    <label>Nominal (Rp)</label><input type="number" id="inp2">
+                    <br><label>Nama Item Pengeluaran</label><input type="text" id="inp1">
+                    <br><label>Nominal (Rp)</label><input type="number" id="inp2">
                 `;
             } else if (action === 'editExpense') {
                 title = `Edit Item (Tgl ${p1})`;
@@ -606,14 +643,18 @@
                 inputs = `
                     <label>Hubungkan ke Tabungan? (Opsional)</label>
                     <select id="inpSaving" onchange="autoFillExpenseName()">${getSavingOptions(exp.savingIdx !== undefined ? exp.savingIdx : -1)}</select>
-                    <label>Nama Item Pengeluaran</label><input type="text" id="inp1" value="${exp.name}">
-                    <label>Nominal (Rp)</label><input type="number" id="inp2" value="${exp.amount}">
-                    <span class="btn-delete" onclick="deleteExpense('${p1}','${p2}',${p3})"><i class="fa-solid fa-trash"></i> Hapus Item Ini</span>
+                    <br><label>Nama Item Pengeluaran</label><input type="text" id="inp1" value="${exp.name}">
+                    <br><label>Nominal (Rp)</label><input type="number" id="inp2" value="${exp.amount}">
                 `;
+                deleteBtnHtml = `<div class="btn-delete-icon" onclick="deleteExpense('${p1}','${p2}',${p3})" title="Hapus Item Ini"><i class="fa-solid fa-trash"></i></div>`;
             }
 
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalInputs').innerHTML = inputs;
+            
+            // Injeksi tombol delete ke kiri bawah, jika ada
+            document.getElementById('modalDeleteBtn').innerHTML = deleteBtnHtml;
+            
             document.getElementById('modal').style.display = 'flex';
             currentModalAction = { action, p1, p2, p3 };
         }
