@@ -305,7 +305,6 @@
         /* === MODE CETAK === */
         @media print {
             * {
-                /* Memaksa browser mencetak warna latar belakang (sangat penting untuk PDF/Print) */
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
@@ -316,7 +315,6 @@
             }
             .header-controls, .btn-add-saving, .btn-add-expense, .icon-btn, i.fa-solid { display: none !important; }
             
-            /* Mengubah warna progress bar menjadi hitam di mode cetak */
             .progress-bar-bg { 
                 border: 1px solid black !important; 
                 background-color: white !important;
@@ -394,12 +392,13 @@
         let currentMonthStr = "";
         let appData = JSON.parse(localStorage.getItem('anggaranKuDB')) || { savings: [], months: {} };
 
+        // Helper Format Rupiah Diperbarui (Tanda minus di depan angka)
         function formatRp(num) {
             if(isNaN(num)) num = 0;
             let isNeg = num < 0;
             let val = Math.abs(num);
-            let str = "Rp. " + val.toLocaleString('id-ID').replace(/,/g, '.') + ",-";
-            return isNeg ? "- " + str : str;
+            let str = val.toLocaleString('id-ID').replace(/,/g, '.') + ",-";
+            return isNeg ? "Rp. -" + str : "Rp. " + str;
         }
 
         function getDayIndo(year, month, day) {
@@ -488,9 +487,15 @@
             }
 
             let sisa = md.totalBudget - totalPengeluaran;
-            let fmt = (n) => "Rp. " + n.toLocaleString('id-ID').replace(/,/g, '.');
-            let sisaStr = sisa < 0 ? "- " + fmt(Math.abs(sisa)) : fmt(sisa);
-            document.getElementById('txtSummaryValues').innerHTML = `${fmt(md.totalBudget)} / ${fmt(totalPengeluaran)} / ${sisaStr}`;
+            
+            // Format fungsi khusus Ringkasan (juga dengan minus di depan angka)
+            let fmtSummary = (n) => {
+                let isNeg = n < 0;
+                let valStr = Math.abs(n).toLocaleString('id-ID').replace(/,/g, '.');
+                return isNeg ? "Rp. -" + valStr : "Rp. " + valStr;
+            };
+
+            document.getElementById('txtSummaryValues').innerHTML = `${fmtSummary(md.totalBudget)} / ${fmtSummary(totalPengeluaran)} / ${fmtSummary(sisa)}`;
         }
 
         function renderSavings() {
