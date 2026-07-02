@@ -2,18 +2,23 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AnggaranKu</title>
+    <!-- Memuat Font Awesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* === VARIABEL WARNA (TEMA PINK) === */
+        /* === VARIABEL WARNA === */
         :root {
-            --bg-color: #ffffff;
-            --primary-pink: #ff4da6;
-            --secondary-pink: #ff80bf;
-            --light-pink: #ffcce6;
-            --very-light-pink: #ffe6f2;
-            --text-dark: #cc0066;
-            --text-light: #ffffff;
+            --bg-body: #fdf5f8;
+            --pink-primary: #ff4d94;
+            --pink-header: #ff66a3;
+            --pink-light: #ffe6f0;
+            --pink-table-header: #ffcce0;
+            --text-dark: #b30047;
+            --text-price: #ff1a75;
+            --white: #ffffff;
+            --icon-gold: #f1c40f; /* Warna emas untuk ikon pensil dan uang */
         }
 
         /* === RESET & UMUM === */
@@ -21,95 +26,121 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-body);
             color: #333;
             padding: 10px;
-            max-width: 800px;
+            max-width: 600px; 
             margin: auto;
+            font-size: 12px;
         }
+        
+        /* Ikon Global */
+        .fa-pencil {
+            color: var(--icon-gold);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .fa-sack-dollar {
+            color: var(--icon-gold);
+            font-size: 32px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
         .icon-btn {
             cursor: pointer;
             background: none;
             border: none;
-            font-size: 14px;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-block;
+            margin-left: 2px;
+            margin-right: 2px;
         }
 
         /* === HEADER === */
         .header-container {
-            background-color: var(--secondary-pink);
-            color: var(--text-light);
+            background-color: var(--pink-header);
+            color: var(--white);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 20px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 10px 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(255, 102, 163, 0.4);
         }
         .header-container h1 {
-            font-size: 22px;
+            font-size: 18px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            font-weight: bold;
         }
         .header-controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
         .header-controls input[type="month"] {
-            padding: 5px 10px;
-            border-radius: 20px;
+            padding: 4px 6px;
+            border-radius: 12px;
             border: none;
-            color: var(--primary-pink);
             font-weight: bold;
+            font-size: 11px;
+            background: rgba(255,255,255,0.3);
+            color: white;
             outline: none;
         }
+        .header-controls input[type="month"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
         .btn-cetak {
-            background-color: rgba(255,255,255,0.7);
-            color: #333;
+            background-color: rgba(255,255,255,0.8);
+            color: var(--text-dark);
             border: none;
-            padding: 6px 12px;
-            border-radius: 20px;
-            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 11px;
             font-weight: bold;
             display: flex;
             align-items: center;
             gap: 5px;
+            cursor: pointer;
         }
 
         /* === KARTU RINGKASAN & TABUNGAN === */
         .summary-card {
-            background-color: var(--secondary-pink);
-            border-radius: 15px;
-            padding: 15px;
-            color: var(--text-light);
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-color: var(--pink-header);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--white);
+            margin-bottom: 15px;
             position: relative;
+            box-shadow: 0 3px 6px rgba(255, 102, 163, 0.3);
         }
         .summary-top {
             display: flex;
-            align-items: flex-start;
-            gap: 15px;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 15px;
         }
         .summary-top h2 {
-            font-size: 16px;
+            font-size: 13px;
             font-weight: normal;
+            margin-bottom: 4px;
         }
         .summary-top h3 {
-            font-size: 20px;
-            margin-top: 5px;
+            font-size: 14px;
+            font-weight: bold;
         }
+        
         .savings-container {
-            background-color: var(--light-pink);
-            padding: 15px;
-            border-radius: 10px;
-            color: var(--text-dark);
+            background-color: rgba(255,255,255,0.25);
+            padding: 12px 10px;
+            border-radius: 8px;
             position: relative;
         }
         .saving-item {
@@ -118,183 +149,208 @@
         .saving-header {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 11px;
             margin-bottom: 5px;
+            color: var(--white);
         }
         .progress-bar-bg {
-            background-color: white;
-            height: 8px;
-            border-radius: 4px;
+            background-color: rgba(255,255,255,0.6);
+            height: 5px;
+            border-radius: 3px;
             overflow: hidden;
         }
         .progress-bar-fill {
-            background-color: var(--primary-pink);
+            background-color: var(--pink-primary);
             height: 100%;
         }
+        /* Tombol Plus Bulat Pink & Putih */
         .btn-add-saving {
             position: absolute;
-            bottom: -15px;
-            right: 15px;
-            background-color: var(--primary-pink);
-            color: white;
-            border: none;
+            bottom: -12px;
+            right: -5px;
+            background-color: var(--pink-primary);
+            color: var(--white);
+            border: 2px solid var(--white);
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            font-size: 20px;
-            cursor: pointer;
+            width: 26px;
+            height: 26px;
+            font-size: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: pointer;
         }
 
         /* === TABEL ANGGARAN === */
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            border-radius: 10px;
+            background-color: var(--white);
+            border-radius: 12px;
             overflow: hidden;
+            table-layout: fixed;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         th, td {
-            border: 2px solid var(--very-light-pink);
-            padding: 10px;
+            border: 1px solid var(--pink-light);
+            padding: 8px 5px;
             vertical-align: top;
+            word-wrap: break-word;
         }
         th {
-            background-color: var(--light-pink);
-            color: var(--text-dark);
+            background-color: var(--pink-table-header);
+            color: var(--text-price);
             text-align: center;
-        }
-        .col-date {
-            width: 15%;
-            text-align: center;
-            font-weight: bold;
-            color: var(--text-dark);
-        }
-        .col-data {
-            width: 42.5%;
+            padding: 12px 4px;
         }
         
+        .col-date { width: 17%; text-align: center; }
+        .col-data { width: 41.5%; }
+        
         .cat-header {
-            font-size: 16px;
+            font-size: 13px;
             font-weight: bold;
             margin-bottom: 5px;
         }
         .cat-budget {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: normal;
-        }
-        
-        .expense-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            margin-bottom: 5px;
+            line-height: 1.4;
             color: var(--text-dark);
         }
+        
+        /* Baris Hari & Tanggal */
+        .date-day {
+            font-weight: bold;
+            font-size: 12px;
+            color: var(--text-dark);
+            margin-bottom: 2px;
+        }
+        .date-num {
+            font-size: 10px;
+            color: var(--text-price);
+            font-weight: bold;
+        }
+
+        /* Item Pengeluaran */
+        .expense-item {
+            font-size: 11px;
+            margin-bottom: 6px;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+        .expense-price {
+            color: var(--text-price);
+            font-weight: bold;
+        }
+        
+        /* Footer (Jml dan Tombol Plus Kotak) */
         .expense-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 15px;
-            font-size: 13px;
-            font-weight: bold;
-            color: var(--text-dark);
+            margin-top: 10px;
         }
-        .add-expense-btn {
-            background-color: var(--primary-pink);
-            color: white;
+        .expense-total {
+            font-size: 11px;
+            font-style: italic;
+            color: var(--text-price);
+            font-weight: bold;
+        }
+        .btn-add-expense {
+            background-color: var(--pink-primary);
+            color: var(--white);
             border: none;
-            padding: 2px 6px;
+            width: 16px;
+            height: 16px;
             border-radius: 3px;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             cursor: pointer;
         }
 
-        /* === MODAL === */
+        /* === MODAL & UMUM === */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000;
         }
         .modal-box {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 300px;
+            background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 320px;
         }
-        .modal-box h3 { margin-bottom: 15px; color: var(--primary-pink); }
-        .modal-box label { display: block; margin-bottom: 5px; font-size: 14px; }
-        .modal-box input { width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .modal-box h3 { margin-bottom: 15px; color: var(--pink-primary); font-size: 16px;}
+        .modal-box label { display: block; margin-bottom: 5px; font-size: 12px; font-weight: bold; color: var(--text-dark);}
+        .modal-box input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ffb3d1; border-radius: 8px; font-size: 14px; outline: none;}
+        .modal-box input:focus { border-color: var(--pink-primary); }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
-        .modal-actions button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; }
-        .btn-save { background-color: var(--primary-pink); color: white; }
-        .btn-cancel { background-color: #ddd; color: black; }
+        .modal-actions button { padding: 8px 16px; border: none; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;}
+        .btn-save { background-color: var(--pink-primary); color: white; }
+        .btn-cancel { background-color: #f2f2f2; color: #555; }
+        .btn-delete { margin-top:10px; font-size:12px; color:#e74c3c; cursor:pointer; font-weight:bold; text-align:right; display: block;}
 
         /* === MODE CETAK (PRINT B&W PDF) === */
         @media print {
-            body { background: white; color: black; margin: 0; padding: 0; }
+            body { background: white; color: black; margin: 0; padding: 0; max-width: 100%; }
             .header-container, .summary-card, table, th, td {
-                background: white !important;
-                color: black !important;
-                box-shadow: none !important;
-                border: 1px solid black !important;
+                background: white !important; color: black !important;
+                box-shadow: none !important; border: 1px solid black !important;
             }
-            .header-controls, .btn-add-saving, .add-expense-btn, .icon-btn { display: none !important; }
+            .header-controls, .btn-add-saving, .btn-add-expense, .icon-btn, i.fa-solid { display: none !important; }
             .progress-bar-bg { border: 1px solid black; }
             .progress-bar-fill { background: black !important; }
-            * { color: black !important; }
+            * { color: black !important; text-shadow: none !important; }
+            .expense-price, .expense-total, .date-num { color: black !important; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Header -->
     <div class="header-container">
-        <h1>💸🌸 AnggaranKu</h1>
+        <h1><i class="fa-solid fa-money-bills"></i> <i class="fa-solid fa-seedling" style="color: #ffb3d1;"></i> AnggaranKu</h1>
         <div class="header-controls">
             <input type="month" id="monthSelector" onchange="changeMonth()">
-            <button class="btn-cetak" onclick="window.print()">🖨️ Cetak</button>
+            <button class="btn-cetak" onclick="window.print()"><i class="fa-solid fa-print"></i> Cetak</button>
         </div>
     </div>
 
+    <!-- Ringkasan & Tabungan -->
     <div class="summary-card">
         <div class="summary-top">
-            <div style="font-size: 40px;">💰</div>
+            <i class="fa-solid fa-sack-dollar"></i>
             <div>
-                <h2>Total Anggaran / Pengeluaran / Sisa <span class="icon-btn" onclick="openModal('editTotal')">✏️</span></h2>
-                <h3 id="txtSummaryValues">Rp. 0,- / Rp. 0,- / Rp. 0,-</h3>
+                <h2>Total Anggaran / Pengeluaran / Sisa <span class="icon-btn" onclick="openModal('editTotal')"><i class="fa-solid fa-pencil"></i></span></h2>
+                <h3 id="txtSummaryValues">Rp. 0 / Rp. 0 / Rp. 0</h3>
             </div>
         </div>
         <div class="savings-container" id="savingsContainer">
-            <button class="btn-add-saving" onclick="openModal('addSaving')">➕</button>
+            <!-- Data Tabungan Render Disini -->
         </div>
     </div>
 
+    <!-- Tabel -->
     <table>
         <thead>
             <tr>
                 <th class="col-date">Hari/Tgl</th>
                 <th class="col-data" id="thCat1">
-                    <div class="cat-header"><span id="txtCat1Name">Kebutuhan</span> <span class="icon-btn" onclick="openModal('editCat', 'cat1')">✏️</span></div>
+                    <div class="cat-header"><span id="txtCat1Name">Kebutuhan</span> <span class="icon-btn" onclick="openModal('editCat', 'cat1')"><i class="fa-solid fa-pencil"></i></span></div>
                     <div class="cat-budget" id="txtCat1Budget">Rp. 0,-<br>Sisa : Rp. 0,-</div>
                 </th>
                 <th class="col-data" id="thCat2">
-                    <div class="cat-header"><span id="txtCat2Name">Uang Saku</span> <span class="icon-btn" onclick="openModal('editCat', 'cat2')">✏️</span></div>
+                    <div class="cat-header"><span id="txtCat2Name">Uang Saku</span> <span class="icon-btn" onclick="openModal('editCat', 'cat2')"><i class="fa-solid fa-pencil"></i></span></div>
                     <div class="cat-budget" id="txtCat2Budget">Rp. 0,-<br>Sisa : Rp. 0,-</div>
                 </th>
             </tr>
         </thead>
         <tbody id="tableBody">
-            </tbody>
+            <!-- Baris Hari Render Disini -->
+        </tbody>
     </table>
 
+    <!-- Modal Input -->
     <div class="modal-overlay" id="modal">
         <div class="modal-box">
             <h3 id="modalTitle">Judul</h3>
@@ -316,15 +372,18 @@
             if(isNaN(num)) num = 0;
             let isNeg = num < 0;
             let val = Math.abs(num);
-            let str = "Rp. " + val.toLocaleString('id-ID') + ",-";
+            let str = "Rp. " + val.toLocaleString('id-ID').replace(/,/g, '.') + ",-";
             return isNeg ? "- " + str : str;
         }
 
         // Helper Tanggal Indonesia
-        function formatDateIndo(year, month, day) {
+        function getDayIndo(year, month, day) {
             let d = new Date(year, month - 1, day);
             let days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            return `${days[d.getDay()]}<br>${String(day).padStart(2, '0')} - ${String(month).padStart(2, '0')}`;
+            return days[d.getDay()];
+        }
+        function getDateNum(month, day) {
+            return `${String(day).padStart(2, '0')} - ${String(month).padStart(2, '0')}`;
         }
 
         // Setup Awal
@@ -373,14 +432,15 @@
             let md = appData.months[currentMonthStr];
             let totalPengeluaran = 0;
             
-            // Hitung pengeluaran bulanan
             for (let day in md.expenses) {
                 (md.expenses[day].cat1 || []).forEach(e => totalPengeluaran += e.amount);
                 (md.expenses[day].cat2 || []).forEach(e => totalPengeluaran += e.amount);
             }
 
             let sisa = md.totalBudget - totalPengeluaran;
-            document.getElementById('txtSummaryValues').innerHTML = `${formatRp(md.totalBudget)} / ${formatRp(totalPengeluaran)} / ${formatRp(sisa)}`;
+            let fmt = (n) => "Rp. " + n.toLocaleString('id-ID').replace(/,/g, '.');
+            let sisaStr = sisa < 0 ? "- " + fmt(Math.abs(sisa)) : fmt(sisa);
+            document.getElementById('txtSummaryValues').innerHTML = `${fmt(md.totalBudget)} / ${fmt(totalPengeluaran)} / ${sisaStr}`;
         }
 
         function renderSavings() {
@@ -388,18 +448,20 @@
             appData.savings.forEach((sv, idx) => {
                 let percent = (sv.current / sv.target) * 100;
                 if(percent > 100) percent = 100;
+                let curStr = sv.current.toLocaleString('id-ID').replace(/,/g, '.');
+                let tgtStr = sv.target.toLocaleString('id-ID').replace(/,/g, '.');
                 html += `
                 <div class="saving-item">
                     <div class="saving-header">
-                        <span><span class="icon-btn" onclick="openModal('editSaving', ${idx})">✏️</span> ${sv.name}</span>
-                        <span>${sv.current.toLocaleString('id-ID')} / ${sv.target.toLocaleString('id-ID')}</span>
+                        <span><span class="icon-btn" onclick="openModal('editSaving', ${idx})"><i class="fa-solid fa-pencil"></i></span> ${sv.name}</span>
+                        <span>${curStr} / ${tgtStr}</span>
                     </div>
                     <div class="progress-bar-bg">
                         <div class="progress-bar-fill" style="width: ${percent}%;"></div>
                     </div>
                 </div>`;
             });
-            html += `<button class="btn-add-saving" onclick="openModal('addSaving')">➕</button>`;
+            html += `<button class="btn-add-saving" onclick="openModal('addSaving')"><i class="fa-solid fa-plus"></i></button>`;
             document.getElementById('savingsContainer').innerHTML = html;
         }
 
@@ -408,20 +470,17 @@
             let [y, m] = currentMonthStr.split('-');
             let daysInMonth = new Date(y, m, 0).getDate();
 
-            // Hitung Pengeluaran per Kategori untuk "Sisa" di Header
             let sumCat1 = 0; let sumCat2 = 0;
             for (let day in md.expenses) {
                 (md.expenses[day].cat1 || []).forEach(e => sumCat1 += e.amount);
                 (md.expenses[day].cat2 || []).forEach(e => sumCat2 += e.amount);
             }
 
-            // Update Header Kategori
             document.getElementById('txtCat1Name').innerText = md.categories.cat1.name;
             document.getElementById('txtCat2Name').innerText = md.categories.cat2.name;
             document.getElementById('txtCat1Budget').innerHTML = `${formatRp(md.categories.cat1.budget)}<br>Sisa : ${formatRp(md.categories.cat1.budget - sumCat1)}`;
             document.getElementById('txtCat2Budget').innerHTML = `${formatRp(md.categories.cat2.budget)}<br>Sisa : ${formatRp(md.categories.cat2.budget - sumCat2)}`;
 
-            // Render Baris Hari
             let tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
@@ -433,13 +492,19 @@
                 let daySum1 = expCat1.reduce((a, b) => a + b.amount, 0);
                 let daySum2 = expCat2.reduce((a, b) => a + b.amount, 0);
 
-                let cell1HTML = renderExpenseList(expCat1, dayKey, 'cat1') + `<div class="expense-footer"><span>Jml : ${formatRp(daySum1)}</span> <span class="add-expense-btn" onclick="openModal('addExpense', '${dayKey}', 'cat1')">➕</span></div>`;
-                let cell2HTML = renderExpenseList(expCat2, dayKey, 'cat2') + `<div class="expense-footer"><span>Jml : ${formatRp(daySum2)}</span> <span class="add-expense-btn" onclick="openModal('addExpense', '${dayKey}', 'cat2')">➕</span></div>`;
+                let list1 = renderExpenseList(expCat1, dayKey, 'cat1');
+                let list2 = renderExpenseList(expCat2, dayKey, 'cat2');
+                
+                let foot1 = `<div class="expense-footer"><span class="expense-total">Jml : ${formatRp(daySum1)}</span> <button class="btn-add-expense" onclick="openModal('addExpense', '${dayKey}', 'cat1')"><i class="fa-solid fa-plus"></i></button></div>`;
+                let foot2 = `<div class="expense-footer"><span class="expense-total">Jml : ${formatRp(daySum2)}</span> <button class="btn-add-expense" onclick="openModal('addExpense', '${dayKey}', 'cat2')"><i class="fa-solid fa-plus"></i></button></div>`;
 
                 let tr = `<tr>
-                    <td class="col-date">${formatDateIndo(y, m, d)}</td>
-                    <td class="col-data">${cell1HTML}</td>
-                    <td class="col-data">${cell2HTML}</td>
+                    <td class="col-date">
+                        <div class="date-day">${getDayIndo(y, m, d)}</div>
+                        <div class="date-num">${getDateNum(m, d)}</div>
+                    </td>
+                    <td class="col-data">${list1}${foot1}</td>
+                    <td class="col-data">${list2}${foot2}</td>
                 </tr>`;
                 tbody.innerHTML += tr;
             }
@@ -448,8 +513,8 @@
         function renderExpenseList(items, dayKey, catKey) {
             return items.map((itm, idx) => `
                 <div class="expense-item">
-                    <span><span class="icon-btn" onclick="openModal('editExpense', '${dayKey}', '${catKey}', ${idx})">✏️</span> ${itm.name}</span>
-                    <span>${formatRp(itm.amount)}</span>
+                    <span class="icon-btn" onclick="openModal('editExpense', '${dayKey}', '${catKey}', ${idx})"><i class="fa-solid fa-pencil"></i></span>
+                    ${itm.name} <span class="expense-price">${formatRp(itm.amount)}</span>
                 </div>
             `).join('');
         }
@@ -484,7 +549,7 @@
                 let c = md.categories[p1];
                 inputs = `
                     <label>Nama Kategori</label><input type="text" id="inp1" value="${c.name}">
-                    <label>Nominal Anggaran</label><input type="number" id="inp2" value="${c.budget}">
+                    <label>Nominal Anggaran 1 Bulan</label><input type="number" id="inp2" value="${c.budget}">
                 `;
             } else if (action === 'addExpense') {
                 title = `Tambah Pengeluaran (Tgl ${p1})`;
@@ -498,7 +563,7 @@
                 inputs = `
                     <label>Nama Pengeluaran</label><input type="text" id="inp1" value="${exp.name}">
                     <label>Nominal (Rp)</label><input type="number" id="inp2" value="${exp.amount}">
-                    <p style="font-size:12px; color:red; cursor:pointer;" onclick="deleteExpense('${p1}','${p2}',${p3})">Hapus Item Ini</p>
+                    <span class="btn-delete" onclick="deleteExpense('${p1}','${p2}',${p3})"><i class="fa-solid fa-trash"></i> Hapus Item Ini</span>
                 `;
             }
 
@@ -543,7 +608,7 @@
         }
 
         function deleteExpense(day, cat, idx) {
-            if(confirm('Hapus pengeluaran ini?')) {
+            if(confirm('Yakin ingin menghapus pengeluaran ini?')) {
                 appData.months[currentMonthStr].expenses[day][cat].splice(idx, 1);
                 saveData();
                 closeModal();
@@ -551,7 +616,7 @@
             }
         }
 
-        // Jalankan aplikasi
+        // Jalankan saat load
         window.onload = init;
     </script>
 </body>
