@@ -15,10 +15,11 @@
             --pink-header: #ff66a3;
             --pink-light: #ffe6f0;
             --pink-table-header: #ffcce0;
-            --text-dark: #b30047;
+            --pink-soft-btn: #ffe3ec; /* Warna soft pink baru untuk tombol tabungan */
+            --text-dark: #b30047; /* Warna pink gelap */
             --text-price: #ff1a75;
             --white: #ffffff;
-            --icon-gold: #f1c40f; /* Warna emas untuk ikon pensil dan uang */
+            --icon-gold: #f1c40f; 
         }
 
         /* === RESET & UMUM === */
@@ -38,7 +39,6 @@
             font-size: 12px;
         }
         
-        /* Ikon Global */
         .fa-pencil {
             color: var(--icon-gold);
             text-shadow: 0 1px 2px rgba(0,0,0,0.2);
@@ -54,10 +54,8 @@
             background: none;
             border: none;
             font-size: 12px;
-            text-decoration: none;
             display: inline-block;
-            margin-left: 2px;
-            margin-right: 2px;
+            margin: 0 2px;
         }
 
         /* === HEADER === */
@@ -108,7 +106,6 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            cursor: pointer;
         }
 
         /* === KARTU RINGKASAN & TABUNGAN === */
@@ -139,7 +136,7 @@
         
         .savings-container {
             background-color: rgba(255,255,255,0.25);
-            padding: 12px 10px;
+            padding: 12px 10px 40px 10px; /* Ditambah padding bawah agar tombol plus serasi */
             border-radius: 8px;
             position: relative;
         }
@@ -163,14 +160,15 @@
             background-color: var(--pink-primary);
             height: 100%;
         }
-        /* Tombol Plus Bulat Pink & Putih */
+        
+        /* Tombol Tambah Tabungan Hasil Pembaruan Desain */
         .btn-add-saving {
             position: absolute;
-            bottom: -12px;
-            right: -5px;
-            background-color: var(--pink-primary);
-            color: var(--white);
-            border: 2px solid var(--white);
+            bottom: 10px;
+            right: 10px;
+            background-color: var(--pink-soft-btn); /* Soft Pink */
+            color: var(--text-dark); /* Pink lebih gelap */
+            border: none; /* Border putih dihilangkan */
             border-radius: 50%;
             width: 26px;
             height: 26px;
@@ -178,7 +176,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
             cursor: pointer;
         }
 
@@ -190,7 +188,7 @@
             border-radius: 12px;
             overflow: hidden;
             table-layout: fixed;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8 rgba(0,0,0,0.05);
         }
         th, td {
             border: 1px solid var(--pink-light);
@@ -220,7 +218,6 @@
             color: var(--text-dark);
         }
         
-        /* Baris Hari & Tanggal */
         .date-day {
             font-weight: bold;
             font-size: 12px;
@@ -233,7 +230,6 @@
             font-weight: bold;
         }
 
-        /* Item Pengeluaran */
         .expense-item {
             font-size: 11px;
             margin-bottom: 6px;
@@ -245,7 +241,6 @@
             font-weight: bold;
         }
         
-        /* Footer (Jml dan Tombol Plus Kotak) */
         .expense-footer {
             display: flex;
             justify-content: space-between;
@@ -272,7 +267,7 @@
             cursor: pointer;
         }
 
-        /* === MODAL & UMUM === */
+        /* === MODAL & SELEKTOR === */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000;
@@ -282,15 +277,15 @@
         }
         .modal-box h3 { margin-bottom: 15px; color: var(--pink-primary); font-size: 16px;}
         .modal-box label { display: block; margin-bottom: 5px; font-size: 12px; font-weight: bold; color: var(--text-dark);}
-        .modal-box input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ffb3d1; border-radius: 8px; font-size: 14px; outline: none;}
-        .modal-box input:focus { border-color: var(--pink-primary); }
+        .modal-box input, .modal-box select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ffb3d1; border-radius: 8px; font-size: 14px; outline: none; background: white;}
+        .modal-box input:focus, .modal-box select:focus { border-color: var(--pink-primary); }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
         .modal-actions button { padding: 8px 16px; border: none; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;}
         .btn-save { background-color: var(--pink-primary); color: white; }
         .btn-cancel { background-color: #f2f2f2; color: #555; }
         .btn-delete { margin-top:10px; font-size:12px; color:#e74c3c; cursor:pointer; font-weight:bold; text-align:right; display: block;}
 
-        /* === MODE CETAK (PRINT B&W PDF) === */
+        /* === MODE CETAK === */
         @media print {
             body { background: white; color: black; margin: 0; padding: 0; max-width: 100%; }
             .header-container, .summary-card, table, th, td {
@@ -330,7 +325,7 @@
         </div>
     </div>
 
-    <!-- Tabel -->
+    <!-- Tabel Anggaran -->
     <table>
         <thead>
             <tr>
@@ -350,7 +345,7 @@
         </tbody>
     </table>
 
-    <!-- Modal Input -->
+    <!-- Modal Form -->
     <div class="modal-overlay" id="modal">
         <div class="modal-box">
             <h3 id="modalTitle">Judul</h3>
@@ -376,17 +371,42 @@
             return isNeg ? "- " + str : str;
         }
 
-        // Helper Tanggal Indonesia
         function getDayIndo(year, month, day) {
             let d = new Date(year, month - 1, day);
             let days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             return days[d.getDay()];
         }
+        
         function getDateNum(month, day) {
             return `${String(day).padStart(2, '0')} - ${String(month).padStart(2, '0')}`;
         }
 
-        // Setup Awal
+        // Hitung akumulasi tabungan secara dinamis dari item pengeluaran di semua bulan berjalan
+        function calculateSavingsProgress() {
+            appData.savings.forEach(sv => sv.current = 0);
+            
+            for (let mKey in appData.months) {
+                let monthData = appData.months[mKey];
+                for (let dKey in monthData.expenses) {
+                    let dayData = monthData.expenses[dKey];
+                    if (dayData.cat1) {
+                        dayData.cat1.forEach(exp => {
+                            if (exp.savingIdx !== undefined && exp.savingIdx !== -1 && appData.savings[exp.savingIdx]) {
+                                appData.savings[exp.savingIdx].current += exp.amount;
+                            }
+                        });
+                    }
+                    if (dayData.cat2) {
+                        dayData.cat2.forEach(exp => {
+                            if (exp.savingIdx !== undefined && exp.savingIdx !== -1 && appData.savings[exp.savingIdx]) {
+                                appData.savings[exp.savingIdx].current += exp.amount;
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
         function init() {
             let today = new Date();
             let yyyy = today.getFullYear();
@@ -421,8 +441,8 @@
             localStorage.setItem('anggaranKuDB', JSON.stringify(appData));
         }
 
-        // === FUNGSI RENDER ===
         function renderApp() {
+            calculateSavingsProgress();
             renderSavings();
             renderTable();
             renderSummary();
@@ -446,7 +466,7 @@
         function renderSavings() {
             let html = '';
             appData.savings.forEach((sv, idx) => {
-                let percent = (sv.current / sv.target) * 100;
+                let percent = sv.target > 0 ? (sv.current / sv.target) * 100 : 0;
                 if(percent > 100) percent = 100;
                 let curStr = sv.current.toLocaleString('id-ID').replace(/,/g, '.');
                 let tgtStr = sv.target.toLocaleString('id-ID').replace(/,/g, '.');
@@ -519,6 +539,18 @@
             `).join('');
         }
 
+        // Otomatis mengisi nama pengeluaran jika opsi tabungan dipilih
+        function autoFillExpenseName() {
+            let sel = document.getElementById('inpSaving');
+            let nameInput = document.getElementById('inp1');
+            if (sel && nameInput && sel.value !== "-1") {
+                let idx = parseInt(sel.value);
+                if (appData.savings[idx]) {
+                    nameInput.value = appData.savings[idx].name;
+                }
+            }
+        }
+
         // === SISTEM MODAL ===
         let currentModalAction = {};
 
@@ -526,23 +558,32 @@
             let title = ""; let inputs = "";
             let md = appData.months[currentMonthStr];
 
+            // Generate opsi pilihan tabungan untuk digunakan di modal input pengeluaran
+            let getSavingOptions = (selectedIdx) => {
+                let options = `<option value="-1">-- Pengeluaran Biasa --</option>`;
+                appData.savings.forEach((sv, idx) => {
+                    let sel = (selectedIdx == idx) ? 'selected' : '';
+                    options += `<option value="${idx}" ${sel}>${sv.name}</option>`;
+                });
+                return options;
+            };
+
             if (action === 'editTotal') {
                 title = "Edit Total Anggaran Bulan Ini";
                 inputs = `<label>Nominal (Rp)</label><input type="number" id="inp1" value="${md.totalBudget}">`;
             } else if (action === 'addSaving') {
-                title = "Tambah Tabungan";
+                title = "Tambah Tabungan Baru";
                 inputs = `
-                    <label>Nama Tabungan</label><input type="text" id="inp1">
-                    <label>Target Nominal</label><input type="number" id="inp2">
-                    <label>Sudah Terkumpul</label><input type="number" id="inp3" value="0">
+                    <label>Nama/Jenis Tabungan</label><input type="text" id="inp1" placeholder="Contoh: Tabungan Tas">
+                    <label>Nominal Total Target</label><input type="number" id="inp2" placeholder="Contoh: 2000000">
                 `;
             } else if (action === 'editSaving') {
-                title = "Edit Tabungan";
+                title = "Edit Pengaturan Tabungan";
                 let sv = appData.savings[p1];
                 inputs = `
-                    <label>Nama Tabungan</label><input type="text" id="inp1" value="${sv.name}">
-                    <label>Target Nominal</label><input type="number" id="inp2" value="${sv.target}">
-                    <label>Sudah Terkumpul</label><input type="number" id="inp3" value="${sv.current}">
+                    <label>Nama/Jenis Tabungan</label><input type="text" id="inp1" value="${sv.name}">
+                    <label>Nominal Total Target</label><input type="number" id="inp2" value="${sv.target}">
+                    <span class="btn-delete" onclick="deleteSaving(${p1})"><i class="fa-solid fa-trash"></i> Hapus Tabungan Ini</span>
                 `;
             } else if (action === 'editCat') {
                 title = "Edit Kategori";
@@ -552,16 +593,20 @@
                     <label>Nominal Anggaran 1 Bulan</label><input type="number" id="inp2" value="${c.budget}">
                 `;
             } else if (action === 'addExpense') {
-                title = `Tambah Pengeluaran (Tgl ${p1})`;
+                title = `Tambah Item (Tgl ${p1})`;
                 inputs = `
-                    <label>Nama Pengeluaran</label><input type="text" id="inp1">
+                    <label>Hubungkan ke Tabungan? (Opsional)</label>
+                    <select id="inpSaving" onchange="autoFillExpenseName()">${getSavingOptions(-1)}</select>
+                    <label>Nama Item Pengeluaran</label><input type="text" id="inp1">
                     <label>Nominal (Rp)</label><input type="number" id="inp2">
                 `;
             } else if (action === 'editExpense') {
-                title = `Edit Pengeluaran (Tgl ${p1})`;
+                title = `Edit Item (Tgl ${p1})`;
                 let exp = md.expenses[p1][p2][p3];
                 inputs = `
-                    <label>Nama Pengeluaran</label><input type="text" id="inp1" value="${exp.name}">
+                    <label>Hubungkan ke Tabungan? (Opsional)</label>
+                    <select id="inpSaving" onchange="autoFillExpenseName()">${getSavingOptions(exp.savingIdx !== undefined ? exp.savingIdx : -1)}</select>
+                    <label>Nama Item Pengeluaran</label><input type="text" id="inp1" value="${exp.name}">
                     <label>Nominal (Rp)</label><input type="number" id="inp2" value="${exp.amount}">
                     <span class="btn-delete" onclick="deleteExpense('${p1}','${p2}',${p3})"><i class="fa-solid fa-trash"></i> Hapus Item Ini</span>
                 `;
@@ -584,22 +629,23 @@
 
             let val1 = document.getElementById('inp1') ? document.getElementById('inp1').value : null;
             let val2 = document.getElementById('inp2') ? document.getElementById('inp2').value : null;
-            let val3 = document.getElementById('inp3') ? document.getElementById('inp3').value : null;
+            let valSaving = document.getElementById('inpSaving') ? parseInt(document.getElementById('inpSaving').value) : -1;
 
             if (a === 'editTotal') {
                 md.totalBudget = parseInt(val1) || 0;
             } else if (a === 'addSaving') {
-                appData.savings.push({ name: val1, target: parseInt(val2)||0, current: parseInt(val3)||0 });
+                appData.savings.push({ name: val1, target: parseInt(val2)||0, current: 0 });
             } else if (a === 'editSaving') {
-                appData.savings[p1] = { name: val1, target: parseInt(val2)||0, current: parseInt(val3)||0 };
+                appData.savings[p1].name = val1;
+                appData.savings[p1].target = parseInt(val2)||0;
             } else if (a === 'editCat') {
                 md.categories[p1] = { name: val1, budget: parseInt(val2)||0 };
             } else if (a === 'addExpense') {
                 if(!md.expenses[p1]) md.expenses[p1] = { cat1: [], cat2: [] };
                 if(!md.expenses[p1][p2]) md.expenses[p1][p2] = [];
-                md.expenses[p1][p2].push({ name: val1, amount: parseInt(val2)||0 });
+                md.expenses[p1][p2].push({ name: val1, amount: parseInt(val2)||0, savingIdx: valSaving });
             } else if (a === 'editExpense') {
-                md.expenses[p1][p2][p3] = { name: val1, amount: parseInt(val2)||0 };
+                md.expenses[p1][p2][p3] = { name: val1, amount: parseInt(val2)||0, savingIdx: valSaving };
             }
 
             saveData();
@@ -616,7 +662,15 @@
             }
         }
 
-        // Jalankan saat load
+        function deleteSaving(idx) {
+            if(confirm('Hapus pengaturan tabungan ini? (Data item pengeluaran yang sudah tercatat di tabel tidak akan hilang, namun tidak lagi terikat ke progress bar)')) {
+                appData.savings.splice(idx, 1);
+                saveData();
+                closeModal();
+                renderApp();
+            }
+        }
+
         window.onload = init;
     </script>
 </body>
