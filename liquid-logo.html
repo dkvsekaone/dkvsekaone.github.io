@@ -2,73 +2,57 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Liquid Logo</title>
+<title>Aurora Wave — Interaktif</title>
 <style>
   :root{
-    --bg: #0b0f1a;
-    --bg2: #10182b;
-    --cyan: #5eead4;
-    --violet: #a78bfa;
-    --glow: #38bdf8;
+    --bg: #05070d;
+    --c1: #ff8a5c;
+    --c2: #7c5cff;
+    --c3: #33e0c1;
   }
-  *{ box-sizing: border-box; }
+  *{ box-sizing: border-box; margin:0; padding:0; }
   html, body{
-    margin:0; height:100%;
-    background: radial-gradient(circle at 50% 40%, var(--bg2), var(--bg) 70%);
-    display:flex; align-items:center; justify-content:center;
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    height:100%;
+    background: var(--bg);
     overflow:hidden;
+    font-family: system-ui, sans-serif;
+    touch-action: none;
   }
   .stage{
     position:relative;
-    width:min(80vw, 520px);
-    aspect-ratio:1/1;
+    width:100%; height:100vh;
     display:flex; align-items:center; justify-content:center;
   }
-  svg{ width:100%; height:100%; overflow:visible; }
 
-  .mark{
-    filter: url(#goo);
+  .orb{
+    position:absolute;
+    border-radius:50%;
+    filter: blur(40px);
+    opacity:0.65;
+    mix-blend-mode: screen;
+    will-change: transform;
+    transition: transform 0.05s linear;
   }
-
-  .blob{
-    fill: url(#liquidGradient);
-    transform-origin: 50% 50%;
-    animation: morph 9s ease-in-out infinite;
+  .orb.o1{
+    width:55vmin; height:55vmin;
+    background: radial-gradient(circle at 30% 30%, var(--c1), transparent 70%);
+    top:20%; left:15%;
   }
-  .blob.b2{
-    fill: rgba(94,234,212,0.35);
-    animation: morph2 11s ease-in-out infinite reverse;
+  .orb.o2{
+    width:60vmin; height:60vmin;
+    background: radial-gradient(circle at 60% 40%, var(--c2), transparent 70%);
+    top:35%; left:45%;
   }
-  .blob.b3{
-    fill: rgba(167,139,250,0.30);
-    animation: morph3 13s ease-in-out infinite;
-  }
-
-  @keyframes morph {
-    0%   { d: path("M100,20 C150,20 180,60 180,100 C180,150 140,180 100,180 C55,180 20,145 20,100 C20,55 55,20 100,20 Z"); }
-    33%  { d: path("M100,15 C160,25 190,70 175,115 C165,155 120,185 85,175 C45,165 15,120 25,80 C35,45 65,10 100,15 Z"); }
-    66%  { d: path("M105,25 C145,10 185,50 180,95 C178,140 155,185 105,180 C60,178 15,150 20,100 C25,55 65,40 105,25 Z"); }
-    100% { d: path("M100,20 C150,20 180,60 180,100 C180,150 140,180 100,180 C55,180 20,145 20,100 C20,55 55,20 100,20 Z"); }
-  }
-  @keyframes morph2 {
-    0%   { d: path("M100,30 C145,30 170,65 170,100 C170,140 140,170 100,170 C65,170 30,140 30,100 C30,65 60,30 100,30 Z"); }
-    50%  { d: path("M95,35 C135,15 175,55 172,100 C170,145 130,175 90,168 C55,162 25,125 30,85 C35,50 60,50 95,35 Z"); }
-    100% { d: path("M100,30 C145,30 170,65 170,100 C170,140 140,170 100,170 C65,170 30,140 30,100 C30,65 60,30 100,30 Z"); }
-  }
-  @keyframes morph3 {
-    0%   { d: path("M100,40 C135,40 160,70 160,100 C160,132 132,160 100,160 C70,160 40,132 40,100 C40,70 68,40 100,40 Z"); }
-    50%  { d: path("M105,45 C140,35 165,75 155,108 C148,138 115,162 85,152 C58,143 35,112 42,80 C48,52 75,55 105,45 Z"); }
-    100% { d: path("M100,40 C135,40 160,70 160,100 C160,132 132,160 100,160 C70,160 40,132 40,100 C40,70 68,40 100,40 Z"); }
+  .orb.o3{
+    width:45vmin; height:45vmin;
+    background: radial-gradient(circle at 50% 50%, var(--c3), transparent 70%);
+    top:10%; left:35%;
   }
 
-  .letter{
-    fill: none;
-    stroke: var(--bg);
-    stroke-width: 10;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    mix-blend-mode: normal;
+  .grain{
+    position:absolute; inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events:none;
   }
 
   .caption{
@@ -76,46 +60,97 @@
     bottom: 8%;
     left:0; right:0;
     text-align:center;
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,255,255,0.5);
     font-size: 13px;
     letter-spacing: 0.35em;
     text-transform: uppercase;
+    z-index: 2;
+    pointer-events:none;
+  }
+
+  .ripple{
+    position:absolute;
+    border-radius:50%;
+    border: 1px solid rgba(255,255,255,0.5);
+    transform: translate(-50%,-50%);
+    pointer-events:none;
+    animation: ripple-out 1s ease-out forwards;
+  }
+  @keyframes ripple-out{
+    0%   { width:0; height:0; opacity:0.8; }
+    100% { width:60vmin; height:60vmin; opacity:0; }
   }
 </style>
 </head>
 <body>
+  <div class="stage" id="stage">
+    <div class="orb o1" id="o1"></div>
+    <div class="orb o2" id="o2"></div>
+    <div class="orb o3" id="o3"></div>
+    <div class="grain"></div>
+    <div class="caption">Sentuh &amp; geser layar — tap untuk riak</div>
+  </div>
 
-<div class="stage">
-  <svg viewBox="0 0 200 200">
-    <defs>
-      <linearGradient id="liquidGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="var(--cyan)"/>
-        <stop offset="100%" stop-color="var(--violet)"/>
-      </linearGradient>
+<script>
+  const stage = document.getElementById('stage');
+  const orbs = [
+    { el: document.getElementById('o1'), depth: 0.6, phase: 0 },
+    { el: document.getElementById('o2'), depth: 0.35, phase: 2 },
+    { el: document.getElementById('o3'), depth: 0.5, phase: 4 }
+  ];
 
-      <filter id="goo">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
-        <feColorMatrix in="blur" mode="matrix"
-          values="1 0 0 0 0
-                  0 1 0 0 0
-                  0 0 1 0 0
-                  0 0 0 22 -9" result="goo"/>
-        <feBlend in="SourceGraphic" in2="goo"/>
-      </filter>
-    </defs>
+  let pointer = { x: window.innerWidth/2, y: window.innerHeight/2 };
+  let target  = { x: pointer.x, y: pointer.y };
+  let t = 0;
 
-    <g class="mark">
-      <path class="blob b3" d="M100,40 C135,40 160,70 160,100 C160,132 132,160 100,160 C70,160 40,132 40,100 C40,70 68,40 100,40 Z"/>
-      <path class="blob b2" d="M100,30 C145,30 170,65 170,100 C170,140 140,170 100,170 C65,170 30,140 30,100 C30,65 60,30 100,30 Z"/>
-      <path class="blob" d="M100,20 C150,20 180,60 180,100 C180,150 140,180 100,180 C55,180 20,145 20,100 C20,55 55,20 100,20 Z"/>
-    </g>
+  function updatePointer(x, y){
+    target.x = x;
+    target.y = y;
+  }
 
-    <!-- monogram generik: bentuk "A" abstrak, dipotong dari lapisan cairan -->
-    <path class="letter" d="M78,135 L100,65 L122,135 M88,110 L112,110"/>
-  </svg>
+  stage.addEventListener('pointermove', (e) => updatePointer(e.clientX, e.clientY));
+  stage.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    if (touch) updatePointer(touch.clientX, touch.clientY);
+  }, { passive: true });
 
-  <div class="caption">Liquid Mark</div>
-</div>
+  stage.addEventListener('pointerdown', (e) => spawnRipple(e.clientX, e.clientY));
+  stage.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    if (touch) spawnRipple(touch.clientX, touch.clientY);
+  }, { passive: true });
 
+  function spawnRipple(x, y){
+    const r = document.createElement('div');
+    r.className = 'ripple';
+    r.style.left = x + 'px';
+    r.style.top = y + 'px';
+    stage.appendChild(r);
+    setTimeout(() => r.remove(), 1000);
+  }
+
+  function loop(){
+    t += 0.01;
+    // smooth follow (lerp)
+    pointer.x += (target.x - pointer.x) * 0.04;
+    pointer.y += (target.y - pointer.y) * 0.04;
+
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    const dx = (pointer.x - cx) / cx;
+    const dy = (pointer.y - cy) / cy;
+
+    orbs.forEach(o => {
+      const wobbleX = Math.sin(t + o.phase) * 20;
+      const wobbleY = Math.cos(t * 0.8 + o.phase) * 20;
+      const px = dx * 80 * o.depth + wobbleX;
+      const py = dy * 80 * o.depth + wobbleY;
+      o.el.style.transform = `translate(${px}px, ${py}px) scale(${1 + dx*dy*0.1})`;
+    });
+
+    requestAnimationFrame(loop);
+  }
+  loop();
+</script>
 </body>
 </html>
