@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Aurora Wave</title>
+<style>
+  :root{
+    --bg: #05070d;
+    --c1: #ff8a5c;
+    --c2: #7c5cff;
+    --c3: #33e0c1;
+  }
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html, body{
+    height:100%;
+    background: var(--bg);
+    overflow:hidden;
+    font-family: system-ui, sans-serif;
+  }
+  .stage{
+    position:relative;
+    width:100%; height:100vh;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .orb{
+    position:absolute;
+    border-radius:50%;
+    filter: blur(40px);
+    opacity:0.65;
+    mix-blend-mode: screen;
+  }
+  .orb.o1{
+    width:55vmin; height:55vmin;
+    background: radial-gradient(circle at 30% 30%, var(--c1), transparent 70%);
+    top:20%; left:15%;
+    animation: float1 14s ease-in-out infinite;
+  }
+  .orb.o2{
+    width:60vmin; height:60vmin;
+    background: radial-gradient(circle at 60% 40%, var(--c2), transparent 70%);
+    top:35%; left:45%;
+    animation: float2 18s ease-in-out infinite;
+  }
+  .orb.o3{
+    width:45vmin; height:45vmin;
+    background: radial-gradient(circle at 50% 50%, var(--c3), transparent 70%);
+    top:10%; left:35%;
+    animation: float3 16s ease-in-out infinite;
+  }
+
+  @keyframes float1{
+    0%,100% { transform: translate(0,0) scale(1); }
+    25%     { transform: translate(8vmin,-6vmin) scale(1.1); }
+    50%     { transform: translate(-4vmin,10vmin) scale(0.95); }
+    75%     { transform: translate(-10vmin,-4vmin) scale(1.05); }
+  }
+  @keyframes float2{
+    0%,100% { transform: translate(0,0) scale(1); }
+    30%     { transform: translate(-10vmin,8vmin) scale(1.08); }
+    60%     { transform: translate(6vmin,-10vmin) scale(0.92); }
+  }
+  @keyframes float3{
+    0%,100% { transform: translate(0,0) scale(1); }
+    40%     { transform: translate(10vmin,6vmin) scale(1.12); }
+    70%     { transform: translate(-8vmin,-8vmin) scale(0.9); }
+  }
+
+  .grain{
+    position:absolute; inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events:none;
+  }
+
+  .caption{
+    position:absolute;
+    bottom: 8%;
+    left:0; right:0;
+    text-align:center;
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+    <div class="grain"></div>
+    <div class="caption">Aurora Drift</div>
+  </div>
+</body>
+</html>
