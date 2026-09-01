@@ -9,7 +9,7 @@ import { buildThumbnail } from "./thumbnails.js";
 
 // GANTI INI sebelum deploy! Cara membuat hash baru ada di README.md.
 // Nilai default ini adalah hash dari kata sandi contoh "ubahsaya" — WAJIB diganti.
-const ADMIN_PASSWORD_HASH = "657b5f95a4f31683cc28aa261600b12a3b362e5f1feac64c021ebc4f946a4687";
+const ADMIN_PASSWORD_HASH = "2b7f6504242acb777193ed4c79c6a9ff1041563a4ac1f896cedef10652b68f76";
 
 const $ = (id) => document.getElementById(id);
 const gate = $("gate"), gateForm = $("gateForm"), gateInput = $("gateInput"), gateError = $("gateError");
