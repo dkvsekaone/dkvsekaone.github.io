@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Panel Admin — Berkas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="wrap" style="max-width:560px">
+    <header class="top">
+      <div>
+        <h1>Panel Admin</h1>
+        <p>atur kode akses "Berkas"</p>
+      </div>
+    </header>
+
+    <section id="gate" class="gate" style="margin-top:6vh">
+      <div class="lock-icon">🛠️</div>
+      <h2>Masuk sebagai admin</h2>
+      <p>Kata sandi ini hanya tersimpan di file admin.js Anda, bukan di database.</p>
+      <form id="gateForm">
+        <input id="gateInput" type="password" placeholder="kata sandi admin" autocomplete="off" required />
+        <button type="submit" class="primary">Masuk</button>
+      </form>
+      <div class="error" id="gateError"></div>
+    </section>
+
+    <main id="content" style="display:none">
+      <div class="admin-card">
+        <h3>Kode akses saat ini</h3>
+        <div class="token-display" id="tokenDisplay">------</div>
+        <div class="token-meta" id="tokenMeta">memuat…</div>
+        <div style="display:flex; gap:0.5rem; justify-content:center">
+          <button id="copyBtn" class="ghost">Salin kode</button>
+          <button id="regenBtn" class="primary">Buat kode acak sekarang</button>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Atur kode manual</h3>
+        <div class="field-row">
+          <div style="flex:1">
+            <label for="manualToken">Kode baru (bebas, akan diubah jadi huruf besar)</label>
+            <input id="manualToken" type="text" maxlength="10" placeholder="contoh: SEKAR7" />
+          </div>
+        </div>
+        <button id="setManualBtn" class="primary">Simpan kode ini</button>
+      </div>
+
+      <div class="admin-card">
+        <h3>Interval rotasi otomatis</h3>
+        <div class="field-row">
+          <div style="flex:1">
+            <label for="intervalInput">Ganti otomatis setiap (menit)</label>
+            <input id="intervalInput" type="number" min="1" value="60" />
+          </div>
+        </div>
+        <button id="setIntervalBtn" class="primary">Simpan interval</button>
+        <p class="note" style="margin-top:0.9rem">
+          Rotasi otomatis diperiksa setiap kali panel admin ini dibuka atau sedang terbuka (dicek tiap menit).
+          Jika waktunya sudah lewat, kode baru langsung dibuat saat itu juga. Kalau tidak ada yang membuka
+          panel ini, kode akan tetap aktif sampai ada yang membukanya kembali.
+        </p>
+      </div>
+
+      <div class="admin-card">
+        <h3>Semua file</h3>
+        <div id="emptyState" class="empty" style="display:none">Belum ada file.</div>
+        <div class="grid" id="grid"></div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

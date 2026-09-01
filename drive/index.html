@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Berkas — penyimpanan bersama tanpa akun</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  // worker pdf.js — dimuat dari CDN yang sama
+  window.addEventListener("DOMContentLoaded", () => {
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    }
+  });
+</script>
+</head>
+<body>
+
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <h1>Berkas</h1>
+        <p>penyimpanan bersama, tanpa akun</p>
+      </div>
+      <button id="lockBtn" class="ghost" style="display:none">Kunci lagi</button>
+    </header>
+
+    <!-- Gerbang kode akses -->
+    <section id="gate" class="gate">
+      <div class="lock-icon">🔒</div>
+      <h2>Masukkan kode akses</h2>
+      <p>Kode ini berganti secara berkala. Minta kode terbaru ke pengelola jika Anda belum punya.</p>
+      <form id="gateForm">
+        <input id="gateInput" type="text" maxlength="10" placeholder="kode akses" autocomplete="off" required />
+        <button type="submit" class="primary">Buka</button>
+      </form>
+      <div class="error" id="gateError"></div>
+    </section>
+
+    <!-- Konten setelah terbuka -->
+    <main id="content" style="display:none">
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" multiple />
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12M12 3l-4 4M12 3l4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+        <h3>Seret file ke sini, atau klik untuk memilih</h3>
+        <p>Semua jenis file didukung, maksimal 50 MB per file</p>
+      </div>
+
+      <div class="uploads" id="uploads"></div>
+
+      <div class="list-head">
+        <h2>File tersimpan</h2>
+        <span class="count" id="fileCount"></span>
+      </div>
+
+      <div id="emptyState" class="empty" style="display:none">Belum ada file. Unggah yang pertama di atas.</div>
+      <div class="grid" id="grid"></div>
+    </main>
+
+    <footer class="foot">
+      Butuh akses admin untuk mengatur kode? Buka <a href="admin.html">admin.html</a>
+    </footer>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
