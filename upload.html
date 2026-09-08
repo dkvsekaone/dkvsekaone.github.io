@@ -13,9 +13,13 @@
             font-family: 'Poppins', sans-serif;
             background-color: #111827;
             margin: 0;
-            padding: 20px 15px;
+            padding: 16px 12px;
             color: #ffffff;
             touch-action: manipulation;
+        }
+
+        @media (min-width: 768px) {
+            body { padding: 20px 15px; }
         }
 
         body::before {
@@ -107,20 +111,20 @@
 
     <div class="max-w-5xl mx-auto">
 
-        <div class="glass-effect rounded-2xl p-6 mb-5">
-            <img src="logo-header.png" alt="Logo" class="h-12 w-auto mb-4 object-contain">
+        <div class="glass-effect rounded-2xl p-4 sm:p-6 mb-5 text-center">
+            <img src="logo-header.png" alt="Logo" class="h-12 w-auto mb-4 object-contain mx-auto block">
             <h1 class="text-2xl font-bold mb-1 accent-title">File Storage (Tanpa Login)</h1>
             <p class="text-xs faint-text mb-6">Catatan: sistem token ini bukan pengaman yang kuat, karena kode ini publik dan siapa pun bisa membaca sumbernya. Jangan simpan file rahasia/sensitif di sini.</p>
 
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-2 muted-text">Token Akses</label>
+            <div class="mb-6 max-w-sm mx-auto">
+                <label class="block text-sm font-medium mb-2 muted-text text-center">Token Akses</label>
                 <input type="text" id="tokenInput" placeholder="Masukkan token (misal: DKV-08)" class="input-field text-center">
-                <p class="text-xs faint-text mt-1">Token berubah otomatis sesuai pengaturan di backend (harian/jam/custom).</p>
+                <p class="text-xs faint-text mt-1 text-center">Token berubah otomatis sesuai pengaturan di backend (harian/jam/custom).</p>
             </div>
 
             <div class="p-4 rounded-xl text-center" style="background: rgba(0,0,0,0.2); border: 2px dashed rgba(250,204,21,0.4);">
                 <h2 class="text-lg font-semibold mb-2 accent-title">Upload File</h2>
-                <input type="file" id="fileInput" multiple class="mb-4 text-sm muted-text">
+                <input type="file" id="fileInput" multiple class="mb-4 text-sm muted-text mx-auto block">
                 <p class="text-xs faint-text mb-3">Bisa pilih lebih dari 1 file sekaligus (batch upload).</p>
                 <button onclick="uploadFiles()" id="uploadBtn" class="btn-utama">Upload</button>
                 <div id="uploadProgress" class="mt-3 hidden">
@@ -133,11 +137,11 @@
             </div>
         </div>
 
-        <div class="glass-effect rounded-2xl p-6">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
+        <div class="glass-effect rounded-2xl p-4 sm:p-6 text-center">
+            <div class="flex flex-col items-center justify-center mb-4 gap-3">
                 <h2 class="text-xl font-bold accent-title">Daftar File</h2>
-                <div class="flex flex-wrap gap-2 items-center w-full md:w-auto">
-                    <input type="text" id="searchInput" onkeyup="renderFiles()" placeholder="Cari nama file..." class="input-field text-sm flex-1 md:flex-none md:w-56" style="padding:8px 12px;">
+                <div class="flex flex-wrap gap-2 items-center justify-center w-full">
+                    <input type="text" id="searchInput" onkeyup="renderFiles()" placeholder="Cari nama file..." class="input-field text-sm text-center w-full sm:w-56" style="padding:8px 12px;">
                     <div class="flex rounded-lg overflow-hidden">
                         <button onclick="setViewMode('grid')" id="gridBtn" class="btn-nav active">Grid</button>
                         <button onclick="setViewMode('list')" id="listBtn" class="btn-nav">List</button>
@@ -146,9 +150,10 @@
                 </div>
             </div>
 
-            <div id="selectionBar" class="hidden mb-3 flex flex-wrap items-center gap-2 rounded-lg p-3 text-sm" style="background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.3);">
+            <div id="selectionBar" class="hidden mb-3 flex flex-wrap items-center justify-center gap-2 rounded-lg p-3 text-sm" style="background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.3);">
                 <span id="selectionCount" class="font-medium accent-title">0 file dipilih</span>
                 <button onclick="downloadSelected()" class="btn-utama" style="padding:6px 14px; font-size:12px;">Download Terpilih</button>
+                <button onclick="deleteSelected()" class="btn-nav danger" style="padding:6px 14px; font-size:12px;">Hapus Terpilih</button>
                 <button onclick="clearSelection()" class="btn-nav">Batal Pilih</button>
             </div>
 
@@ -245,9 +250,9 @@
             loadFiles();
         }
 
-        // ============ HAPUS FILE ============
-        async function deleteFile(fileId, token) {
-            if (!confirm('Hapus file ini?')) return;
+        // ============ HAPUS FILE (SATUAN) ============
+        async function deleteFile(fileId, fileName, token) {
+            if (!confirm(`Yakin ingin menghapus file "${fileName}"?\n\nFile yang sudah dihapus tidak bisa dikembalikan lewat aplikasi ini.`)) return;
             try {
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
@@ -264,6 +269,43 @@
             } catch (error) {
                 alert('Kesalahan jaringan: ' + error);
             }
+        }
+
+        // ============ HAPUS FILE (BATCH/TERPILIH) ============
+        async function deleteSelected() {
+            if (selectedIds.size === 0) return;
+            const token = document.getElementById('tokenInput').value.trim();
+            const selectedFiles = allFiles.filter(f => selectedIds.has(f.id));
+
+            const daftarNama = selectedFiles.map(f => '- ' + f.name).join('\n');
+            const konfirmasi = confirm(
+                `Yakin ingin menghapus ${selectedFiles.length} file berikut?\n\n${daftarNama}\n\nFile yang sudah dihapus tidak bisa dikembalikan lewat aplikasi ini.`
+            );
+            if (!konfirmasi) return;
+
+            const container = document.getElementById('fileContainer');
+            let berhasil = 0;
+            let gagal = 0;
+
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const f = selectedFiles[i];
+                try {
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ token, action: 'delete', fileId: f.id })
+                    });
+                    const result = await response.json();
+                    if (result.success) berhasil++; else gagal++;
+                } catch (error) {
+                    gagal++;
+                }
+            }
+
+            selectedIds.clear();
+            updateSelectionBar();
+            alert(`Selesai. Berhasil dihapus: ${berhasil}. Gagal: ${gagal}.`);
+            loadFiles();
         }
 
         // ============ SELEKSI & DOWNLOAD BATCH ============
@@ -303,6 +345,10 @@
         }
 
         // ============ MUAT & RENDER DAFTAR FILE ============
+        function escapeForJs(str) {
+            return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        }
+
         function formatSize(bytes) {
             if (!bytes) return '';
             const mb = bytes / (1024 * 1024);
@@ -350,7 +396,7 @@
             }
 
             if (viewMode === 'grid') {
-                container.innerHTML = `<div class="grid grid-cols-2 md:grid-cols-4 gap-4">${filtered.map(f => renderGridCard(f, token)).join('')}</div>`;
+                container.innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">${filtered.map(f => renderGridCard(f, token)).join('')}</div>`;
             } else {
                 container.innerHTML = `<div class="flex flex-col gap-2">${filtered.map(f => renderListRow(f, token)).join('')}</div>`;
             }
@@ -369,7 +415,7 @@
                     <p class="text-[10px] faint-text">${formatSize(file.size)}</p>
                     <div class="mt-2 flex gap-1">
                         <a href="${file.url}" target="_blank" class="flex-1 btn-nav" style="text-align:center;">Download</a>
-                        <button onclick="deleteFile('${file.id}', '${token}')" class="flex-1 btn-nav danger">Hapus</button>
+                        <button onclick="deleteFile('${file.id}', '${escapeForJs(file.name)}', '${token}')" class="flex-1 btn-nav danger">Hapus</button>
                     </div>
                 </div>
             `;
@@ -378,7 +424,7 @@
         function renderListRow(file, token) {
             const checked = selectedIds.has(file.id) ? 'checked' : '';
             return `
-                <div class="file-card flex items-center gap-3 p-2">
+                <div class="file-card flex flex-col sm:flex-row items-center gap-3 p-3 text-center sm:text-left">
                     <input type="checkbox" ${checked} onchange="toggleSelect('${file.id}', this.checked)" class="w-4 h-4 flex-shrink-0">
                     <img src="${file.thumbnail}" alt="thumb" loading="lazy"
                          class="w-10 h-10 object-cover rounded flex-shrink-0"
@@ -388,8 +434,10 @@
                         <p class="text-sm font-medium break-words">${file.name}</p>
                         <p class="text-[11px] faint-text">${formatSize(file.size)}</p>
                     </div>
-                    <a href="${file.url}" target="_blank" class="btn-nav flex-shrink-0">Download</a>
-                    <button onclick="deleteFile('${file.id}', '${token}')" class="btn-nav danger flex-shrink-0">Hapus</button>
+                    <div class="flex gap-2 justify-center sm:justify-end w-full sm:w-auto">
+                        <a href="${file.url}" target="_blank" class="btn-nav flex-shrink-0">Download</a>
+                        <button onclick="deleteFile('${file.id}', '${escapeForJs(file.name)}', '${token}')" class="btn-nav danger flex-shrink-0">Hapus</button>
+                    </div>
                 </div>
             `;
         }
