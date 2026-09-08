@@ -2,688 +2,297 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ujian DKV: Dasar Affinity</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #111827; 
-            margin: 0;
-            padding: 20px 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh; 
-            touch-action: manipulation; 
-            color: #ffffff; 
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-image: url('pattern.png'); 
-            background-repeat: repeat; 
-            background-size: 250px; 
-            z-index: -1; 
-            pointer-events: none; 
-        }
-
-        .hidden { display: none !important; }
-
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.05); 
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255, 255, 255, 0.15); 
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4); 
-        }
-
-        #layar-loading {
-            padding: 20px;
-            text-align: center;
-            margin-top: 30vh;
-            font-size: 16px;
-            color: #facc15;
-        }
-
-        #layar-mulai {
-            padding: 30px 20px;
-            border-radius: 16px;
-            text-align: center;
-            width: 100%;
-            max-width: 350px;
-            margin-top: 5vh; 
-        }
-
-        #logo-sekolah {
-            width: 100%;
-            height: auto;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-
-        #layar-mulai h2 { color: #facc15; margin: 0 0 10px 0; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        #layar-mulai p { color: #d1d5db; font-size: 14px; margin-bottom: 25px; }
-
-        .input-group-password {
-            position: relative;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        
-        .input-group-password input {
-            width: 100%; 
-            padding: 12px 45px 12px 15px; 
-            background: rgba(0, 0, 0, 0.3); 
-            border: 1px solid rgba(255, 255, 255, 0.3); 
-            color: white; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            font-family: 'Poppins', sans-serif; 
-            box-sizing: border-box; 
-            text-align: center;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #9ca3af;
-            transition: color 0.2s;
-            z-index: 10;
-        }
-        
-        .toggle-password:hover { color: #facc15; }
-
-        .btn-utama {
-            width: 100%;
-            background: linear-gradient(135deg, #ea580c, #dc2626); 
-            color: white;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); 
-        }
-
-        .btn-utama:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
-
-        #layar-game {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 600px;
-            flex-grow: 1; 
-        }
-
-        .user-nav-bar {
-            width: 100%;
-            padding: 10px 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-sizing: border-box;
-            font-size: 13px;
-        }
-
-        .user-info { display: flex; align-items: center; gap: 8px; color: #facc15; font-weight: 600; }
-        .user-actions { display: flex; gap: 10px; }
-        
-        .btn-nav {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: 'Poppins';
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-        .btn-nav:hover { background: rgba(255,255,255,0.2); }
-        .btn-nav.danger { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5; }
-        .btn-nav.danger:hover { background: #ef4444; color: white; }
-
-        .header-teks { 
-            padding: 15px 20px;
-            border-radius: 12px;
-            text-align: center; 
-            margin-bottom: 20px; 
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        .header-teks h2 { color: #facc15; margin: 0 0 5px 0; font-size: 22px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.5); } 
-        p.instruksi { color: #d1d5db; font-size: 13px; margin: 0; }
-
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-        }
-
-        .items-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            padding: 15px;
-            border-radius: 12px;
-            position: sticky;
-            top: 10px;
-            z-index: 100;
-            min-height: 40px; 
-        }
-
-        /* TAMPILAN ELEMEN TOMBOL NORMAL (SEBELUM DI-KLIK) */
-        .item {
-            background: rgba(255, 255, 255, 0.15); 
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white; 
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 12px;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px; 
-            pointer-events: auto; 
-        }
-
-        /* Warna Ikon FontAwesome Sebelum Di-klik: Solid #e5a518 */
-        .item i { font-size: 14px; color: #e5a518; } 
-        
-        /* Cetakan Topeng Masking SVG Custom Saat Kondisi Normal */
-        .item .custom-svg-icon { 
-            width: 16px; 
-            height: 16px; 
-            display: inline-block;
-            vertical-align: middle;
-            background-color: #e5a518; /* 100% PASTI KUNING #e5a518 - ANTI MELESET */
-            -webkit-mask-image: var(--bg-img);
-            mask-image: var(--bg-img);
-            -webkit-mask-size: contain;
-            mask-size: contain;
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-position: center;
-            mask-position: center;
-        }
-        
-        .item:active { transform: translateY(4px); }
-        
-        /* TAMPILAN ELEMEN TOMBOL SETELAH SELEKSI (DI-KLIK) */
-        .item.selected { 
-            background: rgba(250, 204, 21, 0.9); 
-            color: #2f1406; /* Warna Teks Menjadi Cokelat Gelap #2f1406 */
-            border-color: #facc15;
-            transform: scale(1.05); 
-            box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
-        }
-
-        /* Warna Ikon FontAwesome Menjadi Cokelat Gelap #2f1406 Saat Aktif */
-        .item.selected i { color: #2f1406; }
-        
-        /* Mengubah Warna Cetakan Topeng SVG Menjadi Cokelat Gelap Solid */
-        .item.selected .custom-svg-icon { 
-            background-color: #2f1406; /* 100% PASTI COKELAT #2f1406 - ANTI MELESET */
-        }
-
-        .zone-slot .item { pointer-events: none; box-shadow: none; width: 100%; justify-content: center;}
-
-        .zones-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding-bottom: 20px; 
-        }
-
-        .zone-wrapper {
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .zone-teks { font-size: 13px; color: #e5e7eb; text-align: center; line-height: 1.5; font-weight: 400; }
-
-        .zone-slot {
-            background: rgba(0, 0, 0, 0.2);
-            border: 2px dashed rgba(255, 255, 255, 0.4); 
-            border-radius: 8px;
-            min-height: 44px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 4px;
-            box-sizing: border-box;
-        }
-
-        body.is-selecting .zone-slot:not(.filled) {
-            border-color: #facc15; 
-            background: rgba(250, 204, 21, 0.1);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0 { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-
-        .zone-wrapper.correct { border-color: #10b981; background: rgba(16, 185, 129, 0.2); }
-        .zone-wrapper.correct .zone-slot { border-color: #10b981; background: transparent; }
-        
-        .zone-wrapper.wrong { border-color: #ef4444; background: rgba(239, 68, 68, 0.2); }
-        .zone-wrapper.wrong .zone-slot { border-color: #ef4444; background: transparent; }
-
-        #pesan-sukses {
-            margin-bottom: 20px;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            display: none;
-            width: 100%;
-            box-sizing: border-box;
-            border-bottom: 5px solid #facc15;
-        }
-
-        #pesan-sukses h3 { margin: 0 0 5px 0; font-size: 22px; color: white; } 
-        .nama-siswa-hasil { color: #facc15; font-size: 20px; font-weight: bold; margin-bottom: 15px;}
-        .skor-besar { font-size: 40px; font-weight: bold; color: #10b981; margin: 10px 0; text-shadow: 0 0 10px rgba(16,185,129,0.5); }
-        #pesan-sukses p { margin: 0; font-size: 14px; opacity: 0.9; }
-
-        #footer-credit {
-            margin-top: auto; 
-            padding-top: 30px;
-            padding-bottom: 10px;
-            text-align: center;
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.6); 
-            font-weight: 500;
-            width: 100%;
-        }
-
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DKV Storage Web</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="text-stone-100 p-4 md:p-8" style="background-color:#0B1220; background-image:url('pattern.png'); background-repeat:repeat; background-size:220px;">
 
-    <div id="layar-loading" class="glass-effect">
-        <i class="fas fa-spinner fa-spin"></i> Memvalidasi Sesi Ujian Siswa...
-    </div>
+    <div class="max-w-5xl mx-auto bg-white/40 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-white/60">
+        <img src="logo-header.png" alt="Logo" class="h-12 w-auto mb-4 object-contain">
+        <h1 class="text-2xl font-bold mb-1 text-stone-800">File Storage (Tanpa Login)</h1>
+        <p class="text-xs text-stone-500 mb-6">Catatan: sistem token ini bukan pengaman yang kuat, karena kode ini publik dan siapa pun bisa membaca sumbernya. Jangan simpan file rahasia/sensitif di sini.</p>
 
-    <div id="layar-mulai" class="glass-effect hidden">
-        <img src="image.png" alt="Logo Sekolah" id="logo-sekolah">
-        <h2>Kuis Interaktif DKV</h2>
-        <p>Silakan login menggunakan akun default untuk memulai kuis.</p>
-        
-        <input type="email" id="input-email" placeholder="Username / Email Siswa..." autocomplete="off" style="width: 100%; padding: 12px 15px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.3); color: white; border-radius: 8px; font-size: 16px; font-family: 'Poppins', sans-serif; box-sizing: border-box; margin-bottom: 10px; text-align: center;">
-        
-        <div class="input-group-password">
-            <input type="password" id="input-password" placeholder="Password Default..." autocomplete="off">
-            <i class="fas fa-eye toggle-password" id="mata-pass-utama"></i>
-        </div>
-        
-        <button id="btn-mulai" class="btn-utama">Mulai Kuis</button>
-    </div>
-
-
-    <div id="layar-game" class="hidden">
-        
-        <div class="user-nav-bar glass-effect">
-            <div class="user-info">
-                <i class="fas fa-user-graduation"></i> <span id="nama-siswa-nav">-</span>
-            </div>
-            <div class="user-actions">
-                <button class="btn-nav" id="btn-nav-ganti-pass"><i class="fas fa-key"></i> Ganti Pass</button>
-                <button class="btn-nav danger" id="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </div>
+        <div class="mb-6 bg-white/40 backdrop-blur-md p-4 rounded-xl border border-white/50">
+            <label class="block text-sm font-medium mb-2 text-stone-800">Token Akses</label>
+            <input type="text" id="tokenInput" placeholder="Masukkan token (misal: DKV-08)" class="w-full p-2 border rounded">
+            <p class="text-xs text-gray-500 mt-1">Token berubah otomatis sesuai pengaturan di backend (harian/jam/custom).</p>
         </div>
 
-        <div id="modal-ganti-pass-game" class="hidden glass-effect" style="width:100%; padding:15px; border-radius:12px; box-sizing:border-box; margin-bottom:15px; border: 1px solid #facc15;">
-            <h4 style="margin:0 0 10px 0; color:#facc15; font-size:14px;"><i class="fas fa-shield-alt"></i> Ubah Password Akun Anda</h4>
-            <div class="input-group-password" style="margin-bottom:10px;">
-                <input type="password" id="input-pass-game-baru" placeholder="Masukkan password baru..." style="border:1px solid rgba(255,255,255,0.4); text-align:left; padding-left:12px; font-size:14px; padding-top:8px; padding-bottom:8px;">
-                <i class="fas fa-eye toggle-password" id="mata-pass-game-baru"></i>
-            </div>
-            <div style="display:flex; gap:10px;">
-                <button id="btn-simpan-pass-game" style="flex:1; background:#10b981; color:white; border:none; padding:8px; border-radius:6px; font-weight:600; cursor:pointer; font-family:'Poppins'; font-size:12px;">Simpan</button>
-                <button id="btn-batal-pass-game" style="background:rgba(255,255,255,0.1); color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-family:'Poppins'; font-size:12px;">Batal</button>
-            </div>
-        </div>
-
-        <div class="header-teks glass-effect">
-            <h2>Kuis Interaktif DKV (Aplikasi Affinity by Canva)</h2>
-            <p class="instruksi">Sentuh alat (tool) di bawah, lalu letakkan di definisi yang tepat. Sentuh lagi untuk membatalkan pilihan.</p>
-        </div>
-
-        <div class="game-container">
-            <div class="items-container glass-effect" id="bank-item">
+        <div class="mb-8 p-4 bg-white/30 backdrop-blur-md border-2 border-dashed border-orange-300/70 rounded-xl text-center">
+            <h2 class="text-lg font-semibold mb-2 text-stone-800">Upload File</h2>
+            <input type="file" id="fileInput" multiple class="mb-4">
+            <p class="text-xs text-gray-500 mb-3">Bisa pilih lebih dari 1 file sekaligus (batch upload).</p>
+            <button onclick="uploadFiles()" id="uploadBtn" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 disabled:opacity-50">Upload</button>
+            <div id="uploadProgress" class="mt-3 hidden">
+                <div class="w-full bg-gray-200 rounded h-2">
+                    <div id="uploadProgressBar" class="bg-orange-500 h-2 rounded" style="width:0%"></div>
                 </div>
+                <p id="uploadProgressText" class="text-xs text-gray-500 mt-1"></p>
+            </div>
+            <div id="uploadResults" class="mt-2 text-sm text-left text-stone-800"></div>
+        </div>
 
-            <div class="zones-container" id="area-soal">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
+            <h2 class="text-xl font-bold text-stone-800">Daftar File</h2>
+            <div class="flex flex-wrap gap-2 items-center w-full md:w-auto">
+                <input type="text" id="searchInput" onkeyup="renderFiles()" placeholder="Cari nama file..." class="border rounded px-3 py-1.5 text-sm flex-1 md:flex-none md:w-56 text-stone-800 bg-white/70">
+                <div class="flex border rounded overflow-hidden">
+                    <button onclick="setViewMode('grid')" id="gridBtn" class="px-3 py-1.5 text-sm bg-orange-500 text-white">Grid</button>
+                    <button onclick="setViewMode('list')" id="listBtn" class="px-3 py-1.5 text-sm bg-white text-gray-700">List</button>
                 </div>
+                <button onclick="loadFiles()" class="bg-orange-100 text-orange-700 px-3 py-1.5 rounded hover:bg-orange-200 text-sm font-medium">Muat Ulang</button>
+            </div>
+        </div>
 
-            <button id="btn-kumpulkan" class="btn-utama hidden"><i class="fas fa-check-double"></i> Cek & Kumpulkan Jawaban</button>
-            
-            <div id="pesan-sukses" class="glass-effect"></div>
+        <div id="selectionBar" class="hidden mb-3 flex flex-wrap items-center gap-2 bg-orange-100/40 backdrop-blur-md border border-orange-200/60 rounded-xl p-2 text-sm">
+            <span id="selectionCount" class="font-medium text-stone-800">0 file dipilih</span>
+            <button onclick="downloadSelected()" class="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600">Download Terpilih</button>
+            <button onclick="clearSelection()" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">Batal Pilih</button>
+        </div>
+
+        <div id="fileContainer">
+            <p class="text-gray-400 text-sm">Masukkan token lalu klik "Muat Ulang" untuk melihat file.</p>
         </div>
     </div>
 
-    <div id="footer-credit">Quiz by Ach. Syarifuddin A.</div>
+    <script>
+        // GANTI dengan Web App URL dari deployment Apps Script kamu
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyTUTlhkfhvlusXghJDnIyuAD_33Q1FuLPP1ucSwwiZoY3Pe4CulaEG5oONFU8HUO-HQ/exec';
 
-    <script type="module">
-        import { db, auth } from './firebase-config.js';
-        import { signOut, onAuthStateChanged, signInWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        let allFiles = [];
+        let viewMode = 'grid'; // 'grid' atau 'list'
+        let selectedIds = new Set();
 
-        const layarLoading = document.getElementById('layar-loading');
-        const layarMulai = document.getElementById('layar-mulai');
-        const layarGame = document.getElementById('layar-game');
-        const inputEmail = document.getElementById('input-email');
-        const inputPassword = document.getElementById('input-password');
-        const btnMulai = document.getElementById('btn-mulai');
-        const areaSoal = document.getElementById('area-soal');
-        const btnKumpulkan = document.getElementById('btn-kumpulkan');
-        const pesanSukses = document.getElementById('pesan-sukses');
-        const bankItem = document.getElementById('bank-item');
+        function setStatus(el, text, colorClass) {
+            el.textContent = text;
+            el.classList.remove('hidden', 'text-red-600', 'text-green-600', 'text-blue-600');
+            el.classList.add(colorClass);
+        }
 
-        const namaSiswaNav = document.getElementById('nama-siswa-nav');
-        const btnNavGantiPass = document.getElementById('btn-nav-ganti-pass');
-        const btnLogout = document.getElementById('btn-logout');
-        const modalGantiPassGame = document.getElementById('modal-ganti-pass-game');
-        const inputPassGameBaru = document.getElementById('input-pass-game-baru');
-        const btnSimpanPassGame = document.getElementById('btn-simpan-pass-game');
-        const btnBatalPassGame = document.getElementById('btn-batal-pass-game');
-        
-        let namaSiswa = "";
-        let itemTerpilih = null;
-        let totalSoalAktif = 0;
-        const JUMLAH_SOAL_DITAMPILKAN = 15;
+        function setViewMode(mode) {
+            viewMode = mode;
+            document.getElementById('gridBtn').className = 'px-3 py-1.5 text-sm ' + (mode === 'grid' ? 'bg-orange-500 text-white' : 'bg-white text-gray-700');
+            document.getElementById('listBtn').className = 'px-3 py-1.5 text-sm ' + (mode === 'list' ? 'bg-orange-500 text-white' : 'bg-white text-gray-700');
+            renderFiles();
+        }
 
-        // SISTEM CEK SESI REFRESH BROWSER
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const emailUser = user.email.toLowerCase();
-                if (emailUser.includes('guru') || emailUser.endsWith('@smk.sch.id')) {
-                    signOut(auth);
-                    layarLoading.classList.add('hidden');
-                    layarGame.classList.add('hidden');
-                    layarMulai.classList.remove('hidden');
+        // ============ UPLOAD (BATCH) ============
+        async function uploadSingleFile(file, token) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = async function () {
+                    const payload = {
+                        token: token,
+                        fileName: file.name,
+                        mimeType: file.type,
+                        base64: reader.result
+                    };
+                    try {
+                        const response = await fetch(APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify(payload)
+                        });
+                        const result = await response.json();
+                        resolve({ file: file.name, ...result });
+                    } catch (error) {
+                        resolve({ file: file.name, success: false, error: String(error) });
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function uploadFiles() {
+            const token = document.getElementById('tokenInput').value.trim();
+            const fileInput = document.getElementById('fileInput');
+            const btn = document.getElementById('uploadBtn');
+            const progressWrap = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('uploadProgressBar');
+            const progressText = document.getElementById('uploadProgressText');
+            const resultsBox = document.getElementById('uploadResults');
+
+            if (!token) return alert('Masukkan token terlebih dahulu!');
+            const files = Array.from(fileInput.files);
+            if (files.length === 0) return alert('Pilih minimal 1 file dulu!');
+
+            btn.disabled = true;
+            progressWrap.classList.remove('hidden');
+            resultsBox.innerHTML = '';
+            const results = [];
+
+            for (let i = 0; i < files.length; i++) {
+                progressText.textContent = `Mengupload ${i + 1} dari ${files.length}: ${files[i].name}`;
+                progressBar.style.width = Math.round(((i) / files.length) * 100) + '%';
+
+                const result = await uploadSingleFile(files[i], token);
+                results.push(result);
+
+                progressBar.style.width = Math.round(((i + 1) / files.length) * 100) + '%';
+            }
+
+            progressText.textContent = `Selesai: ${results.filter(r => r.success).length} berhasil, ${results.filter(r => !r.success).length} gagal.`;
+
+            resultsBox.innerHTML = results.map(r => {
+                if (r.success) {
+                    const renamedNote = r.renamed ? ` (nama diganti jadi "${r.finalName}")` : '';
+                    return `<p class="text-green-600">✔ ${r.file} — berhasil${renamedNote}</p>`;
+                }
+                return `<p class="text-red-600">✘ ${r.file} — gagal: ${r.error}</p>`;
+            }).join('');
+
+            fileInput.value = '';
+            btn.disabled = false;
+            loadFiles();
+        }
+
+        // ============ HAPUS FILE ============
+        async function deleteFile(fileId, token) {
+            if (!confirm('Hapus file ini?')) return;
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ token, action: 'delete', fileId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    selectedIds.delete(fileId);
+                    loadFiles();
+                } else {
+                    alert('Gagal menghapus: ' + result.error);
+                }
+            } catch (error) {
+                alert('Kesalahan jaringan: ' + error);
+            }
+        }
+
+        // ============ SELEKSI & DOWNLOAD BATCH ============
+        function toggleSelect(fileId, checked) {
+            if (checked) selectedIds.add(fileId);
+            else selectedIds.delete(fileId);
+            updateSelectionBar();
+        }
+
+        function updateSelectionBar() {
+            const bar = document.getElementById('selectionBar');
+            const count = document.getElementById('selectionCount');
+            if (selectedIds.size > 0) {
+                bar.classList.remove('hidden');
+                count.textContent = selectedIds.size + ' file dipilih';
+            } else {
+                bar.classList.add('hidden');
+            }
+        }
+
+        function clearSelection() {
+            selectedIds.clear();
+            renderFiles();
+        }
+
+        function downloadSelected() {
+            if (selectedIds.size === 0) return;
+            if (selectedIds.size > 6) {
+                if (!confirm('Kamu akan membuka ' + selectedIds.size + ' tab download sekaligus. Browser mungkin memblokir sebagian sebagai popup. Lanjutkan?')) return;
+            }
+            const selectedFiles = allFiles.filter(f => selectedIds.has(f.id));
+            selectedFiles.forEach((f, i) => {
+                setTimeout(() => {
+                    window.open(f.url, '_blank');
+                }, i * 400); // jeda kecil supaya tidak semua ditolak popup blocker sekaligus
+            });
+        }
+
+        // ============ MUAT & RENDER DAFTAR FILE ============
+        function formatSize(bytes) {
+            if (!bytes) return '';
+            const mb = bytes / (1024 * 1024);
+            return mb >= 1 ? mb.toFixed(2) + ' MB' : (bytes / 1024).toFixed(0) + ' KB';
+        }
+
+        async function loadFiles() {
+            const token = document.getElementById('tokenInput').value.trim();
+            const container = document.getElementById('fileContainer');
+
+            if (!token) return alert('Masukkan token terlebih dahulu!');
+
+            container.innerHTML = '<p class="text-gray-500 text-sm">Memuat data...</p>';
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL + '?token=' + encodeURIComponent(token));
+                const files = await response.json();
+
+                if (files.error) {
+                    container.innerHTML = `<p class="text-red-500 text-sm">${files.error}</p>`;
                     return;
                 }
 
-                namaSiswa = user.email.split('@')[0].toUpperCase();
-                namaSiswaNav.textContent = namaSiswa;
+                allFiles = files;
+                selectedIds.clear();
+                updateSelectionBar();
+                renderFiles();
+            } catch (error) {
+                container.innerHTML = '<p class="text-red-500 text-sm">Gagal memuat daftar file.</p>';
+            }
+        }
 
-                await unduhDanSusunKuisFirestore();
+        function renderFiles() {
+            const container = document.getElementById('fileContainer');
+            const token = document.getElementById('tokenInput').value.trim();
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
 
-                layarLoading.classList.add('hidden'); 
-                layarMulai.classList.add('hidden');
-                layarGame.classList.remove('hidden');
+            const filtered = query
+                ? allFiles.filter(f => f.name.toLowerCase().includes(query))
+                : allFiles;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 text-sm">${query ? 'Tidak ada file yang cocok dengan pencarian.' : 'Belum ada file.'}</p>`;
+                return;
+            }
+
+            if (viewMode === 'grid') {
+                container.innerHTML = `<div class="grid grid-cols-2 md:grid-cols-4 gap-4">${filtered.map(f => renderGridCard(f, token)).join('')}</div>`;
             } else {
-                layarLoading.classList.add('hidden'); 
-                layarGame.classList.add('hidden');
-                layarMulai.classList.remove('hidden');
-            }
-        });
-
-        // MEMUAT LIVE SOAL DAN MEMBATASI SEJUMLAH 15 SOAL ACAK
-        async function unduhDanSusunKuisFirestore() {
-            try {
-                const docRef = doc(db, "bank_soal", "kuis_affinity");
-                const docSnap = await getDoc(docRef);
-                
-                if (docSnap.exists()) {
-                    let kuisData = docSnap.data().data; 
-
-                    const orderSimpanan = localStorage.getItem('urutan_soal_dkv');
-                    let paketSoalSiswa = [];
-
-                    if (orderSimpanan) {
-                        const targetOrderIds = JSON.parse(orderSimpanan);
-                        paketSoalSiswa = kuisData.filter(soal => targetOrderIds.includes(soal.id));
-                        paketSoalSiswa.sort((a, b) => targetOrderIds.indexOf(a.id) - targetOrderIds.indexOf(b.id));
-                    } else {
-                        kuisData.sort(() => Math.random() - 0.5);
-                        paketSoalSiswa = kuisData.slice(0, JUMLAH_SOAL_DITAMPILKAN);
-                        
-                        const orderIds = paketSoalSiswa.map(soal => soal.id);
-                        localStorage.setItem('urutan_soal_dkv', JSON.stringify(orderIds));
-                    }
-
-                    totalSoalAktif = paketSoalSiswa.length;
-                    bankItem.innerHTML = "";
-                    areaSoal.innerHTML = "";
-
-                    // Render Tombol Alat dengan Inject Variabel Gambar ke Masking CSS inline
-                    let paketToolsTombol = [...paketSoalSiswa].sort(() => Math.random() - 0.5);
-                    paketToolsTombol.forEach(soal => {
-                        const itemDiv = document.createElement('div');
-                        itemDiv.className = 'item';
-                        itemDiv.id = soal.id; // DISINI FIX PERBAIKAN: Tidak ada lagi penulisan 'id = soared = soal.id'
-                        
-                        if (soal.icon.includes('.') || soal.icon.includes('/')) {
-                            itemDiv.innerHTML = `<span class="custom-svg-icon" style="--bg-img: url('${soal.icon}');"></span> ${soal.nama}`;
-                        } else {
-                            itemDiv.innerHTML = `<i class="${soal.icon}"></i> ${soal.nama}`;
-                        }
-                        bankItem.appendChild(itemDiv);
-                    });
-
-                    // Render Area Deskripsi
-                    paketSoalSiswa.forEach(soal => {
-                        const zoneDiv = document.createElement('div');
-                        zoneDiv.className = 'zone-wrapper glass-effect';
-                        zoneDiv.innerHTML = `
-                            <div class="zone-teks">${soal.definisi}</div>
-                            <div class="zone-slot" data-target="${soal.id}"></div>
-                        `;
-                        areaSoal.appendChild(zoneDiv);
-                    });
-
-                    aktifkanFiturKlikInteraktif();
-                    muatProgresSiswaSama();
-                } else {
-                    areaSoal.innerHTML = "<p style='padding:20px; text-align:center; color:#facc15;'>Bank soal kosong.</p>";
-                }
-            } catch (e) {
-                console.error(e);
+                container.innerHTML = `<div class="divide-y divide-white/50 border border-white/60 rounded-xl bg-white/30 backdrop-blur-md overflow-hidden">${filtered.map(f => renderListRow(f, token)).join('')}</div>`;
             }
         }
 
-        function muatProgresSiswaSama() {
-            const jawabanSimpanan = localStorage.getItem('jawaban_kuis_dkv');
-            if (jawabanSimpanan) {
-                const mapJawaban = JSON.parse(jawabanSimpanan);
-                const slots = areaSoal.querySelectorAll('.zone-slot');
-                slots.forEach(slot => {
-                    const targetSlot = slot.getAttribute('data-target');
-                    if (mapJawaban[targetSlot]) {
-                        const itemElemen = document.getElementById(mapJawaban[targetSlot]);
-                        if (itemElemen) {
-                            slot.appendChild(itemElemen);
-                            slot.classList.add('filled');
-                        }
-                    }
-                });
-            }
-            cekSemuaTerisi();
-        }
-
-        function simpanProgresJawaban() {
-            const mapJawaban = {};
-            const slots = areaSoal.querySelectorAll('.zone-slot');
-            slots.forEach(slot => {
-                const targetSlot = slot.getAttribute('data-target');
-                const itemDiDalam = slot.querySelector('.item');
-                if (itemDiDalam) mapJawaban[targetSlot] = itemDiDalam.id;
-            });
-            localStorage.setItem('jawaban_kuis_dkv', JSON.stringify(mapJawaban));
-        }
-
-        function hapusMemoriLokalUjian() {
-            localStorage.removeItem('urutan_soal_dkv');
-            localStorage.removeItem('jawaban_kuis_dkv');
-        }
-
-        const tanganiEnterLogin = (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                btnMulai.click(); 
-            }
-        };
-        inputEmail.addEventListener('keydown', tanganiEnterLogin);
-        inputPassword.addEventListener('keydown', tanganiEnterLogin);
-
-        function aturToggleMata(idMata, idInput) {
-            const ikonMata = document.getElementById(idMata);
-            const kolomInput = document.getElementById(idInput);
-            ikonMata.addEventListener('click', () => {
-                if (kolomInput.type === "password") {
-                    kolomInput.type = "text";
-                    ikonMata.classList.replace('fa-eye', 'fa-eye-slash');
-                } else {
-                    kolomInput.type = "password";
-                    ikonMata.classList.replace('fa-eye-slash', 'fa-eye');
-                }
-            });
-        }
-        aturToggleMata('mata-pass-utama', 'input-password');
-        aturToggleMata('mata-pass-game-baru', 'input-pass-game-baru');
-
-        function aktifkanFiturKlikInteraktif() {
-            const items = bankItem.querySelectorAll('.item');
-            items.forEach(item => {
-                item.addEventListener('click', () => {
-                    if(item.parentElement !== bankItem) return;
-                    bankItem.querySelectorAll('.item').forEach(i => i.classList.remove('selected'));
-                    if(itemTerpilih === item) { itemTerpilih = null; document.body.classList.remove('is-selecting'); return; }
-                    item.classList.add('selected'); itemTerpilih = item; document.body.classList.add('is-selecting');
-                });
-            });
-
-            const slots = areaSoal.querySelectorAll('.zone-slot');
-            slots.forEach(slot => {
-                slot.addEventListener('click', () => {
-                    if (slot.classList.contains('filled')) {
-                        const itemDiDalam = slot.querySelector('.item');
-                        if(itemDiDalam) { bankItem.appendChild(itemDiDalam); slot.classList.remove('filled'); simpanProgresJawaban(); cekSemuaTerisi(); }
-                        return;
-                    }
-                    if (!itemTerpilih) return; 
-                    slot.appendChild(itemTerpilih); slot.classList.add('filled');
-                    itemTerpilih.classList.remove('selected'); itemTerpilih = null; document.body.classList.remove('is-selecting');
-                    simpanProgresJawaban(); cekSemuaTerisi();
-                });
-            });
-        }
-
-        btnMulai.addEventListener('click', () => {
-            const email = inputEmail.value.trim();
-            const password = inputPassword.value.trim();
-            if(email === "" || password === "") return alert("Mohon masukkan email dan password!");
-            
-            if(email.toLowerCase().includes('guru') || email.toLowerCase().endsWith('@smk.sch.id')) {
-                return alert("Akses Ditolak! Gunakan panel admin khusus guru.");
-            }
-
-            signInWithEmailAndPassword(auth, email, password).catch(() => alert("Gagal Masuk! Data salah atau belum terdaftar."));
-        });
-
-        btnNavGantiPass.addEventListener('click', () => modalGantiPassGame.classList.toggle('hidden'));
-        btnBatalPassGame.addEventListener('click', () => { modalGantiPassGame.classList.add('hidden'); inputPassGameBaru.value = ""; });
-
-        btnSimpanPassGame.addEventListener('click', () => {
-            const passGameBaru = inputPassGameBaru.value.trim();
-            if(passGameBaru.length < 6) return alert("Password baru minimal harus 6 karakter!");
-            if(auth.currentUser) {
-                updatePassword(auth.currentUser, passGameBaru).then(() => {
-                    alert("Sukses memperbarui password.");
-                    modalGantiPassGame.classList.add('hidden');
-                    inputPassGameBaru.value = "";
-                }).catch(() => alert("Sesi habis. Silakan login kembali."));
-            }
-        });
-
-        btnLogout.addEventListener('click', () => {
-            if(confirm("Apakah Anda yakin ingin logout? (Progres jawaban saat ini akan direset)")) {
-                hapusMemoriLokalUjian();
-                signOut(auth).then(() => window.location.reload());
-            }
-        });
-
-        function cekSemuaTerisi() {
-            const sisaDiBank = bankItem.querySelectorAll('.item').length;
-            if (sisaDiBank === 0 && totalSoalAktif > 0) {
-                btnKumpulkan.classList.remove('hidden');
-                btnKumpulkan.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } else {
-                btnKumpulkan.classList.add('hidden');
-            }
-        }
-
-        btnKumpulkan.addEventListener('click', () => {
-            let skorBenar = 0;
-            const slots = areaSoal.querySelectorAll('.zone-slot');
-            modalGantiPassGame.classList.add('hidden');
-
-            slots.forEach(slot => {
-                slot.style.pointerEvents = 'none';
-                const itemDiDalam = slot.querySelector('.item');
-                const idTargetBenar = slot.getAttribute('data-target');
-                if(itemDiDalam && itemDiDalam.id === idTargetBenar) { slot.parentElement.classList.add('correct'); skorBenar++; } 
-                else { slot.parentElement.classList.add('wrong'); }
-            });
-
-            btnKumpulkan.classList.add('hidden');
-            const nilaiAkhir = Math.round((skorBenar / totalSoalAktif) * 100);
-
-            pesanSukses.innerHTML = `
-                <h3>Ujian Selesai!</h3>
-                <div class="nama-siswa-hasil">${namaSiswa}</div>
-                <p>Total Jawaban Benar: ${skorBenar} dari ${totalSoalAktif}</p>
-                <div class="skor-besar">Nilai: ${nilaiAkhir}</div>
-                <p><i class="fas fa-camera"></i> Silakan screenshot layar ini sebagai bukti nilai.</p>
+        function renderGridCard(file, token) {
+            const checked = selectedIds.has(file.id) ? 'checked' : '';
+            return `
+                <div class="border border-white/60 rounded-xl p-2 text-center bg-white/40 backdrop-blur-md flex flex-col justify-between relative shadow-sm">
+                    <input type="checkbox" ${checked} onchange="toggleSelect('${file.id}', this.checked)" class="absolute top-2 left-2 w-4 h-4">
+                    <img src="${file.thumbnail}" alt="thumb" loading="lazy"
+                         class="w-full h-32 object-cover rounded mb-2 bg-gray-200"
+                         onerror="this.onerror=null;this.src='https://placehold.co/200x150?text=File'">
+                    <p class="text-xs font-medium break-words" title="${file.name}">${file.name}</p>
+                    <p class="text-[10px] text-gray-400">${formatSize(file.size)}</p>
+                    <div class="mt-2 flex gap-1">
+                        <a href="${file.url}" target="_blank" class="flex-1 bg-orange-500 text-white text-xs py-1 rounded hover:bg-orange-600">Download</a>
+                        <button onclick="deleteFile('${file.id}', '${token}')" class="flex-1 bg-red-600 text-white text-xs py-1 rounded hover:bg-red-700">Hapus</button>
+                    </div>
+                </div>
             `;
-            pesanSukses.style.display = 'block';
-            
-            hapusMemoriLokalUjian();
+        }
 
-            async function kirimNilaiKeFirebase(nama, skor) {
-                try {
-                    await addDoc(collection(db, "hasil_ujian"), { namaSiswa: nama, nilai: skor, waktuUjian: new Date() });
-                } catch (e) { console.error(e); }
-            }
-            kirimNilaiKeFirebase(namaSiswa, nilaiAkhir);
-            setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }, 300);
-        });
+        function renderListRow(file, token) {
+            const checked = selectedIds.has(file.id) ? 'checked' : '';
+            return `
+                <div class="flex items-center gap-3 p-2 hover:bg-white/40 transition-colors">
+                    <input type="checkbox" ${checked} onchange="toggleSelect('${file.id}', this.checked)" class="w-4 h-4 flex-shrink-0">
+                    <img src="${file.thumbnail}" alt="thumb" loading="lazy"
+                         class="w-10 h-10 object-cover rounded bg-gray-200 flex-shrink-0"
+                         onerror="this.onerror=null;this.src='https://placehold.co/40x40?text=F'">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium break-words">${file.name}</p>
+                        <p class="text-[11px] text-gray-400">${formatSize(file.size)}</p>
+                    </div>
+                    <a href="${file.url}" target="_blank" class="bg-orange-500 text-white text-xs px-3 py-1 rounded hover:bg-orange-600 flex-shrink-0">Download</a>
+                    <button onclick="deleteFile('${file.id}', '${token}')" class="bg-red-600 text-white text-xs px-3 py-1 rounded hover:bg-red-700 flex-shrink-0">Hapus</button>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
