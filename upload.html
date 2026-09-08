@@ -105,6 +105,22 @@
 
         .progress-track { background: rgba(255,255,255,0.1); }
         .progress-bar { background: linear-gradient(135deg, #ea580c, #dc2626); }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .icon-btn.btn-nav { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; }
+        .icon-btn.btn-nav:hover { background: rgba(255,255,255,0.2); }
+        .icon-btn.danger { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; }
+        .icon-btn.danger:hover { background: #ef4444; color: white; }
     </style>
 </head>
 <body>
@@ -413,9 +429,9 @@
                          onerror="this.onerror=null;this.src='https://placehold.co/200x150/1f2937/facc15?text=File'">
                     <p class="text-xs font-medium break-words">${file.name}</p>
                     <p class="text-[10px] faint-text">${formatSize(file.size)}</p>
-                    <div class="mt-2 flex gap-1">
-                        <a href="${file.url}" target="_blank" class="flex-1 btn-nav" style="text-align:center;">Download</a>
-                        <button onclick="deleteFile('${file.id}', '${escapeForJs(file.name)}', '${token}')" class="flex-1 btn-nav danger">Hapus</button>
+                    <div class="mt-2 flex gap-2 justify-center">
+                        <a href="${file.url}" target="_blank" class="icon-btn btn-nav" title="Download" aria-label="Download ${file.name}"><i class="fas fa-download"></i></a>
+                        <button onclick="deleteFile('${file.id}', '${escapeForJs(file.name)}', '${token}')" class="icon-btn danger" title="Hapus" aria-label="Hapus ${file.name}"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `;
@@ -435,8 +451,8 @@
                         <p class="text-[11px] faint-text">${formatSize(file.size)}</p>
                     </div>
                     <div class="flex gap-2 justify-center sm:justify-end w-full sm:w-auto">
-                        <a href="${file.url}" target="_blank" class="btn-nav flex-shrink-0">Download</a>
-                        <button onclick="deleteFile('${file.id}', '${escapeForJs(file.name)}', '${token}')" class="btn-nav danger flex-shrink-0">Hapus</button>
+                        <a href="${file.url}" target="_blank" class="icon-btn btn-nav flex-shrink-0" title="Download" aria-label="Download ${file.name}"><i class="fas fa-download"></i></a>
+                        <button onclick="deleteFile('${file.id}', '${escapeForJs(file.name)}', '${token}')" class="icon-btn danger flex-shrink-0" title="Hapus" aria-label="Hapus ${file.name}"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `;
