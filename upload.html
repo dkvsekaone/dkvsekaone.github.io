@@ -6,11 +6,12 @@
     <title>DKV Storage Web</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-800 p-4 md:p-8">
+<body class="text-stone-800 p-4 md:p-8" style="background-color:#FFF8F2; background-image:url('pattern.png'); background-repeat:repeat; background-size:220px;">
 
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h1 class="text-2xl font-bold mb-1">File Storage (Tanpa Login)</h1>
-        <p class="text-xs text-gray-500 mb-6">Catatan: sistem token ini bukan pengaman yang kuat, karena kode ini publik dan siapa pun bisa membaca sumbernya. Jangan simpan file rahasia/sensitif di sini.</p>
+    <div class="max-w-5xl mx-auto bg-white/95 backdrop-blur-sm p-6 rounded-lg shadow-md border border-orange-100">
+        <img src="logo-header.png" alt="Logo" class="h-12 w-auto mb-4 object-contain">
+        <h1 class="text-2xl font-bold mb-1 text-stone-800">File Storage (Tanpa Login)</h1>
+        <p class="text-xs text-stone-500 mb-6">Catatan: sistem token ini bukan pengaman yang kuat, karena kode ini publik dan siapa pun bisa membaca sumbernya. Jangan simpan file rahasia/sensitif di sini.</p>
 
         <div class="mb-6 bg-gray-50 p-4 rounded border">
             <label class="block text-sm font-medium mb-2">Token Akses</label>
@@ -18,20 +19,40 @@
             <p class="text-xs text-gray-500 mt-1">Token berubah otomatis sesuai pengaturan di backend (harian/jam/custom).</p>
         </div>
 
-        <div class="mb-8 p-4 border-2 border-dashed border-blue-300 rounded text-center">
+        <div class="mb-8 p-4 border-2 border-dashed border-orange-300 rounded text-center">
             <h2 class="text-lg font-semibold mb-2">Upload File</h2>
-            <input type="file" id="fileInput" class="mb-4">
-            <button onclick="uploadFile()" id="uploadBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50">Upload</button>
-            <p id="uploadStatus" class="mt-2 text-sm hidden"></p>
+            <input type="file" id="fileInput" multiple class="mb-4">
+            <p class="text-xs text-gray-500 mb-3">Bisa pilih lebih dari 1 file sekaligus (batch upload).</p>
+            <button onclick="uploadFiles()" id="uploadBtn" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 disabled:opacity-50">Upload</button>
+            <div id="uploadProgress" class="mt-3 hidden">
+                <div class="w-full bg-gray-200 rounded h-2">
+                    <div id="uploadProgressBar" class="bg-orange-500 h-2 rounded" style="width:0%"></div>
+                </div>
+                <p id="uploadProgressText" class="text-xs text-gray-500 mt-1"></p>
+            </div>
+            <div id="uploadResults" class="mt-2 text-sm text-left"></div>
         </div>
 
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
             <h2 class="text-xl font-bold">Daftar File</h2>
-            <button onclick="loadFiles()" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Muat Ulang</button>
+            <div class="flex flex-wrap gap-2 items-center w-full md:w-auto">
+                <input type="text" id="searchInput" onkeyup="renderFiles()" placeholder="Cari nama file..." class="border rounded px-3 py-1.5 text-sm flex-1 md:flex-none md:w-56">
+                <div class="flex border rounded overflow-hidden">
+                    <button onclick="setViewMode('grid')" id="gridBtn" class="px-3 py-1.5 text-sm bg-orange-500 text-white">Grid</button>
+                    <button onclick="setViewMode('list')" id="listBtn" class="px-3 py-1.5 text-sm bg-white text-gray-700">List</button>
+                </div>
+                <button onclick="loadFiles()" class="bg-orange-100 text-orange-700 px-3 py-1.5 rounded hover:bg-orange-200 text-sm font-medium">Muat Ulang</button>
+            </div>
         </div>
 
-        <div id="fileGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <p class="text-gray-400 col-span-full text-sm">Masukkan token lalu klik "Muat Ulang" untuk melihat file.</p>
+        <div id="selectionBar" class="hidden mb-3 flex flex-wrap items-center gap-2 bg-orange-50 border border-orange-200 rounded p-2 text-sm">
+            <span id="selectionCount" class="font-medium">0 file dipilih</span>
+            <button onclick="downloadSelected()" class="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600">Download Terpilih</button>
+            <button onclick="clearSelection()" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">Batal Pilih</button>
+        </div>
+
+        <div id="fileContainer">
+            <p class="text-gray-400 text-sm">Masukkan token lalu klik "Muat Ulang" untuk melihat file.</p>
         </div>
     </div>
 
@@ -39,67 +60,94 @@
         // GANTI dengan Web App URL dari deployment Apps Script kamu
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyTUTlhkfhvlusXghJDnIyuAD_33Q1FuLPP1ucSwwiZoY3Pe4CulaEG5oONFU8HUO-HQ/exec';
 
+        let allFiles = [];
+        let viewMode = 'grid'; // 'grid' atau 'list'
+        let selectedIds = new Set();
+
         function setStatus(el, text, colorClass) {
             el.textContent = text;
             el.classList.remove('hidden', 'text-red-600', 'text-green-600', 'text-blue-600');
             el.classList.add(colorClass);
         }
 
-        async function uploadFile() {
-            const token = document.getElementById('tokenInput').value.trim();
-            const fileInput = document.getElementById('fileInput');
-            const status = document.getElementById('uploadStatus');
-            const btn = document.getElementById('uploadBtn');
-
-            if (!token) return alert('Masukkan token terlebih dahulu!');
-            if (fileInput.files.length === 0) return alert('Pilih file dulu!');
-
-            const file = fileInput.files[0];
-            btn.disabled = true;
-            setStatus(status, 'Membaca file...', 'text-blue-600');
-
-            const reader = new FileReader();
-            reader.onload = async function () {
-                setStatus(status, 'Mengupload... mohon tunggu.', 'text-blue-600');
-
-                const payload = {
-                    token: token,
-                    fileName: file.name,
-                    mimeType: file.type,
-                    base64: reader.result
-                };
-
-                try {
-                    // Content-Type text/plain dipakai agar browser tidak
-                    // mengirim CORS preflight (OPTIONS) yang sering gagal
-                    // ditangani Apps Script.
-                    const response = await fetch(APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify(payload)
-                    });
-                    const result = await response.json();
-
-                    if (result.success) {
-                        if (result.renamed) {
-                            setStatus(status, 'Berhasil diupload! Nama sudah ada, otomatis diganti jadi "' + result.finalName + '".', 'text-green-600');
-                        } else {
-                            setStatus(status, 'Berhasil diupload!', 'text-green-600');
-                        }
-                        fileInput.value = '';
-                        loadFiles();
-                    } else {
-                        setStatus(status, 'Gagal: ' + result.error, 'text-red-600');
-                    }
-                } catch (error) {
-                    setStatus(status, 'Terjadi kesalahan jaringan: ' + error, 'text-red-600');
-                } finally {
-                    btn.disabled = false;
-                }
-            };
-            reader.readAsDataURL(file);
+        function setViewMode(mode) {
+            viewMode = mode;
+            document.getElementById('gridBtn').className = 'px-3 py-1.5 text-sm ' + (mode === 'grid' ? 'bg-orange-500 text-white' : 'bg-white text-gray-700');
+            document.getElementById('listBtn').className = 'px-3 py-1.5 text-sm ' + (mode === 'list' ? 'bg-orange-500 text-white' : 'bg-white text-gray-700');
+            renderFiles();
         }
 
+        // ============ UPLOAD (BATCH) ============
+        async function uploadSingleFile(file, token) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = async function () {
+                    const payload = {
+                        token: token,
+                        fileName: file.name,
+                        mimeType: file.type,
+                        base64: reader.result
+                    };
+                    try {
+                        const response = await fetch(APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify(payload)
+                        });
+                        const result = await response.json();
+                        resolve({ file: file.name, ...result });
+                    } catch (error) {
+                        resolve({ file: file.name, success: false, error: String(error) });
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function uploadFiles() {
+            const token = document.getElementById('tokenInput').value.trim();
+            const fileInput = document.getElementById('fileInput');
+            const btn = document.getElementById('uploadBtn');
+            const progressWrap = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('uploadProgressBar');
+            const progressText = document.getElementById('uploadProgressText');
+            const resultsBox = document.getElementById('uploadResults');
+
+            if (!token) return alert('Masukkan token terlebih dahulu!');
+            const files = Array.from(fileInput.files);
+            if (files.length === 0) return alert('Pilih minimal 1 file dulu!');
+
+            btn.disabled = true;
+            progressWrap.classList.remove('hidden');
+            resultsBox.innerHTML = '';
+            const results = [];
+
+            for (let i = 0; i < files.length; i++) {
+                progressText.textContent = `Mengupload ${i + 1} dari ${files.length}: ${files[i].name}`;
+                progressBar.style.width = Math.round(((i) / files.length) * 100) + '%';
+
+                const result = await uploadSingleFile(files[i], token);
+                results.push(result);
+
+                progressBar.style.width = Math.round(((i + 1) / files.length) * 100) + '%';
+            }
+
+            progressText.textContent = `Selesai: ${results.filter(r => r.success).length} berhasil, ${results.filter(r => !r.success).length} gagal.`;
+
+            resultsBox.innerHTML = results.map(r => {
+                if (r.success) {
+                    const renamedNote = r.renamed ? ` (nama diganti jadi "${r.finalName}")` : '';
+                    return `<p class="text-green-600">✔ ${r.file} — berhasil${renamedNote}</p>`;
+                }
+                return `<p class="text-red-600">✘ ${r.file} — gagal: ${r.error}</p>`;
+            }).join('');
+
+            fileInput.value = '';
+            btn.disabled = false;
+            loadFiles();
+        }
+
+        // ============ HAPUS FILE ============
         async function deleteFile(fileId, token) {
             if (!confirm('Hapus file ini?')) return;
             try {
@@ -110,6 +158,7 @@
                 });
                 const result = await response.json();
                 if (result.success) {
+                    selectedIds.delete(fileId);
                     loadFiles();
                 } else {
                     alert('Gagal menghapus: ' + result.error);
@@ -119,6 +168,43 @@
             }
         }
 
+        // ============ SELEKSI & DOWNLOAD BATCH ============
+        function toggleSelect(fileId, checked) {
+            if (checked) selectedIds.add(fileId);
+            else selectedIds.delete(fileId);
+            updateSelectionBar();
+        }
+
+        function updateSelectionBar() {
+            const bar = document.getElementById('selectionBar');
+            const count = document.getElementById('selectionCount');
+            if (selectedIds.size > 0) {
+                bar.classList.remove('hidden');
+                count.textContent = selectedIds.size + ' file dipilih';
+            } else {
+                bar.classList.add('hidden');
+            }
+        }
+
+        function clearSelection() {
+            selectedIds.clear();
+            renderFiles();
+        }
+
+        function downloadSelected() {
+            if (selectedIds.size === 0) return;
+            if (selectedIds.size > 6) {
+                if (!confirm('Kamu akan membuka ' + selectedIds.size + ' tab download sekaligus. Browser mungkin memblokir sebagian sebagai popup. Lanjutkan?')) return;
+            }
+            const selectedFiles = allFiles.filter(f => selectedIds.has(f.id));
+            selectedFiles.forEach((f, i) => {
+                setTimeout(() => {
+                    window.open(f.url, '_blank');
+                }, i * 400); // jeda kecil supaya tidak semua ditolak popup blocker sekaligus
+            });
+        }
+
+        // ============ MUAT & RENDER DAFTAR FILE ============
         function formatSize(bytes) {
             if (!bytes) return '';
             const mb = bytes / (1024 * 1024);
@@ -127,47 +213,85 @@
 
         async function loadFiles() {
             const token = document.getElementById('tokenInput').value.trim();
-            const grid = document.getElementById('fileGrid');
+            const container = document.getElementById('fileContainer');
 
             if (!token) return alert('Masukkan token terlebih dahulu!');
 
-            grid.innerHTML = '<p class="text-gray-500 col-span-full text-sm">Memuat data...</p>';
+            container.innerHTML = '<p class="text-gray-500 text-sm">Memuat data...</p>';
 
             try {
                 const response = await fetch(APPS_SCRIPT_URL + '?token=' + encodeURIComponent(token));
                 const files = await response.json();
 
                 if (files.error) {
-                    grid.innerHTML = `<p class="text-red-500 col-span-full text-sm">${files.error}</p>`;
+                    container.innerHTML = `<p class="text-red-500 text-sm">${files.error}</p>`;
                     return;
                 }
 
-                grid.innerHTML = '';
-                if (files.length === 0) {
-                    grid.innerHTML = '<p class="text-gray-500 col-span-full text-sm">Belum ada file.</p>';
-                    return;
-                }
-
-                files.forEach(file => {
-                    const card = document.createElement('div');
-                    card.className = 'border rounded p-2 text-center bg-gray-50 flex flex-col justify-between';
-
-                    card.innerHTML = `
-                        <img src="${file.thumbnail}" alt="thumb" loading="lazy"
-                             class="w-full h-32 object-cover rounded mb-2 bg-gray-200"
-                             onerror="this.onerror=null;this.src='https://placehold.co/200x150?text=File'">
-                        <p class="text-xs truncate font-medium" title="${file.name}">${file.name}</p>
-                        <p class="text-[10px] text-gray-400">${formatSize(file.size)}</p>
-                        <div class="mt-2 flex gap-1">
-                            <a href="${file.url}" target="_blank" class="flex-1 bg-gray-800 text-white text-xs py-1 rounded hover:bg-gray-900">Download</a>
-                            <button onclick="deleteFile('${file.id}', '${token}')" class="flex-1 bg-red-600 text-white text-xs py-1 rounded hover:bg-red-700">Hapus</button>
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
+                allFiles = files;
+                selectedIds.clear();
+                updateSelectionBar();
+                renderFiles();
             } catch (error) {
-                grid.innerHTML = '<p class="text-red-500 col-span-full text-sm">Gagal memuat daftar file.</p>';
+                container.innerHTML = '<p class="text-red-500 text-sm">Gagal memuat daftar file.</p>';
             }
+        }
+
+        function renderFiles() {
+            const container = document.getElementById('fileContainer');
+            const token = document.getElementById('tokenInput').value.trim();
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            const filtered = query
+                ? allFiles.filter(f => f.name.toLowerCase().includes(query))
+                : allFiles;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 text-sm">${query ? 'Tidak ada file yang cocok dengan pencarian.' : 'Belum ada file.'}</p>`;
+                return;
+            }
+
+            if (viewMode === 'grid') {
+                container.innerHTML = `<div class="grid grid-cols-2 md:grid-cols-4 gap-4">${filtered.map(f => renderGridCard(f, token)).join('')}</div>`;
+            } else {
+                container.innerHTML = `<div class="divide-y border rounded">${filtered.map(f => renderListRow(f, token)).join('')}</div>`;
+            }
+        }
+
+        function renderGridCard(file, token) {
+            const checked = selectedIds.has(file.id) ? 'checked' : '';
+            return `
+                <div class="border rounded p-2 text-center bg-gray-50 flex flex-col justify-between relative">
+                    <input type="checkbox" ${checked} onchange="toggleSelect('${file.id}', this.checked)" class="absolute top-2 left-2 w-4 h-4">
+                    <img src="${file.thumbnail}" alt="thumb" loading="lazy"
+                         class="w-full h-32 object-cover rounded mb-2 bg-gray-200"
+                         onerror="this.onerror=null;this.src='https://placehold.co/200x150?text=File'">
+                    <p class="text-xs font-medium break-words" title="${file.name}">${file.name}</p>
+                    <p class="text-[10px] text-gray-400">${formatSize(file.size)}</p>
+                    <div class="mt-2 flex gap-1">
+                        <a href="${file.url}" target="_blank" class="flex-1 bg-orange-500 text-white text-xs py-1 rounded hover:bg-orange-600">Download</a>
+                        <button onclick="deleteFile('${file.id}', '${token}')" class="flex-1 bg-red-600 text-white text-xs py-1 rounded hover:bg-red-700">Hapus</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderListRow(file, token) {
+            const checked = selectedIds.has(file.id) ? 'checked' : '';
+            return `
+                <div class="flex items-center gap-3 p-2 hover:bg-gray-50">
+                    <input type="checkbox" ${checked} onchange="toggleSelect('${file.id}', this.checked)" class="w-4 h-4 flex-shrink-0">
+                    <img src="${file.thumbnail}" alt="thumb" loading="lazy"
+                         class="w-10 h-10 object-cover rounded bg-gray-200 flex-shrink-0"
+                         onerror="this.onerror=null;this.src='https://placehold.co/40x40?text=F'">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium break-words">${file.name}</p>
+                        <p class="text-[11px] text-gray-400">${formatSize(file.size)}</p>
+                    </div>
+                    <a href="${file.url}" target="_blank" class="bg-orange-500 text-white text-xs px-3 py-1 rounded hover:bg-orange-600 flex-shrink-0">Download</a>
+                    <button onclick="deleteFile('${file.id}', '${token}')" class="bg-red-600 text-white text-xs px-3 py-1 rounded hover:bg-red-700 flex-shrink-0">Hapus</button>
+                </div>
+            `;
         }
     </script>
 </body>
