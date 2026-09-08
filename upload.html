@@ -6,21 +6,21 @@
     <title>DKV Storage Web</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="text-stone-800 p-4 md:p-8" style="background-color:#FFF8F2; background-image:url('pattern.png'); background-repeat:repeat; background-size:220px;">
+<body class="text-stone-100 p-4 md:p-8" style="background-color:#0B1220; background-image:url('pattern.png'); background-repeat:repeat; background-size:220px;">
 
-    <div class="max-w-5xl mx-auto bg-white/95 backdrop-blur-sm p-6 rounded-lg shadow-md border border-orange-100">
+    <div class="max-w-5xl mx-auto bg-white/40 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-white/60">
         <img src="logo-header.png" alt="Logo" class="h-12 w-auto mb-4 object-contain">
         <h1 class="text-2xl font-bold mb-1 text-stone-800">File Storage (Tanpa Login)</h1>
         <p class="text-xs text-stone-500 mb-6">Catatan: sistem token ini bukan pengaman yang kuat, karena kode ini publik dan siapa pun bisa membaca sumbernya. Jangan simpan file rahasia/sensitif di sini.</p>
 
-        <div class="mb-6 bg-gray-50 p-4 rounded border">
-            <label class="block text-sm font-medium mb-2">Token Akses</label>
+        <div class="mb-6 bg-white/40 backdrop-blur-md p-4 rounded-xl border border-white/50">
+            <label class="block text-sm font-medium mb-2 text-stone-800">Token Akses</label>
             <input type="text" id="tokenInput" placeholder="Masukkan token (misal: DKV-08)" class="w-full p-2 border rounded">
             <p class="text-xs text-gray-500 mt-1">Token berubah otomatis sesuai pengaturan di backend (harian/jam/custom).</p>
         </div>
 
-        <div class="mb-8 p-4 border-2 border-dashed border-orange-300 rounded text-center">
-            <h2 class="text-lg font-semibold mb-2">Upload File</h2>
+        <div class="mb-8 p-4 bg-white/30 backdrop-blur-md border-2 border-dashed border-orange-300/70 rounded-xl text-center">
+            <h2 class="text-lg font-semibold mb-2 text-stone-800">Upload File</h2>
             <input type="file" id="fileInput" multiple class="mb-4">
             <p class="text-xs text-gray-500 mb-3">Bisa pilih lebih dari 1 file sekaligus (batch upload).</p>
             <button onclick="uploadFiles()" id="uploadBtn" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 disabled:opacity-50">Upload</button>
@@ -30,13 +30,13 @@
                 </div>
                 <p id="uploadProgressText" class="text-xs text-gray-500 mt-1"></p>
             </div>
-            <div id="uploadResults" class="mt-2 text-sm text-left"></div>
+            <div id="uploadResults" class="mt-2 text-sm text-left text-stone-800"></div>
         </div>
 
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
-            <h2 class="text-xl font-bold">Daftar File</h2>
+            <h2 class="text-xl font-bold text-stone-800">Daftar File</h2>
             <div class="flex flex-wrap gap-2 items-center w-full md:w-auto">
-                <input type="text" id="searchInput" onkeyup="renderFiles()" placeholder="Cari nama file..." class="border rounded px-3 py-1.5 text-sm flex-1 md:flex-none md:w-56">
+                <input type="text" id="searchInput" onkeyup="renderFiles()" placeholder="Cari nama file..." class="border rounded px-3 py-1.5 text-sm flex-1 md:flex-none md:w-56 text-stone-800 bg-white/70">
                 <div class="flex border rounded overflow-hidden">
                     <button onclick="setViewMode('grid')" id="gridBtn" class="px-3 py-1.5 text-sm bg-orange-500 text-white">Grid</button>
                     <button onclick="setViewMode('list')" id="listBtn" class="px-3 py-1.5 text-sm bg-white text-gray-700">List</button>
@@ -45,8 +45,8 @@
             </div>
         </div>
 
-        <div id="selectionBar" class="hidden mb-3 flex flex-wrap items-center gap-2 bg-orange-50 border border-orange-200 rounded p-2 text-sm">
-            <span id="selectionCount" class="font-medium">0 file dipilih</span>
+        <div id="selectionBar" class="hidden mb-3 flex flex-wrap items-center gap-2 bg-orange-100/40 backdrop-blur-md border border-orange-200/60 rounded-xl p-2 text-sm">
+            <span id="selectionCount" class="font-medium text-stone-800">0 file dipilih</span>
             <button onclick="downloadSelected()" class="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600">Download Terpilih</button>
             <button onclick="clearSelection()" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">Batal Pilih</button>
         </div>
@@ -254,14 +254,14 @@
             if (viewMode === 'grid') {
                 container.innerHTML = `<div class="grid grid-cols-2 md:grid-cols-4 gap-4">${filtered.map(f => renderGridCard(f, token)).join('')}</div>`;
             } else {
-                container.innerHTML = `<div class="divide-y border rounded">${filtered.map(f => renderListRow(f, token)).join('')}</div>`;
+                container.innerHTML = `<div class="divide-y divide-white/50 border border-white/60 rounded-xl bg-white/30 backdrop-blur-md overflow-hidden">${filtered.map(f => renderListRow(f, token)).join('')}</div>`;
             }
         }
 
         function renderGridCard(file, token) {
             const checked = selectedIds.has(file.id) ? 'checked' : '';
             return `
-                <div class="border rounded p-2 text-center bg-gray-50 flex flex-col justify-between relative">
+                <div class="border border-white/60 rounded-xl p-2 text-center bg-white/40 backdrop-blur-md flex flex-col justify-between relative shadow-sm">
                     <input type="checkbox" ${checked} onchange="toggleSelect('${file.id}', this.checked)" class="absolute top-2 left-2 w-4 h-4">
                     <img src="${file.thumbnail}" alt="thumb" loading="lazy"
                          class="w-full h-32 object-cover rounded mb-2 bg-gray-200"
@@ -279,7 +279,7 @@
         function renderListRow(file, token) {
             const checked = selectedIds.has(file.id) ? 'checked' : '';
             return `
-                <div class="flex items-center gap-3 p-2 hover:bg-gray-50">
+                <div class="flex items-center gap-3 p-2 hover:bg-white/40 transition-colors">
                     <input type="checkbox" ${checked} onchange="toggleSelect('${file.id}', this.checked)" class="w-4 h-4 flex-shrink-0">
                     <img src="${file.thumbnail}" alt="thumb" loading="lazy"
                          class="w-10 h-10 object-cover rounded bg-gray-200 flex-shrink-0"
