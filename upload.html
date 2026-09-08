@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DKV Storage Web</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-1">File Storage (Tanpa Login)</h1>
+        <p class="text-xs text-gray-500 mb-6">Catatan: sistem token ini bukan pengaman yang kuat, karena kode ini publik dan siapa pun bisa membaca sumbernya. Jangan simpan file rahasia/sensitif di sini.</p>
+
+        <div class="mb-6 bg-gray-50 p-4 rounded border">
+            <label class="block text-sm font-medium mb-2">Token Akses</label>
+            <input type="text" id="tokenInput" placeholder="Masukkan token (misal: DKV-08)" class="w-full p-2 border rounded">
+            <p class="text-xs text-gray-500 mt-1">Token berubah otomatis sesuai pengaturan di backend (harian/jam/custom).</p>
+        </div>
+
+        <div class="mb-8 p-4 border-2 border-dashed border-blue-300 rounded text-center">
+            <h2 class="text-lg font-semibold mb-2">Upload File</h2>
+            <input type="file" id="fileInput" class="mb-4">
+            <button onclick="uploadFile()" id="uploadBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50">Upload</button>
+            <p id="uploadStatus" class="mt-2 text-sm hidden"></p>
+        </div>
+
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">Daftar File</h2>
+            <button onclick="loadFiles()" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Muat Ulang</button>
+        </div>
+
+        <div id="fileGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <p class="text-gray-400 col-span-full text-sm">Masukkan token lalu klik "Muat Ulang" untuk melihat file.</p>
+        </div>
+    </div>
+
+    <script>
+        // GANTI dengan Web App URL dari deployment Apps Script kamu
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2I_3i7TPn6gYPhNnj1exjO4JoswrIW76bk-6Uh4sRAnj8-G1DFPvtwtxBjalnxHUWHg/exec';
+
+        function setStatus(el, text, colorClass) {
+            el.textContent = text;
+            el.classList.remove('hidden', 'text-red-600', 'text-green-600', 'text-blue-600');
+            el.classList.add(colorClass);
+        }
+
+        async function uploadFile() {
+            const token = document.getElementById('tokenInput').value.trim();
+            const fileInput = document.getElementById('fileInput');
+            const status = document.getElementById('uploadStatus');
+            const btn = document.getElementById('uploadBtn');
+
+            if (!token) return alert('Masukkan token terlebih dahulu!');
+            if (fileInput.files.length === 0) return alert('Pilih file dulu!');
+
+            const file = fileInput.files[0];
+            btn.disabled = true;
+            setStatus(status, 'Membaca file...', 'text-blue-600');
+
+            const reader = new FileReader();
+            reader.onload = async function () {
+                setStatus(status, 'Mengupload... mohon tunggu.', 'text-blue-600');
+
+                const payload = {
+                    token: token,
+                    fileName: file.name,
+                    mimeType: file.type,
+                    base64: reader.result
+                };
+
+                try {
+                    // Content-Type text/plain dipakai agar browser tidak
+                    // mengirim CORS preflight (OPTIONS) yang sering gagal
+                    // ditangani Apps Script.
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        if (result.renamed) {
+                            setStatus(status, 'Berhasil diupload! Nama sudah ada, otomatis diganti jadi "' + result.finalName + '".', 'text-green-600');
+                        } else {
+                            setStatus(status, 'Berhasil diupload!', 'text-green-600');
+                        }
+                        fileInput.value = '';
+                        loadFiles();
+                    } else {
+                        setStatus(status, 'Gagal: ' + result.error, 'text-red-600');
+                    }
+                } catch (error) {
+                    setStatus(status, 'Terjadi kesalahan jaringan: ' + error, 'text-red-600');
+                } finally {
+                    btn.disabled = false;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function deleteFile(fileId, token) {
+            if (!confirm('Hapus file ini?')) return;
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ token, action: 'delete', fileId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    loadFiles();
+                } else {
+                    alert('Gagal menghapus: ' + result.error);
+                }
+            } catch (error) {
+                alert('Kesalahan jaringan: ' + error);
+            }
+        }
+
+        function formatSize(bytes) {
+            if (!bytes) return '';
+            const mb = bytes / (1024 * 1024);
+            return mb >= 1 ? mb.toFixed(2) + ' MB' : (bytes / 1024).toFixed(0) + ' KB';
+        }
+
+        async function loadFiles() {
+            const token = document.getElementById('tokenInput').value.trim();
+            const grid = document.getElementById('fileGrid');
+
+            if (!token) return alert('Masukkan token terlebih dahulu!');
+
+            grid.innerHTML = '<p class="text-gray-500 col-span-full text-sm">Memuat data...</p>';
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL + '?token=' + encodeURIComponent(token));
+                const files = await response.json();
+
+                if (files.error) {
+                    grid.innerHTML = `<p class="text-red-500 col-span-full text-sm">${files.error}</p>`;
+                    return;
+                }
+
+                grid.innerHTML = '';
+                if (files.length === 0) {
+                    grid.innerHTML = '<p class="text-gray-500 col-span-full text-sm">Belum ada file.</p>';
+                    return;
+                }
+
+                files.forEach(file => {
+                    const card = document.createElement('div');
+                    card.className = 'border rounded p-2 text-center bg-gray-50 flex flex-col justify-between';
+
+                    card.innerHTML = `
+                        <img src="${file.thumbnail}" alt="thumb" loading="lazy"
+                             class="w-full h-32 object-cover rounded mb-2 bg-gray-200"
+                             onerror="this.onerror=null;this.src='https://placehold.co/200x150?text=File'">
+                        <p class="text-xs truncate font-medium" title="${file.name}">${file.name}</p>
+                        <p class="text-[10px] text-gray-400">${formatSize(file.size)}</p>
+                        <div class="mt-2 flex gap-1">
+                            <a href="${file.url}" target="_blank" class="flex-1 bg-gray-800 text-white text-xs py-1 rounded hover:bg-gray-900">Download</a>
+                            <button onclick="deleteFile('${file.id}', '${token}')" class="flex-1 bg-red-600 text-white text-xs py-1 rounded hover:bg-red-700">Hapus</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (error) {
+                grid.innerHTML = '<p class="text-red-500 col-span-full text-sm">Gagal memuat daftar file.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
