@@ -2,58 +2,162 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DKV Storage Web</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #111827;
+            margin: 0;
+            padding: 20px 15px;
+            color: #ffffff;
+            touch-action: manipulation;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('pattern.png');
+            background-repeat: repeat;
+            background-size: 250px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .accent-title { color: #facc15; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .muted-text { color: #d1d5db; }
+        .faint-text { color: #9ca3af; }
+
+        .input-field {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+        .input-field::placeholder { color: #9ca3af; }
+
+        .btn-utama {
+            background: linear-gradient(135deg, #ea580c, #dc2626);
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.35);
+        }
+        .btn-utama:active { transform: translateY(2px); box-shadow: 0 0 0 transparent; }
+        .btn-utama:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-nav {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .btn-nav:hover { background: rgba(255,255,255,0.2); }
+        .btn-nav.active { background: #facc15; color: #2f1406; border-color: #facc15; }
+        .btn-nav.danger { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5; }
+        .btn-nav.danger:hover { background: #ef4444; color: white; }
+
+        .file-card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        .file-card:hover { background: rgba(255, 255, 255, 0.1); }
+
+        .progress-track { background: rgba(255,255,255,0.1); }
+        .progress-bar { background: linear-gradient(135deg, #ea580c, #dc2626); }
+    </style>
 </head>
-<body class="text-stone-100 p-4 md:p-8" style="background-color:#0B1220; background-image:url('pattern.png'); background-repeat:repeat; background-size:220px;">
+<body>
 
-    <div class="max-w-5xl mx-auto bg-white/40 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-white/60">
-        <img src="logo-header.png" alt="Logo" class="h-12 w-auto mb-4 object-contain">
-        <h1 class="text-2xl font-bold mb-1 text-stone-800">File Storage (Tanpa Login)</h1>
-        <p class="text-xs text-stone-500 mb-6">Catatan: sistem token ini bukan pengaman yang kuat, karena kode ini publik dan siapa pun bisa membaca sumbernya. Jangan simpan file rahasia/sensitif di sini.</p>
+    <div class="max-w-5xl mx-auto">
 
-        <div class="mb-6 bg-white/40 backdrop-blur-md p-4 rounded-xl border border-white/50">
-            <label class="block text-sm font-medium mb-2 text-stone-800">Token Akses</label>
-            <input type="text" id="tokenInput" placeholder="Masukkan token (misal: DKV-08)" class="w-full p-2 border rounded">
-            <p class="text-xs text-gray-500 mt-1">Token berubah otomatis sesuai pengaturan di backend (harian/jam/custom).</p>
-        </div>
+        <div class="glass-effect rounded-2xl p-6 mb-5">
+            <img src="logo-header.png" alt="Logo" class="h-12 w-auto mb-4 object-contain">
+            <h1 class="text-2xl font-bold mb-1 accent-title">File Storage (Tanpa Login)</h1>
+            <p class="text-xs faint-text mb-6">Catatan: sistem token ini bukan pengaman yang kuat, karena kode ini publik dan siapa pun bisa membaca sumbernya. Jangan simpan file rahasia/sensitif di sini.</p>
 
-        <div class="mb-8 p-4 bg-white/30 backdrop-blur-md border-2 border-dashed border-orange-300/70 rounded-xl text-center">
-            <h2 class="text-lg font-semibold mb-2 text-stone-800">Upload File</h2>
-            <input type="file" id="fileInput" multiple class="mb-4">
-            <p class="text-xs text-gray-500 mb-3">Bisa pilih lebih dari 1 file sekaligus (batch upload).</p>
-            <button onclick="uploadFiles()" id="uploadBtn" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 disabled:opacity-50">Upload</button>
-            <div id="uploadProgress" class="mt-3 hidden">
-                <div class="w-full bg-gray-200 rounded h-2">
-                    <div id="uploadProgressBar" class="bg-orange-500 h-2 rounded" style="width:0%"></div>
-                </div>
-                <p id="uploadProgressText" class="text-xs text-gray-500 mt-1"></p>
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2 muted-text">Token Akses</label>
+                <input type="text" id="tokenInput" placeholder="Masukkan token (misal: DKV-08)" class="input-field text-center">
+                <p class="text-xs faint-text mt-1">Token berubah otomatis sesuai pengaturan di backend (harian/jam/custom).</p>
             </div>
-            <div id="uploadResults" class="mt-2 text-sm text-left text-stone-800"></div>
-        </div>
 
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
-            <h2 class="text-xl font-bold text-stone-800">Daftar File</h2>
-            <div class="flex flex-wrap gap-2 items-center w-full md:w-auto">
-                <input type="text" id="searchInput" onkeyup="renderFiles()" placeholder="Cari nama file..." class="border rounded px-3 py-1.5 text-sm flex-1 md:flex-none md:w-56 text-stone-800 bg-white/70">
-                <div class="flex border rounded overflow-hidden">
-                    <button onclick="setViewMode('grid')" id="gridBtn" class="px-3 py-1.5 text-sm bg-orange-500 text-white">Grid</button>
-                    <button onclick="setViewMode('list')" id="listBtn" class="px-3 py-1.5 text-sm bg-white text-gray-700">List</button>
+            <div class="p-4 rounded-xl text-center" style="background: rgba(0,0,0,0.2); border: 2px dashed rgba(250,204,21,0.4);">
+                <h2 class="text-lg font-semibold mb-2 accent-title">Upload File</h2>
+                <input type="file" id="fileInput" multiple class="mb-4 text-sm muted-text">
+                <p class="text-xs faint-text mb-3">Bisa pilih lebih dari 1 file sekaligus (batch upload).</p>
+                <button onclick="uploadFiles()" id="uploadBtn" class="btn-utama">Upload</button>
+                <div id="uploadProgress" class="mt-3 hidden">
+                    <div class="w-full progress-track rounded h-2">
+                        <div id="uploadProgressBar" class="progress-bar h-2 rounded" style="width:0%"></div>
+                    </div>
+                    <p id="uploadProgressText" class="text-xs faint-text mt-1"></p>
                 </div>
-                <button onclick="loadFiles()" class="bg-orange-100 text-orange-700 px-3 py-1.5 rounded hover:bg-orange-200 text-sm font-medium">Muat Ulang</button>
+                <div id="uploadResults" class="mt-2 text-sm text-left muted-text"></div>
             </div>
         </div>
 
-        <div id="selectionBar" class="hidden mb-3 flex flex-wrap items-center gap-2 bg-orange-100/40 backdrop-blur-md border border-orange-200/60 rounded-xl p-2 text-sm">
-            <span id="selectionCount" class="font-medium text-stone-800">0 file dipilih</span>
-            <button onclick="downloadSelected()" class="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600">Download Terpilih</button>
-            <button onclick="clearSelection()" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">Batal Pilih</button>
+        <div class="glass-effect rounded-2xl p-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
+                <h2 class="text-xl font-bold accent-title">Daftar File</h2>
+                <div class="flex flex-wrap gap-2 items-center w-full md:w-auto">
+                    <input type="text" id="searchInput" onkeyup="renderFiles()" placeholder="Cari nama file..." class="input-field text-sm flex-1 md:flex-none md:w-56" style="padding:8px 12px;">
+                    <div class="flex rounded-lg overflow-hidden">
+                        <button onclick="setViewMode('grid')" id="gridBtn" class="btn-nav active">Grid</button>
+                        <button onclick="setViewMode('list')" id="listBtn" class="btn-nav">List</button>
+                    </div>
+                    <button onclick="loadFiles()" class="btn-nav"><i class="fas fa-rotate"></i> Muat Ulang</button>
+                </div>
+            </div>
+
+            <div id="selectionBar" class="hidden mb-3 flex flex-wrap items-center gap-2 rounded-lg p-3 text-sm" style="background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.3);">
+                <span id="selectionCount" class="font-medium accent-title">0 file dipilih</span>
+                <button onclick="downloadSelected()" class="btn-utama" style="padding:6px 14px; font-size:12px;">Download Terpilih</button>
+                <button onclick="clearSelection()" class="btn-nav">Batal Pilih</button>
+            </div>
+
+            <div id="fileContainer">
+                <p class="faint-text text-sm">Masukkan token lalu klik "Muat Ulang" untuk melihat file.</p>
+            </div>
         </div>
 
-        <div id="fileContainer">
-            <p class="text-gray-400 text-sm">Masukkan token lalu klik "Muat Ulang" untuk melihat file.</p>
-        </div>
+        <div class="text-center text-xs faint-text mt-6">DKV Storage Web</div>
     </div>
 
     <script>
@@ -64,16 +168,10 @@
         let viewMode = 'grid'; // 'grid' atau 'list'
         let selectedIds = new Set();
 
-        function setStatus(el, text, colorClass) {
-            el.textContent = text;
-            el.classList.remove('hidden', 'text-red-600', 'text-green-600', 'text-blue-600');
-            el.classList.add(colorClass);
-        }
-
         function setViewMode(mode) {
             viewMode = mode;
-            document.getElementById('gridBtn').className = 'px-3 py-1.5 text-sm ' + (mode === 'grid' ? 'bg-orange-500 text-white' : 'bg-white text-gray-700');
-            document.getElementById('listBtn').className = 'px-3 py-1.5 text-sm ' + (mode === 'list' ? 'bg-orange-500 text-white' : 'bg-white text-gray-700');
+            document.getElementById('gridBtn').classList.toggle('active', mode === 'grid');
+            document.getElementById('listBtn').classList.toggle('active', mode === 'list');
             renderFiles();
         }
 
@@ -137,9 +235,9 @@
             resultsBox.innerHTML = results.map(r => {
                 if (r.success) {
                     const renamedNote = r.renamed ? ` (nama diganti jadi "${r.finalName}")` : '';
-                    return `<p class="text-green-600">✔ ${r.file} — berhasil${renamedNote}</p>`;
+                    return `<p style="color:#4ade80;">✔ ${r.file} — berhasil${renamedNote}</p>`;
                 }
-                return `<p class="text-red-600">✘ ${r.file} — gagal: ${r.error}</p>`;
+                return `<p style="color:#f87171;">✘ ${r.file} — gagal: ${r.error}</p>`;
             }).join('');
 
             fileInput.value = '';
@@ -200,7 +298,7 @@
             selectedFiles.forEach((f, i) => {
                 setTimeout(() => {
                     window.open(f.url, '_blank');
-                }, i * 400); // jeda kecil supaya tidak semua ditolak popup blocker sekaligus
+                }, i * 400);
             });
         }
 
@@ -217,14 +315,14 @@
 
             if (!token) return alert('Masukkan token terlebih dahulu!');
 
-            container.innerHTML = '<p class="text-gray-500 text-sm">Memuat data...</p>';
+            container.innerHTML = '<p class="faint-text text-sm"><i class="fas fa-spinner fa-spin"></i> Memuat data...</p>';
 
             try {
                 const response = await fetch(APPS_SCRIPT_URL + '?token=' + encodeURIComponent(token));
                 const files = await response.json();
 
                 if (files.error) {
-                    container.innerHTML = `<p class="text-red-500 text-sm">${files.error}</p>`;
+                    container.innerHTML = `<p class="text-sm" style="color:#f87171;">${files.error}</p>`;
                     return;
                 }
 
@@ -233,7 +331,7 @@
                 updateSelectionBar();
                 renderFiles();
             } catch (error) {
-                container.innerHTML = '<p class="text-red-500 text-sm">Gagal memuat daftar file.</p>';
+                container.innerHTML = '<p class="text-sm" style="color:#f87171;">Gagal memuat daftar file.</p>';
             }
         }
 
@@ -247,30 +345,31 @@
                 : allFiles;
 
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-gray-500 text-sm">${query ? 'Tidak ada file yang cocok dengan pencarian.' : 'Belum ada file.'}</p>`;
+                container.innerHTML = `<p class="faint-text text-sm">${query ? 'Tidak ada file yang cocok dengan pencarian.' : 'Belum ada file.'}</p>`;
                 return;
             }
 
             if (viewMode === 'grid') {
                 container.innerHTML = `<div class="grid grid-cols-2 md:grid-cols-4 gap-4">${filtered.map(f => renderGridCard(f, token)).join('')}</div>`;
             } else {
-                container.innerHTML = `<div class="divide-y divide-white/50 border border-white/60 rounded-xl bg-white/30 backdrop-blur-md overflow-hidden">${filtered.map(f => renderListRow(f, token)).join('')}</div>`;
+                container.innerHTML = `<div class="flex flex-col gap-2">${filtered.map(f => renderListRow(f, token)).join('')}</div>`;
             }
         }
 
         function renderGridCard(file, token) {
             const checked = selectedIds.has(file.id) ? 'checked' : '';
             return `
-                <div class="border border-white/60 rounded-xl p-2 text-center bg-white/40 backdrop-blur-md flex flex-col justify-between relative shadow-sm">
+                <div class="file-card p-2 text-center flex flex-col justify-between relative">
                     <input type="checkbox" ${checked} onchange="toggleSelect('${file.id}', this.checked)" class="absolute top-2 left-2 w-4 h-4">
                     <img src="${file.thumbnail}" alt="thumb" loading="lazy"
-                         class="w-full h-32 object-cover rounded mb-2 bg-gray-200"
-                         onerror="this.onerror=null;this.src='https://placehold.co/200x150?text=File'">
-                    <p class="text-xs font-medium break-words" title="${file.name}">${file.name}</p>
-                    <p class="text-[10px] text-gray-400">${formatSize(file.size)}</p>
+                         class="w-full h-32 object-cover rounded mb-2"
+                         style="background: rgba(0,0,0,0.3);"
+                         onerror="this.onerror=null;this.src='https://placehold.co/200x150/1f2937/facc15?text=File'">
+                    <p class="text-xs font-medium break-words">${file.name}</p>
+                    <p class="text-[10px] faint-text">${formatSize(file.size)}</p>
                     <div class="mt-2 flex gap-1">
-                        <a href="${file.url}" target="_blank" class="flex-1 bg-orange-500 text-white text-xs py-1 rounded hover:bg-orange-600">Download</a>
-                        <button onclick="deleteFile('${file.id}', '${token}')" class="flex-1 bg-red-600 text-white text-xs py-1 rounded hover:bg-red-700">Hapus</button>
+                        <a href="${file.url}" target="_blank" class="flex-1 btn-nav" style="text-align:center;">Download</a>
+                        <button onclick="deleteFile('${file.id}', '${token}')" class="flex-1 btn-nav danger">Hapus</button>
                     </div>
                 </div>
             `;
@@ -279,17 +378,18 @@
         function renderListRow(file, token) {
             const checked = selectedIds.has(file.id) ? 'checked' : '';
             return `
-                <div class="flex items-center gap-3 p-2 hover:bg-white/40 transition-colors">
+                <div class="file-card flex items-center gap-3 p-2">
                     <input type="checkbox" ${checked} onchange="toggleSelect('${file.id}', this.checked)" class="w-4 h-4 flex-shrink-0">
                     <img src="${file.thumbnail}" alt="thumb" loading="lazy"
-                         class="w-10 h-10 object-cover rounded bg-gray-200 flex-shrink-0"
-                         onerror="this.onerror=null;this.src='https://placehold.co/40x40?text=F'">
+                         class="w-10 h-10 object-cover rounded flex-shrink-0"
+                         style="background: rgba(0,0,0,0.3);"
+                         onerror="this.onerror=null;this.src='https://placehold.co/40x40/1f2937/facc15?text=F'">
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium break-words">${file.name}</p>
-                        <p class="text-[11px] text-gray-400">${formatSize(file.size)}</p>
+                        <p class="text-[11px] faint-text">${formatSize(file.size)}</p>
                     </div>
-                    <a href="${file.url}" target="_blank" class="bg-orange-500 text-white text-xs px-3 py-1 rounded hover:bg-orange-600 flex-shrink-0">Download</a>
-                    <button onclick="deleteFile('${file.id}', '${token}')" class="bg-red-600 text-white text-xs px-3 py-1 rounded hover:bg-red-700 flex-shrink-0">Hapus</button>
+                    <a href="${file.url}" target="_blank" class="btn-nav flex-shrink-0">Download</a>
+                    <button onclick="deleteFile('${file.id}', '${token}')" class="btn-nav danger flex-shrink-0">Hapus</button>
                 </div>
             `;
         }
