@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DKV SEKAONE DRIVE (Tanpa Login)</title>
+    <title>DKV Storage Web</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -134,8 +134,9 @@
 
             <div class="mb-6 max-w-sm mx-auto">
                 <label class="block text-sm font-medium mb-2 muted-text text-center">Token Akses</label>
-                <input type="text" id="tokenInput" placeholder="Masukkan token (misal: DKV-99)" class="input-field text-center">
-                <p class="text-xs faint-text mt-1 text-center">Token berubah otomatis sesuai pengaturan di backend (harian/jam/custom).</p>
+                <input type="text" id="tokenInput" placeholder="Contoh: DKV-08 (X), DKV~08 (XI), DKV_08 (XII)" class="input-field text-center">
+                <p class="text-xs faint-text mt-1 text-center">Token menentukan kelas & folder penyimpanan secara otomatis.</p>
+                <span id="classBadge" class="hidden inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(250,204,21,0.15); color:#facc15; border: 1px solid rgba(250,204,21,0.4);"></span>
             </div>
 
             <div class="p-4 rounded-xl text-center" style="background: rgba(0,0,0,0.2); border: 2px dashed rgba(250,204,21,0.4);">
@@ -178,12 +179,12 @@
             </div>
         </div>
 
-        <div class="text-center text-xs faint-text mt-6">DKV SEKAONE Storage Web 2026</div>
+        <div class="text-center text-xs faint-text mt-6">DKV Storage Web</div>
     </div>
 
     <script>
         // GANTI dengan Web App URL dari deployment Apps Script kamu
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyTUTlhkfhvlusXghJDnIyuAD_33Q1FuLPP1ucSwwiZoY3Pe4CulaEG5oONFU8HUO-HQ/exec';
+        const APPS_SCRIPT_URL = 'MASUKKAN_URL_WEB_APP_ANDA_DISINI';
 
         let allFiles = [];
         let viewMode = 'grid'; // 'grid' atau 'list'
@@ -260,6 +261,9 @@
                 }
                 return `<p style="color:#f87171;">✘ ${r.file} — gagal: ${r.error}</p>`;
             }).join('');
+
+            const berhasilSatu = results.find(r => r.success && r.kelas);
+            if (berhasilSatu) updateClassBadge(berhasilSatu.kelas);
 
             fileInput.value = '';
             btn.disabled = false;
@@ -381,19 +385,32 @@
 
             try {
                 const response = await fetch(APPS_SCRIPT_URL + '?token=' + encodeURIComponent(token));
-                const files = await response.json();
+                const result = await response.json();
 
-                if (files.error) {
-                    container.innerHTML = `<p class="text-sm" style="color:#f87171;">${files.error}</p>`;
+                if (result.error) {
+                    container.innerHTML = `<p class="text-sm" style="color:#f87171;">${result.error}</p>`;
+                    updateClassBadge(null);
                     return;
                 }
 
-                allFiles = files;
+                allFiles = result.files || [];
+                updateClassBadge(result.kelas);
                 selectedIds.clear();
                 updateSelectionBar();
                 renderFiles();
             } catch (error) {
                 container.innerHTML = '<p class="text-sm" style="color:#f87171;">Gagal memuat daftar file.</p>';
+            }
+        }
+
+        function updateClassBadge(className) {
+            const badge = document.getElementById('classBadge');
+            if (!badge) return;
+            if (className) {
+                badge.textContent = 'Kelas: ' + className;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
             }
         }
 
