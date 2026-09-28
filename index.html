@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DKV SEKAONE DRIVE</title>
+    <title>DKV Storage Web</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -129,12 +129,12 @@
 
         <div class="glass-effect rounded-2xl p-4 sm:p-6 mb-5 text-center">
             <img src="logo-header.png" alt="Logo" class="h-12 w-auto mb-4 object-contain mx-auto block">
-            <h1 class="text-2xl font-bold mb-1 accent-title">DKV SEKAONE DRIVE (Tanpa Login)</h1>
-            <p class="text-xs faint-text mb-6">Catatan: Jangan simpan file rahasia/sensitif di sini.</p>
+            <h1 class="text-2xl font-bold mb-1 accent-title">File Storage (Tanpa Login)</h1>
+            <p class="text-xs faint-text mb-6">Catatan: sistem token ini bukan pengaman yang kuat, karena kode ini publik dan siapa pun bisa membaca sumbernya. Jangan simpan file rahasia/sensitif di sini.</p>
 
             <div class="mb-6 max-w-sm mx-auto">
                 <label class="block text-sm font-medium mb-2 muted-text text-center">Token Akses</label>
-                <input type="text" id="tokenInput" placeholder="Contoh: DKV#99" class="input-field text-center">
+                <input type="text" id="tokenInput" placeholder="Contoh: DKV-08 (X), DKV~08 (XI), DKV_08 (XII)" class="input-field text-center">
                 <p class="text-xs faint-text mt-1 text-center">Token menentukan kelas & folder penyimpanan secara otomatis.</p>
                 <span id="classBadge" class="hidden inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(250,204,21,0.15); color:#facc15; border: 1px solid rgba(250,204,21,0.4);"></span>
             </div>
@@ -179,7 +179,7 @@
             </div>
         </div>
 
-        <div class="text-center text-xs faint-text mt-6">DISKOMVIS SEKAONE 26</div>
+        <div class="text-center text-xs faint-text mt-6">DKV Storage Web</div>
     </div>
 
     <script>
@@ -190,11 +190,89 @@
         let viewMode = 'grid'; // 'grid' atau 'list'
         let selectedIds = new Set();
 
+        const CHUNK_THRESHOLD_BYTES = 8 * 1024 * 1024; // 8MB — di atas ini pakai upload chunked
+        const CHUNK_SIZE_BYTES = 8 * 1024 * 1024; // harus kelipatan 256KB, kecuali potongan terakhir
+
         function setViewMode(mode) {
             viewMode = mode;
             document.getElementById('gridBtn').classList.toggle('active', mode === 'grid');
             document.getElementById('listBtn').classList.toggle('active', mode === 'list');
             renderFiles();
+        }
+
+        // ============ HELPER: BACA POTONGAN FILE & KONVERSI BASE64 ============
+        function readFileSlice(file, start, end) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsArrayBuffer(file.slice(start, end));
+            });
+        }
+
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const chunkSize = 0x8000; // proses per 32KB supaya tidak overflow
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+                binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+            }
+            return btoa(binary);
+        }
+
+        // ============ UPLOAD FILE BESAR (CHUNKED / RESUMABLE) ============
+        async function uploadFileChunked(file, token, onProgress) {
+            try {
+                const startRes = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        token, action: 'startUpload',
+                        fileName: file.name,
+                        mimeType: file.type || 'application/octet-stream',
+                        totalBytes: file.size,
+                        lastModified: new Date(file.lastModified).toISOString()
+                    })
+                });
+                const startData = await startRes.json();
+                if (!startData.success) return { file: file.name, success: false, error: startData.error };
+
+                const uploadId = startData.uploadId;
+                const totalChunks = Math.ceil(file.size / CHUNK_SIZE_BYTES);
+
+                for (let i = 0; i < totalChunks; i++) {
+                    const start = i * CHUNK_SIZE_BYTES;
+                    const end = Math.min(start + CHUNK_SIZE_BYTES, file.size);
+                    const buffer = await readFileSlice(file, start, end);
+                    const base64Chunk = arrayBufferToBase64(buffer);
+
+                    let chunkResult = null;
+                    for (let attempt = 0; attempt < 3; attempt++) {
+                        const chunkRes = await fetch(APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ token, action: 'uploadChunk', uploadId, chunkBase64: base64Chunk })
+                        });
+                        chunkResult = await chunkRes.json();
+                        if (chunkResult.success) break;
+                        await new Promise(r => setTimeout(r, 800)); // jeda sebelum coba ulang
+                    }
+
+                    if (!chunkResult || !chunkResult.success) {
+                        return { file: file.name, success: false, error: (chunkResult && chunkResult.error) || 'Gagal mengirim potongan file setelah 3x percobaan.' };
+                    }
+
+                    if (onProgress) onProgress(end, file.size);
+
+                    if (chunkResult.done) {
+                        return { file: file.name, success: true, finalName: chunkResult.finalName, renamed: startData.renamed, kelas: chunkResult.className };
+                    }
+                }
+
+                return { file: file.name, success: false, error: 'Upload tidak selesai (server belum konfirmasi selesai setelah semua potongan terkirim).' };
+            } catch (error) {
+                return { file: file.name, success: false, error: String(error) };
+            }
         }
 
         // ============ UPLOAD (BATCH) ============
@@ -206,7 +284,8 @@
                         token: token,
                         fileName: file.name,
                         mimeType: file.type,
-                        base64: reader.result
+                        base64: reader.result,
+                        lastModified: new Date(file.lastModified).toISOString()
                     };
                     try {
                         const response = await fetch(APPS_SCRIPT_URL, {
@@ -243,12 +322,24 @@
             const results = [];
 
             for (let i = 0; i < files.length; i++) {
-                progressText.textContent = `Mengupload ${i + 1} dari ${files.length}: ${files[i].name}`;
-                progressBar.style.width = Math.round(((i) / files.length) * 100) + '%';
+                const currentFile = files[i];
+                const isLarge = currentFile.size > CHUNK_THRESHOLD_BYTES;
 
-                const result = await uploadSingleFile(files[i], token);
+                let result;
+                if (isLarge) {
+                    result = await uploadFileChunked(currentFile, token, (uploaded, total) => {
+                        const persen = Math.round((uploaded / total) * 100);
+                        progressText.textContent = `Mengupload ${i + 1} dari ${files.length}: ${currentFile.name} (${persen}% — ${formatSize(uploaded)}/${formatSize(total)})`;
+                        const overall = Math.round(((i + (uploaded / total)) / files.length) * 100);
+                        progressBar.style.width = overall + '%';
+                    });
+                } else {
+                    progressText.textContent = `Mengupload ${i + 1} dari ${files.length}: ${currentFile.name}`;
+                    progressBar.style.width = Math.round(((i) / files.length) * 100) + '%';
+                    result = await uploadSingleFile(currentFile, token);
+                }
+
                 results.push(result);
-
                 progressBar.style.width = Math.round(((i + 1) / files.length) * 100) + '%';
             }
 
@@ -369,6 +460,13 @@
             return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         }
 
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) +
+                   ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        }
+
         function formatSize(bytes) {
             if (!bytes) return '';
             const mb = bytes / (1024 * 1024);
@@ -446,6 +544,7 @@
                          onerror="this.onerror=null;this.src='https://placehold.co/200x150/1f2937/facc15?text=File'">
                     <p class="text-xs font-medium break-words">${file.name}</p>
                     <p class="text-[10px] faint-text">${formatSize(file.size)}</p>
+                    <p class="text-[10px] faint-text"><i class="fas fa-clock"></i> ${formatDate(file.createdAt)}</p>
                     <div class="mt-2 flex gap-2 justify-center">
                         <a href="${file.url}" target="_blank" class="icon-btn btn-nav" title="Download" aria-label="Download ${file.name}"><i class="fas fa-download"></i></a>
                         <button onclick="deleteFile('${file.id}', '${escapeForJs(file.name)}', '${token}')" class="icon-btn danger" title="Hapus" aria-label="Hapus ${file.name}"><i class="fas fa-trash"></i></button>
@@ -465,7 +564,7 @@
                          onerror="this.onerror=null;this.src='https://placehold.co/40x40/1f2937/facc15?text=F'">
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium break-words">${file.name}</p>
-                        <p class="text-[11px] faint-text">${formatSize(file.size)}</p>
+                        <p class="text-[11px] faint-text">${formatSize(file.size)} &middot; <i class="fas fa-clock"></i> ${formatDate(file.createdAt)}</p>
                     </div>
                     <div class="flex gap-2 justify-center sm:justify-end w-full sm:w-auto">
                         <a href="${file.url}" target="_blank" class="icon-btn btn-nav flex-shrink-0" title="Download" aria-label="Download ${file.name}"><i class="fas fa-download"></i></a>
